@@ -105,10 +105,10 @@ view lift page model =
                     , Button.view (lift << Mdc)
                         (idx ++ "-link-button")
                         model.mdc
-                        (Button.link "#buttons"
+                        (Button.link "#theme"
                             :: options
                         )
-                        [ text "Link" ]
+                        [ text "Link Theme" ]
                     ]
                 ]
     in
