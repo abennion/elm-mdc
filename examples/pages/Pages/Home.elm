@@ -1,26 +1,31 @@
 module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 
 import Html exposing (Html, text)
+import Html.Events exposing (onInput)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled, when)
+import Material.Textfield as Textfield
 import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
 
 
 type alias Model m =
     { mdc : Material.Model m
+    , message : String
     }
 
 
 defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
+    , message = ""
     }
 
 
 type Msg m
     = Mdc (Material.Msg m)
+    | UpdateTextMsg String
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -28,6 +33,9 @@ update lift msg model =
     case msg of
         Mdc msg_ ->
             Material.update (lift << Mdc) msg_ model
+
+        UpdateTextMsg msg_ ->
+            { model | message = msg_ } ! []
 
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
@@ -114,8 +122,18 @@ view lift page model =
     in
     page.body "Home"
         [ styled Html.div
-            [ css "padding" "0 24px 16px" ]
-            [ text "This is a thing."
+            [ css "padding" "24px" ]
+            [ text model.message
+            ]
+        , styled Html.div
+            [ css "padding" "24px" ]
+            [ Textfield.view (lift << Mdc)
+                "my-text-field"
+                model.mdc
+                [ Textfield.label "Text field"
+                , Options.onInput (lift << UpdateTextMsg)
+                ]
+                []
             ]
         , styled Html.div
             [ cs "demo-wrapper"
