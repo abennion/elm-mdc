@@ -1,2 +1,2 @@
 build:
-	elm-live Main.elm --output=elm.js --open
+	elm-live Main.elm --output=elm.js --open --debug
