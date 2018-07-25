@@ -7,6 +7,7 @@ import Material.Toolbar as Toolbar
 import Material.Typography as Typography
 import Navigation
 import Pages.Home
+import Pages.ImageList
 import Pages.LayoutGrid
 import Pages.Page as Page
 import Pages.Theme
@@ -21,6 +22,7 @@ type alias Model =
     { mdc : Material.Model Msg
     , url : Url
     , home : Pages.Home.Model Msg
+    , imageList : Pages.ImageList.Model Msg
     , layoutGrid : Pages.LayoutGrid.Model
     , theme : Pages.Theme.Model Msg
     }
@@ -31,6 +33,7 @@ defaultModel =
     { mdc = Material.defaultModel
     , url = Home
     , home = Pages.Home.defaultModel
+    , imageList = Pages.ImageList.defaultModel
     , layoutGrid = Pages.LayoutGrid.defaultModel
     , theme = Pages.Theme.defaultModel
     }
@@ -41,6 +44,7 @@ type Msg
     | SetUrl Url
     | Navigate Url
     | HomeMsg (Pages.Home.Msg Msg)
+    | ImageListMsg (Pages.ImageList.Msg Msg)
     | LayoutGridMsg Pages.LayoutGrid.Msg
     | ThemeMsg (Pages.Theme.Msg Msg)
 
@@ -61,6 +65,13 @@ update msg model =
             { model | url = url }
                 ! [ scrollTop ()
                   ]
+
+        ImageListMsg msg_ ->
+            let
+                ( imageList, effects ) =
+                    Pages.ImageList.update ImageListMsg msg_ model.imageList
+            in
+            ( { model | imageList = imageList }, effects )
 
         LayoutGridMsg msg_ ->
             let
@@ -120,6 +131,12 @@ view_ model =
     in
     case model.url of
         Home ->
+            Pages.Home.view HomeMsg page model.home
+
+        ImageList ->
+            Pages.ImageList.view ImageListMsg page model.imageList
+
+        Select ->
             Pages.Home.view HomeMsg page model.home
 
         Theme ->

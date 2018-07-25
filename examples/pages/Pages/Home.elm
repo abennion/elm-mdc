@@ -113,24 +113,9 @@ view lift page model =
                 ]
     in
     page.body "Home"
-        [ Page.hero []
-            [ Button.view (lift << Mdc)
-                "buttons-hero-button-flat"
-                model.mdc
-                [ Button.ripple
-                , css "margin-right" "32px"
-                ]
-                [ text "Flat"
-                ]
-            , Button.view (lift << Mdc)
-                "buttons-hero-button-raised"
-                model.mdc
-                [ Button.ripple
-                , Button.raised
-                , css "margin-left" "32px"
-                ]
-                [ text "Raised"
-                ]
+        [ styled Html.div
+            [ css "padding" "0 24px 16px" ]
+            [ text "This is a thing."
             ]
         , styled Html.div
             [ cs "demo-wrapper"

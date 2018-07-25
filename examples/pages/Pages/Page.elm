@@ -10,7 +10,9 @@ import Html exposing (Html, text)
 import Html.Attributes as Html
 import Material
 import Material.Icon as Icon
+import Material.Menu as Menu
 import Material.Options as Options exposing (Property, cs, css, styled, when)
+import Material.Theme as Theme
 import Material.Toolbar as Toolbar
 import Pages.Url as Url exposing (Url)
 
@@ -21,6 +23,10 @@ type alias Page m =
     , navigate : Url -> m
     , body : String -> List (Html m) -> Html m
     }
+
+
+
+-- toolbar = Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url
 
 
 toolbar :
@@ -38,11 +44,36 @@ toolbar lift idx mdc navigate url title =
         [ Toolbar.fixed
         , cs "catalog-top-app-bar"
         ]
-        [ Toolbar.row []
+        [ Toolbar.row
+            [ Theme.background
+            ]
             [ Toolbar.section
                 [ Toolbar.alignStart
                 ]
-                [ styled Html.div
+                [ Icon.view
+                    [ Toolbar.menuIcon
+                    , Menu.attach lift "my-menu"
+                    ]
+                    "menu"
+                , Menu.view
+                    lift
+                    "my-menu"
+                    mdc
+                    []
+                    (Menu.ul []
+                        [ Menu.li
+                            [ Menu.onSelect (navigate Url.ImageList)
+                            ]
+                            [ text "Images"
+                            ]
+                        , Menu.li
+                            [ Menu.onSelect (navigate Url.Home)
+                            ]
+                            [ text "Home"
+                            ]
+                        ]
+                    )
+                , styled Html.div
                     [ cs "catalog-back"
                     , css "padding-right" "24px"
                     ]

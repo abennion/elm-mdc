@@ -8,6 +8,8 @@ module Pages.Url
 
 type Url
     = Home
+    | ImageList
+    | Select
     | Theme
     | Error404 String
 
@@ -18,8 +20,14 @@ toString url =
         Home ->
             "#"
 
+        ImageList ->
+            "#images"
+
+        Select ->
+            "#select"
+
         Theme ->
-            "#/theme"
+            "#theme"
 
         Error404 requestedHash ->
             requestedHash
@@ -35,6 +43,12 @@ fromString str =
 
                 Just ( '#', "" ) ->
                     Just <| Home
+
+                Just ( '#', "images" ) ->
+                    Just <| ImageList
+
+                Just ( '#', "select" ) ->
+                    Just <| Select
 
                 Just ( '#', "theme" ) ->
                     Just <| Theme
