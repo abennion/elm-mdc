@@ -1,11 +1,11 @@
 module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 
 import Html exposing (Html, text)
-import Html.Events exposing (onInput)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Textfield as Textfield
+import Material.Theme as Theme
 import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
 
@@ -122,16 +122,25 @@ view lift page model =
     in
     page.body "Home"
         [ styled Html.div
-            [ css "padding" "24px" ]
+            [ css "padding" "24px"
+            , Theme.secondary
+            , Theme.secondaryBg
+            , Theme.textSecondaryOnLight
+            ]
             [ text model.message
             ]
         , styled Html.div
-            [ css "padding" "24px" ]
+            []
             [ Textfield.view (lift << Mdc)
                 "my-text-field"
                 model.mdc
                 [ Textfield.label "Text field"
                 , Options.onInput (lift << UpdateTextMsg)
+                , Textfield.value model.message
+                , Textfield.fullwidth
+                , cs "mdc-theme--surface"
+                , cs "mdc-theme--on-surface"
+                , css "padding" "16px"
                 ]
                 []
             ]

@@ -53,6 +53,7 @@ toolbar lift idx mdc navigate url title =
                 [ Icon.view
                     [ Toolbar.menuIcon
                     , Menu.attach lift "my-menu"
+                    , Theme.secondary
                     ]
                     "menu"
                 , Menu.view
