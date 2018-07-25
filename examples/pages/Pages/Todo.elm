@@ -123,7 +123,7 @@ view lift page model =
                     ]
                 ]
     in
-    page.body "Home"
+    page.body "Todo"
         [ styled Html.div
             [ css "padding" "24px"
             , Theme.secondary
