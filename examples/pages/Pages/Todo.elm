@@ -1,4 +1,4 @@
-module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
+port module Pages.Todo exposing (Model, Msg(Mdc), defaultModel, update, view)
 
 import Html exposing (Html, text)
 import Material
@@ -10,6 +10,9 @@ import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
 
 
+-- port setStorage : Model m -> Cmd msg
+
+
 type alias Model m =
     { mdc : Material.Model m
     , message : String
@@ -19,7 +22,7 @@ type alias Model m =
 defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
-    , message = "You can enter some shit righ here!"
+    , message = ""
     }
 
 

@@ -46,6 +46,7 @@ toolbar lift idx mdc navigate url title =
         ]
         [ Toolbar.row
             [ Theme.background
+            , css "color" "rgba(255, 255, 255, 0.2)"
             ]
             [ Toolbar.section
                 [ Toolbar.alignStart
@@ -53,7 +54,6 @@ toolbar lift idx mdc navigate url title =
                 [ Icon.view
                     [ Toolbar.menuIcon
                     , Menu.attach lift "my-menu"
-                    , Theme.secondary
                     ]
                     "menu"
                 , Menu.view
@@ -71,6 +71,11 @@ toolbar lift idx mdc navigate url title =
                             [ Menu.onSelect (navigate Url.Home)
                             ]
                             [ text "Home"
+                            ]
+                        , Menu.li
+                            [ Menu.onSelect (navigate Url.Todo)
+                            ]
+                            [ text "Todo"
                             ]
                         ]
                     )

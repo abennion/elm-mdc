@@ -11,6 +11,7 @@ type Url
     | ImageList
     | Select
     | Theme
+    | Todo
     | Error404 String
 
 
@@ -28,6 +29,9 @@ toString url =
 
         Theme ->
             "#theme"
+
+        Todo ->
+            "#todo"
 
         Error404 requestedHash ->
             requestedHash
@@ -52,6 +56,9 @@ fromString str =
 
                 Just ( '#', "theme" ) ->
                     Just <| Theme
+
+                Just ( '#', "todo" ) ->
+                    Just <| Todo
 
                 _ ->
                     Nothing

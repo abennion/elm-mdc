@@ -1,4 +1,4 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Html exposing (Html, text)
 import Material
@@ -11,11 +11,10 @@ import Pages.ImageList
 import Pages.LayoutGrid
 import Pages.Page as Page
 import Pages.Theme
+import Pages.Todo
 import Pages.Url as Url exposing (Url(..))
 import Platform.Cmd exposing (..)
-
-
-port scrollTop : () -> Cmd msg
+import Ports exposing (..)
 
 
 type alias Model =
@@ -25,6 +24,7 @@ type alias Model =
     , imageList : Pages.ImageList.Model Msg
     , layoutGrid : Pages.LayoutGrid.Model
     , theme : Pages.Theme.Model Msg
+    , todo : Pages.Todo.Model Msg
     }
 
 
@@ -36,6 +36,7 @@ defaultModel =
     , imageList = Pages.ImageList.defaultModel
     , layoutGrid = Pages.LayoutGrid.defaultModel
     , theme = Pages.Theme.defaultModel
+    , todo = Pages.Todo.defaultModel
     }
 
 
@@ -47,6 +48,7 @@ type Msg
     | ImageListMsg (Pages.ImageList.Msg Msg)
     | LayoutGridMsg Pages.LayoutGrid.Msg
     | ThemeMsg (Pages.Theme.Msg Msg)
+    | TodoMsg (Pages.Todo.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -93,6 +95,13 @@ update msg model =
                     Pages.Theme.update ThemeMsg msg_ model.theme
             in
             ( { model | theme = theme }, effects )
+
+        TodoMsg msg_ ->
+            let
+                ( todo, effects ) =
+                    Pages.Todo.update TodoMsg msg_ model.todo
+            in
+            ( { model | todo = todo }, effects )
 
 
 view : Model -> Html Msg
@@ -141,6 +150,9 @@ view_ model =
 
         Theme ->
             Pages.Theme.view ThemeMsg page model.theme
+
+        Todo ->
+            Pages.Todo.view TodoMsg page model.todo
 
         Error404 requestedHash ->
             Html.div
