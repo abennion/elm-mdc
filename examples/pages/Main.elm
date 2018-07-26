@@ -97,7 +97,12 @@ update msg model =
                 ( login, effects ) =
                     Pages.Login.update LoginMsg msg_ model.login
             in
-            ( { model | login = login }, effects )
+            case Debug.log "LoginMsg:" msg_ of
+                Pages.Login.SetUser user ->
+                    ( { model | login = login }, effects )
+
+                _ ->
+                    ( { model | login = login }, effects )
 
         HomeMsg msg_ ->
             let

@@ -15,6 +15,7 @@ import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
 import Ports
 import Request.User exposing (storeSession)
+import Util exposing ((=>))
 
 
 type alias Model m =

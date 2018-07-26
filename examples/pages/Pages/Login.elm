@@ -1,11 +1,20 @@
-port module Pages.Login exposing (Model, Msg(Mdc), defaultModel, subscriptions, update, view)
+port module Pages.Login
+    exposing
+        ( Model
+        , Msg(Mdc, SetUser)
+        , defaultModel
+        , subscriptions
+        , update
+        , view
+        )
 
 import Data.User as User exposing (User, decoder)
 import Html exposing (Html, text)
 import Html.Attributes
 import Html.Events as Html
 import Http
-import Json.Decode as Decode exposing (Value)
+import Json.Decode as Decode exposing (Decoder, decodeString, field, string)
+import Json.Decode.Pipeline exposing (decode, optional)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, onClick, styled, when)
@@ -16,7 +25,8 @@ import Material.Typography as Typography
 import Pages.Form as Form
 import Pages.Page as Page exposing (Page)
 import Ports
-import Request.User exposing (storeSession)
+import Request.User exposing (login, storeSession)
+import Util exposing ((=>))
 import Validate exposing (Validator, ifBlank, validate)
 
 
@@ -62,11 +72,13 @@ type Msg m
     | SetEmail String
     | SetPassword String
     | LoginCompleted (Result Http.Error User)
-
-
-type ExternalMsg
-    = NoOp
     | SetUser User
+
+
+
+-- type ExternalMsg
+--     = NoOp
+--     | SetUser User
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -76,26 +88,23 @@ update lift msg model =
             Material.update (lift << Mdc) msg_ model
 
         SubmitForm ->
-            case validate modelValidator model of
-                [] ->
-                    { model | errors = [] }
-                        => Http.send LoginCompleted (Request.User.login model)
-                        => NoOp
+            { model | errors = [] }
+                => Http.send (lift << LoginCompleted) (Request.User.login model)
 
-                errors ->
-                    { model | errors = errors }
-                        => Cmd.none
-                        => NoOp
-
+        -- case validate modelValidator model of
+        --     [] ->
+        --         { model | errors = [] }
+        --             => Http.send LoginCompleted (Request.User.login model)
+        --     errors ->
+        --         { model | errors = errors }
+        --             => Cmd.none
         SetEmail email ->
             { model | email = email }
                 => Cmd.none
-                => NoOp
 
         SetPassword password ->
             { model | password = password }
                 => Cmd.none
-                => NoOp
 
         LoginCompleted (Err error) ->
             let
@@ -111,15 +120,23 @@ update lift msg model =
             in
             { model | errors = List.map (\errorMessage -> Form => errorMessage) errorMessages }
                 => Cmd.none
-                => NoOp
 
+        -- => NoOp
         LoginCompleted (Ok user) ->
             model
-                => Cmd.batch [ storeSession user, Route.modifyUrl Route.Home ]
-                => SetUser user
+                => Cmd.batch
+                    [ storeSession user
+
+                    -- TODO: update model.url?
+                    -- , Route.modifyUrl Route.Home
+                    ]
+
+        SetUser user ->
+            model ! []
 
 
 
+-- => SetUser user
 -- UpdateMessage msg_ ->
 --     { model | message = msg_ } ! []
 -- SaveEmail msg_ ->
@@ -140,6 +157,34 @@ update lift msg model =
 --     in
 --     { model | email = userText } ! []
 -- StoreText msg_ ->
+-- modelValidator : Validator Error Model
+-- modelValidator =
+--     Validate.all
+--         [ ifBlank .email (Email => "email can't be blank.")
+--         , ifBlank .password (Password => "password can't be blank.")
+--         ]
+
+
+errorsDecoder : Decoder (List String)
+errorsDecoder =
+    decode (\emailOrPassword email username password -> List.concat [ emailOrPassword, email, username, password ])
+        |> optionalError "email or password"
+        |> optionalError "email"
+        |> optionalError "username"
+        |> optionalError "password"
+
+
+optionalError : String -> Decoder (List String -> a) -> Decoder a
+optionalError fieldName =
+    let
+        errorToString errorMessage =
+            String.join " " [ fieldName, errorMessage ]
+    in
+    optional fieldName (Decode.list (Decode.map errorToString string)) []
+
+
+
+-- VIEW
 
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
@@ -158,52 +203,56 @@ view lift page model =
             [ css "padding" "16px"
             ]
             [ Form.viewErrors model.errors
-            , styled Html.div
+            , Html.form
                 []
-                [ Textfield.view (lift << Mdc)
-                    "my-text-field"
-                    model.mdc
-                    [ Textfield.label "Text field"
-                    , Options.onInput (lift << UpdateMessage)
-                    , css "background-color" "rgba(255, 255, 255, 0.1)"
-                    ]
+                [ styled Html.div
                     []
-                , Textfield.helperText
-                    [ Textfield.persistent
+                    [ Textfield.view (lift << Mdc)
+                        "my-text-field"
+                        model.mdc
+                        [ Textfield.label "Text field"
+                        , Options.onInput (lift << SetEmail)
+                        , css "background-color" "rgba(255, 255, 255, 0.1)"
+                        ]
+                        []
+                    , Textfield.helperText
+                        [ Textfield.persistent
+                        ]
+                        [ Html.text "Put some shit in here"
+                        ]
                     ]
-                    [ Html.text "Put some shit in here"
-                    ]
-                ]
-            , styled Html.div
-                []
-                [ Textfield.view (lift << Mdc)
-                    "my-password-field"
-                    model.mdc
-                    [ Textfield.label "Choose password"
-                    , Textfield.password
-                    , Textfield.pattern ".{8,}"
-                    , Textfield.required
-                    , css "background-color" "rgba(255, 255, 255, 0.1)"
-                    ]
+                , styled Html.div
                     []
-                , Textfield.helperText
-                    [ Textfield.persistent
-                    , Textfield.validationMsg
+                    [ Textfield.view (lift << Mdc)
+                        "my-password-field"
+                        model.mdc
+                        [ Textfield.label "Choose password"
+                        , Textfield.password
+                        , Textfield.pattern ".{8,}"
+                        , Textfield.required
+                        , Options.onInput (lift << SetPassword)
+                        , css "background-color" "rgba(255, 255, 255, 0.1)"
+                        ]
+                        []
+                    , Textfield.helperText
+                        [ Textfield.persistent
+                        , Textfield.validationMsg
+                        ]
+                        [ Html.text "Must be at least 8 characters long"
+                        ]
                     ]
-                    [ Html.text "Must be at least 8 characters long"
+                , styled Html.div
+                    []
+                    [ Button.view (lift << Mdc)
+                        ("save-cookie" ++ "-baseline-button")
+                        model.mdc
+                        [ Button.raised
+                        , Button.onClick (lift SubmitForm)
+                        , Button.ripple
+                        , css "margin" "16px"
+                        ]
+                        [ text "Submit" ]
                     ]
-                ]
-            , styled Html.div
-                []
-                [ Button.view (lift << Mdc)
-                    ("save-cookie" ++ "-baseline-button")
-                    model.mdc
-                    [ Button.onClick (lift (SaveEmail model.message))
-                    , Button.raised
-                    , Button.ripple
-                    , css "margin" "16px"
-                    ]
-                    [ text "Submit" ]
                 ]
             ]
         ]
@@ -215,7 +264,11 @@ subscriptions lift model =
         _ =
             Debug.log "Todo.subscriptions" model
     in
-    Sub.map (lift << UpdateEmail) sessionChange
+    Sub.none
+
+
+
+-- Sub.map (lift << UpdateEmail) sessionChange
 
 
 sessionChange : Sub (Maybe User)
