@@ -59,7 +59,7 @@ update msg model =
         _ =
             Debug.log "(update) url:" (Url.toString model.url)
     in
-    case msg of
+    case Debug.log "Main.update.msg" msg of
         Mdc msg ->
             Material.update Mdc msg model
 
@@ -147,7 +147,7 @@ view_ model =
                         )
             }
     in
-    case model.url of
+    case Debug.log "Main.view_.model.url:" model.url of
         Home ->
             Pages.Home.view HomeMsg page model.home
 

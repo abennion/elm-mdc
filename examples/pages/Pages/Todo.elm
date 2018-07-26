@@ -14,12 +14,10 @@ import Ports
 import Request.User exposing (storeSession)
 
 
--- port setStorage : Model m -> Cmd msg
-
-
 type alias Model m =
     { mdc : Material.Model m
     , message : String
+    , email : String
     }
 
 
@@ -27,35 +25,36 @@ defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
     , message = ""
+    , email = ""
     }
 
 
 type Msg m
     = Mdc (Material.Msg m)
-    | UpdateTextMsg String
-    | SaveText String
-    | UpdateText (Maybe User)
+    | UpdateMessage String
+    | SaveEmail String
+    | UpdateEmail (Maybe User)
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
 update lift msg model =
-    case msg of
+    case Debug.log "Todo.update.msg:" msg of
         Mdc msg_ ->
             Material.update (lift << Mdc) msg_ model
 
-        UpdateTextMsg msg_ ->
+        UpdateMessage msg_ ->
             { model | message = msg_ } ! []
 
-        SaveText msg_ ->
+        SaveEmail msg_ ->
             ( model
             , storeSession
                 (User model.message)
             )
 
-        UpdateText msg_ ->
+        UpdateEmail msg_ ->
             let
                 _ =
-                    Debug.log "UpdateText" ""
+                    Debug.log "UpdateEmail" msg_
 
                 userText =
                     case msg_ of
@@ -65,7 +64,7 @@ update lift msg model =
                         Nothing ->
                             "not happenin'"
             in
-            { model | message = userText } ! []
+            { model | email = userText } ! []
 
 
 
@@ -121,7 +120,7 @@ view lift page model =
                     [ Button.view (lift << Mdc)
                         (idx ++ "-baseline-button")
                         model.mdc
-                        (Button.onClick (lift (SaveText model.message))
+                        (Button.onClick (lift (SaveEmail model.message))
                             :: options
                         )
                         [ text "Baseline" ]
@@ -163,7 +162,7 @@ view lift page model =
             , Theme.secondaryBg
             , Theme.textSecondaryOnLight
             ]
-            [ text model.message
+            [ text model.email
             ]
         , styled Html.div
             []
@@ -171,16 +170,25 @@ view lift page model =
                 "my-text-field"
                 model.mdc
                 [ Textfield.label "Text field"
-                , Options.onInput (lift << UpdateTextMsg)
-                , Textfield.value model.message
+                , Options.onInput (lift << UpdateMessage)
                 , Textfield.fullwidth
-
-                -- , cs "mdc-theme--surface"
-                -- , cs "mdc-theme--on-surface"
                 , css "padding" "16px"
+                , css "margin" "8px"
                 , css "background-color" "rgba(255, 255, 255, 0.1)"
                 ]
                 []
+            ]
+        , styled Html.div
+            []
+            [ Button.view (lift << Mdc)
+                ("save-cookie" ++ "-baseline-button")
+                model.mdc
+                [ Button.onClick (lift (SaveEmail model.message))
+                , Button.raised
+                , Button.ripple
+                , css "margin" "16px"
+                ]
+                [ text "Save Cookie" ]
             ]
         , styled Html.div
             [ cs "demo-wrapper"
@@ -205,22 +213,15 @@ subscriptions : (Msg m -> m) -> Model m -> Sub m
 subscriptions lift model =
     let
         _ =
-            Debug.log "Todo.subscriptions" ""
+            Debug.log "Todo.subscriptions" model
     in
-    Sub.map (lift << UpdateText) sessionChange
-
-
-
--- Sub.batch
---     [ Material.subscriptions (lift << Mdc) model
---     , Sub.map (lift << UpdateText) sessionChange
---     ]
+    Sub.map (lift << UpdateEmail) sessionChange
 
 
 sessionChange : Sub (Maybe User)
 sessionChange =
     let
         _ =
-            Debug.log "sessionChange" ""
+            Debug.log "sessionChange" Ports.onSessionChange
     in
     Ports.onSessionChange (Decode.decodeValue User.decoder >> Result.toMaybe)
