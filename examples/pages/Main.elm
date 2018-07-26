@@ -1,6 +1,8 @@
 module Main exposing (..)
 
+import Debug
 import Html exposing (Html, text)
+import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Options as Options exposing (css, styled, when)
 import Material.Toolbar as Toolbar
@@ -53,6 +55,10 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        _ =
+            Debug.log "(update) url:" (Url.toString model.url)
+    in
     case msg of
         Mdc msg ->
             Material.update Mdc msg model
@@ -116,6 +122,9 @@ view =
 view_ : Model -> Html Msg
 view_ model =
     let
+        _ =
+            Debug.log "(view_) url:" (Url.toString model.url)
+
         page =
             { toolbar = Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url
             , fixedAdjust = Page.fixedAdjust "page-toolbar" model.mdc
@@ -170,9 +179,9 @@ urlOf model =
     Url.toString model.url
 
 
-main : Program Never Model Msg
+main : Program (Maybe Value) Model Msg
 main =
-    Navigation.program
+    Navigation.programWithFlags
         (.hash >> Url.fromString >> SetUrl)
         { init = init
         , view = view
@@ -181,9 +190,12 @@ main =
         }
 
 
-init : Navigation.Location -> ( Model, Cmd Msg )
-init location =
+init : Maybe Value -> Navigation.Location -> ( Model, Cmd Msg )
+init val location =
     let
+        _ =
+            Debug.log "(init) location:" location
+
         ( layoutGrid, layoutGridEffects ) =
             Pages.LayoutGrid.init LayoutGridMsg
     in
