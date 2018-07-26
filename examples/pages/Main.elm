@@ -215,4 +215,17 @@ subscriptions model =
     Sub.batch
         [ Material.subscriptions Mdc model
         , Pages.LayoutGrid.subscriptions LayoutGridMsg model.layoutGrid
+        , Pages.Todo.subscriptions TodoMsg model.todo
         ]
+
+
+
+-- subscriptions : Model -> Sub Msg
+-- subscriptions model =
+--     Sub.batch
+--         [ pageSubscriptions (getPage model.pageState)
+--         , Sub.map SetUser sessionChange
+--         ]
+-- sessionChange : Sub (Maybe User)
+-- sessionChange =
+--     Ports.onSessionChange (Decode.decodeValue User.decoder >> Result.toMaybe)

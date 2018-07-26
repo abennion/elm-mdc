@@ -1,7 +1,8 @@
-port module Pages.Todo exposing (Model, Msg(Mdc), defaultModel, update, view)
+port module Pages.Todo exposing (Model, Msg(Mdc), defaultModel, subscriptions, update, view)
 
-import Data.User exposing (User)
+import Data.User as User exposing (User, decoder)
 import Html exposing (Html, text)
+import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, onClick, styled, when)
@@ -9,6 +10,7 @@ import Material.Textfield as Textfield
 import Material.Theme as Theme
 import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
+import Ports
 import Request.User exposing (storeSession)
 
 
@@ -32,6 +34,7 @@ type Msg m
     = Mdc (Material.Msg m)
     | UpdateTextMsg String
     | SaveText String
+    | UpdateText (Maybe User)
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -48,6 +51,21 @@ update lift msg model =
             , storeSession
                 (User model.message)
             )
+
+        UpdateText msg_ ->
+            let
+                _ =
+                    Debug.log "UpdateText" ""
+
+                userText =
+                    case msg_ of
+                        Just user ->
+                            user.email
+
+                        Nothing ->
+                            "not happenin'"
+            in
+            { model | message = userText } ! []
 
 
 
@@ -181,3 +199,28 @@ view lift page model =
             , outlinedButtons "buttons-outlined-buttons"
             ]
         ]
+
+
+subscriptions : (Msg m -> m) -> Model m -> Sub m
+subscriptions lift model =
+    let
+        _ =
+            Debug.log "Todo.subscriptions" ""
+    in
+    Sub.map (lift << UpdateText) sessionChange
+
+
+
+-- Sub.batch
+--     [ Material.subscriptions (lift << Mdc) model
+--     , Sub.map (lift << UpdateText) sessionChange
+--     ]
+
+
+sessionChange : Sub (Maybe User)
+sessionChange =
+    let
+        _ =
+            Debug.log "sessionChange" ""
+    in
+    Ports.onSessionChange (Decode.decodeValue User.decoder >> Result.toMaybe)
