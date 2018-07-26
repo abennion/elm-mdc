@@ -40,6 +40,9 @@ update lift msg model =
         UpdateTextMsg msg_ ->
             { model | message = msg_ } ! []
 
+        -- StoreText msg_ ->
+
+
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
 view lift page model =
