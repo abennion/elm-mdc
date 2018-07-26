@@ -46,7 +46,7 @@ update lift msg model =
         SaveText msg_ ->
             ( model
             , storeSession
-                (User "test@example.com")
+                (User model.message)
             )
 
 
