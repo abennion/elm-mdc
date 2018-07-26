@@ -1,7 +1,7 @@
 module Data.User
     exposing
-        ( Username
-        , Users
+        ( User
+        , Username
         , decoder
         , encode
         , usernameDecoder
@@ -11,12 +11,14 @@ module Data.User
 
 -- import Data.AuthToken as AuthToken exposing (AuthToken)
 -- import Data.UserPhoto as UserPhoto exposing (UserPhoto)
+-- import Json.Encode.Extra as EncodeExtra
 
 import Html exposing (Html)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (decode, required)
 import Json.Encode as Encode exposing (Value)
-import Json.Encode.Extra as EncodeExtra
+import UrlParser
+import Util exposing ((=>))
 
 
 -- import UrlParser
@@ -25,10 +27,6 @@ import Json.Encode.Extra as EncodeExtra
 
 type alias User =
     { email : String
-    , username : Username
-    , bio : Maybe String
-    , createdAt : String
-    , updatedAt : String
     }
 
 
@@ -40,20 +38,12 @@ decoder : Decoder User
 decoder =
     decode User
         |> required "email" Decode.string
-        |> required "username" usernameDecoder
-        |> required "bio" (Decode.nullable Decode.string)
-        |> required "createdAt" Decode.string
-        |> required "updatedAt" Decode.string
 
 
 encode : User -> Value
 encode user =
     Encode.object
         [ "email" => Encode.string user.email
-        , "username" => encodeUsername user.username
-        , "bio" => EncodeExtra.maybe Encode.string user.bio
-        , "createdAt" => Encode.string user.createdAt
-        , "updatedAt" => Encode.string user.updatedAt
         ]
 
 

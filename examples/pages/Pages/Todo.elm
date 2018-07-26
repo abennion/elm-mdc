@@ -1,13 +1,15 @@
 port module Pages.Todo exposing (Model, Msg(Mdc), defaultModel, update, view)
 
+import Data.User exposing (User)
 import Html exposing (Html, text)
 import Material
 import Material.Button as Button
-import Material.Options as Options exposing (cs, css, styled, when)
+import Material.Options as Options exposing (cs, css, onClick, styled, when)
 import Material.Textfield as Textfield
 import Material.Theme as Theme
 import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
+import Request.User exposing (storeSession)
 
 
 -- port setStorage : Model m -> Cmd msg
@@ -29,6 +31,7 @@ defaultModel =
 type Msg m
     = Mdc (Material.Msg m)
     | UpdateTextMsg String
+    | SaveText String
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -40,8 +43,15 @@ update lift msg model =
         UpdateTextMsg msg_ ->
             { model | message = msg_ } ! []
 
-        -- StoreText msg_ ->
+        SaveText msg_ ->
+            ( model
+            , storeSession
+                (User "test@example.com")
+            )
 
+
+
+-- StoreText msg_ ->
 
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
@@ -93,7 +103,9 @@ view lift page model =
                     [ Button.view (lift << Mdc)
                         (idx ++ "-baseline-button")
                         model.mdc
-                        options
+                        (Button.onClick (lift (SaveText model.message))
+                            :: options
+                        )
                         [ text "Baseline" ]
                     , Button.view (lift << Mdc)
                         (idx ++ "-dense-button")

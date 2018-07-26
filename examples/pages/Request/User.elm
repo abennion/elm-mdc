@@ -17,6 +17,10 @@ import Util exposing ((=>))
 
 storeSession : User -> Cmd msg
 storeSession user =
+    let
+        _ =
+            Debug.log "user.email:" user.email
+    in
     User.encode user
         |> Encode.encode 0
         |> Just
