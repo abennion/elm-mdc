@@ -11,6 +11,7 @@ import Navigation
 import Pages.Home
 import Pages.ImageList
 import Pages.LayoutGrid
+import Pages.Login
 import Pages.Page as Page
 import Pages.Theme
 import Pages.Todo
@@ -25,6 +26,7 @@ type alias Model =
     , home : Pages.Home.Model Msg
     , imageList : Pages.ImageList.Model Msg
     , layoutGrid : Pages.LayoutGrid.Model
+    , login : Pages.Login.Model Msg
     , theme : Pages.Theme.Model Msg
     , todo : Pages.Todo.Model Msg
     }
@@ -37,6 +39,7 @@ defaultModel =
     , home = Pages.Home.defaultModel
     , imageList = Pages.ImageList.defaultModel
     , layoutGrid = Pages.LayoutGrid.defaultModel
+    , login = Pages.Login.defaultModel
     , theme = Pages.Theme.defaultModel
     , todo = Pages.Todo.defaultModel
     }
@@ -49,6 +52,7 @@ type Msg
     | HomeMsg (Pages.Home.Msg Msg)
     | ImageListMsg (Pages.ImageList.Msg Msg)
     | LayoutGridMsg Pages.LayoutGrid.Msg
+    | LoginMsg (Pages.Login.Msg Msg)
     | ThemeMsg (Pages.Theme.Msg Msg)
     | TodoMsg (Pages.Todo.Msg Msg)
 
@@ -87,6 +91,13 @@ update msg model =
                     Pages.LayoutGrid.update LayoutGridMsg msg_ model.layoutGrid
             in
             ( { model | layoutGrid = layoutGrid }, effects )
+
+        LoginMsg msg_ ->
+            let
+                ( login, effects ) =
+                    Pages.Login.update LoginMsg msg_ model.login
+            in
+            ( { model | login = login }, effects )
 
         HomeMsg msg_ ->
             let
@@ -154,6 +165,9 @@ view_ model =
         ImageList ->
             Pages.ImageList.view ImageListMsg page model.imageList
 
+        Login ->
+            Pages.Login.view LoginMsg page model.login
+
         Select ->
             Pages.Home.view HomeMsg page model.home
 
@@ -216,6 +230,7 @@ subscriptions model =
         [ Material.subscriptions Mdc model
         , Pages.LayoutGrid.subscriptions LayoutGridMsg model.layoutGrid
         , Pages.Todo.subscriptions TodoMsg model.todo
+        , Pages.Login.subscriptions LoginMsg model.login
         ]
 
 

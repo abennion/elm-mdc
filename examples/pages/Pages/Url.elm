@@ -9,6 +9,7 @@ module Pages.Url
 type Url
     = Home
     | ImageList
+    | Login
     | Select
     | Theme
     | Todo
@@ -23,6 +24,9 @@ toString url =
 
         ImageList ->
             "#images"
+
+        Login ->
+            "#login"
 
         Select ->
             "#select"
@@ -50,6 +54,9 @@ fromString str =
 
                 Just ( '#', "images" ) ->
                     Just <| ImageList
+
+                Just ( '#', "login" ) ->
+                    Just <| Login
 
                 Just ( '#', "select" ) ->
                     Just <| Select
