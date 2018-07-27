@@ -64,7 +64,14 @@ toolbar lift idx mdc navigate url title =
         -- figure out how to see if signed in...
         viewSignIn =
             -- Navigation.newUrl (Url.toString Url.Home
-            text "Sign in"
+            -- i guess we need to know the user...
+            Button.view lift
+                "login-link-button"
+                mdc
+                [ Button.link "#login"
+                , css "margin-top" "8px"
+                ]
+                [ text "Sign in" ]
     in
     Toolbar.view lift
         idx
@@ -132,7 +139,7 @@ toolbar lift idx mdc navigate url title =
                                 "arrow_back"
                     ]
                 , Toolbar.title
-                    [ cs "cataloge-title"
+                    [ cs "catalog-title"
                     , css "margin-left"
                         (if url == Url.Home then
                             "8px"
@@ -147,12 +154,6 @@ toolbar lift idx mdc navigate url title =
                 [ Toolbar.alignEnd
                 ]
                 [ viewSignIn
-                , Button.view lift
-                    "login-link-button"
-                    mdc
-                    [ Button.link "#login"
-                    ]
-                    [ text "Sign in" ]
                 , Icon.view [ Toolbar.icon ] "file_download"
                 , Icon.view [ Toolbar.icon ] "print"
                 , Icon.view [ Toolbar.icon ] "bookmark"
