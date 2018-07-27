@@ -22,8 +22,10 @@ import Material.Textfield as Textfield
 import Material.Textfield.HelperText as Textfield
 import Material.Theme as Theme
 import Material.Typography as Typography
+import Navigation
 import Pages.Form as Form
 import Pages.Page as Page exposing (Page)
+import Pages.Url as Url
 import Ports
 import Request.User exposing (login, storeSession)
 import Util exposing ((=>))
@@ -126,6 +128,7 @@ update lift msg model =
             model
                 => Cmd.batch
                     [ storeSession user
+                    , Navigation.newUrl (Url.toString Url.Home)
 
                     -- TODO: update model.url?
                     -- , Route.modifyUrl Route.Home
