@@ -9,6 +9,7 @@ module Pages.Page
 import Html exposing (Html, text)
 import Html.Attributes as Html
 import Material
+import Material.Button as Button
 import Material.Icon as Icon
 import Material.Menu as Menu
 import Material.Options as Options exposing (Property, cs, css, styled, when)
@@ -146,6 +147,12 @@ toolbar lift idx mdc navigate url title =
                 [ Toolbar.alignEnd
                 ]
                 [ viewSignIn
+                , Button.view lift
+                    "login-link-button"
+                    mdc
+                    [ Button.link "#login"
+                    ]
+                    [ text "Sign in" ]
                 , Icon.view [ Toolbar.icon ] "file_download"
                 , Icon.view [ Toolbar.icon ] "print"
                 , Icon.view [ Toolbar.icon ] "bookmark"
