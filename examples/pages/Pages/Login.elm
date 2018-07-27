@@ -8,10 +8,12 @@ port module Pages.Login
         , view
         )
 
+-- import Html.Attributes
+-- import Html.Events as Html
+-- import Material.Typography as Typography
+
 import Data.User as User exposing (User, decoder)
 import Html exposing (Html, text)
-import Html.Attributes
-import Html.Events as Html
 import Http
 import Json.Decode as Decode exposing (Decoder, decodeString, field, string)
 import Json.Decode.Pipeline exposing (decode, optional)
@@ -21,7 +23,6 @@ import Material.Options as Options exposing (cs, css, onClick, styled, when)
 import Material.Textfield as Textfield
 import Material.Textfield.HelperText as Textfield
 import Material.Theme as Theme
-import Material.Typography as Typography
 import Navigation
 import Pages.Form as Form
 import Pages.Page as Page exposing (Page)
@@ -29,9 +30,9 @@ import Pages.Url as Url
 import Ports
 import Request.User exposing (login, storeSession)
 import Util exposing ((=>))
-import Validate exposing (Validator, ifBlank, validate)
 
 
+-- import Validate exposing (Validator, ifBlank, validate)
 -- MODEL
 
 

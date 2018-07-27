@@ -26,6 +26,27 @@ type alias Page m =
 
 
 
+-- viewSignIn : ActivePage -> Maybe User -> List (Html msg)
+-- viewSignIn page user =
+--     let
+--         linkTo =
+--             navbarLink page
+--     in
+--     case user of
+--         Nothing ->
+--             [ linkTo Route.Login [ text "Sign in" ]
+--             , linkTo Route.Register [ text "Sign up" ]
+--             ]
+--         Just user ->
+--             [ linkTo Route.NewArticle [ i [ class "ion-compose" ] [], text " New Post" ]
+--             , linkTo Route.Settings [ i [ class "ion-gear-a" ] [], text " Settings" ]
+--             , linkTo
+--                 (Route.Profile user.username)
+--                 [ img [ class "user-pic", UserPhoto.src user.image ] []
+--                 , User.usernameToHtml user.username
+--                 ]
+--             , linkTo Route.Logout [ text "Sign out" ]
+--             ]
 -- toolbar = Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url
 
 
@@ -38,6 +59,12 @@ toolbar :
     -> String
     -> Html m
 toolbar lift idx mdc navigate url title =
+    let
+        -- figure out how to see if signed in...
+        viewSignIn =
+            -- Navigation.newUrl (Url.toString Url.Home
+            text "Sign in"
+    in
     Toolbar.view lift
         idx
         mdc
@@ -114,6 +141,14 @@ toolbar lift idx mdc navigate url title =
                     , css "font-family" "'Roboto Mono', monospace"
                     ]
                     [ text title ]
+                ]
+            , Toolbar.section
+                [ Toolbar.alignEnd
+                ]
+                [ viewSignIn
+                , Icon.view [ Toolbar.icon ] "file_download"
+                , Icon.view [ Toolbar.icon ] "print"
+                , Icon.view [ Toolbar.icon ] "bookmark"
                 ]
             ]
         ]
