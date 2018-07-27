@@ -63,19 +63,24 @@ toolbar lift idx mdc navigate url title =
                     []
                     (Menu.ul []
                         [ Menu.li
-                            [ Menu.onSelect (navigate Url.ImageList)
-                            ]
-                            [ text "Images"
-                            ]
-                        , Menu.li
                             [ Menu.onSelect (navigate Url.Home)
                             ]
                             [ text "Home"
                             ]
                         , Menu.li
+                            [ Menu.onSelect (navigate Url.ImageList)
+                            ]
+                            [ text "Images"
+                            ]
+                        , Menu.li
                             [ Menu.onSelect (navigate Url.Todo)
                             ]
                             [ text "Todo"
+                            ]
+                        , Menu.li
+                            [ Menu.onSelect (navigate Url.Login)
+                            ]
+                            [ text "Login"
                             ]
                         ]
                     )
