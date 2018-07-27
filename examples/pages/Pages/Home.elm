@@ -1,31 +1,68 @@
 module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 
+-- import Data.Article as Article exposing (Tag)
+-- import Data.Session exposing (Session)
+-- import Request.Article
+
 import Html exposing (Html, text)
+import Http
 import Material
 import Material.Button as Button
+import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Textfield as Textfield
 import Material.Theme as Theme
 import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
+import Task exposing (Task)
+import Util exposing ((=>), onClickStopPropagation)
+
+
+-- import Views.Article.Feed as Feed exposing (FeedSource, globalFeed, tagFeed, yourFeed)
 
 
 type alias Model m =
     { mdc : Material.Model m
-    , message : String
+
+    -- , tags : List Tag
+    -- , feed : Feed.Model
     }
 
 
 defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
-    , message = "You can enter some shit righ here!"
     }
+
+
+
+-- init : Session -> Task PageLoadError Model
+-- init session =
+--     let
+--         feedSources =
+--             if session.user == Nothing then
+--                 SelectList.singleton globalFeed
+--             else
+--                 SelectList.fromLists [] yourFeed [ globalFeed ]
+--         loadTags =
+--             Request.Article.tags
+--                 |> Http.toTask
+--         loadSources =
+--             Feed.init session feedSources
+--         handleLoadError _ =
+--             pageLoadError Page.Home "Homepage is currently unavailable."
+--     in
+--     Task.map2 Model loadTags loadSources
+--         |> Task.mapError handleLoadError
 
 
 type Msg m
     = Mdc (Material.Msg m)
     | UpdateTextMsg String
+
+
+
+-- UPDATE
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -35,131 +72,39 @@ update lift msg model =
             Material.update (lift << Mdc) msg_ model
 
         UpdateTextMsg msg_ ->
-            { model | message = msg_ } ! []
+            model ! []
+
+
+
+-- VIEW
 
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
 view lift page model =
     let
-        textButtons idx =
-            example idx
-                "Text Button"
-                [ Button.ripple
-                , css "margin" "16px"
-                ]
-
-        raisedButtons idx =
-            example idx
-                "Raised Button"
-                [ Button.raised
-                , Button.ripple
-                , css "margin" "16px"
-                ]
-
-        unelevatedButtons idx =
-            example idx
-                "Unelevated Button"
-                [ Button.unelevated
-                , Button.ripple
-                , css "margin" "16px"
-                ]
-
-        outlinedButtons idx =
-            example idx
-                "Outlined Button"
-                [ Button.outlined
-                , Button.ripple
-                , css "margin" "16px"
-                ]
-
-        example idx title options =
-            styled Html.div
-                [ css "padding" "0 24px 16px"
-                ]
-                [ styled Html.div
-                    [ Typography.title
-                    , css "padding" "48px 16px 24px"
-                    ]
-                    [ text title
-                    ]
-                , styled Html.div
-                    []
-                    [ Button.view (lift << Mdc)
-                        (idx ++ "-baseline-button")
-                        model.mdc
-                        options
-                        [ text "Baseline" ]
-                    , Button.view (lift << Mdc)
-                        (idx ++ "-dense-button")
-                        model.mdc
-                        (Button.dense
-                            :: options
-                        )
-                        [ text "Dense" ]
-                    , Button.view (lift << Mdc)
-                        (idx ++ "-secondary-button")
-                        model.mdc
-                        (cs "secondary-button"
-                            :: options
-                        )
-                        [ text "Secondary" ]
-                    , Button.view (lift << Mdc)
-                        (idx ++ "-icon-button")
-                        model.mdc
-                        (Button.icon "favorite"
-                            :: options
-                        )
-                        [ text "Icon" ]
-                    , Button.view (lift << Mdc)
-                        (idx ++ "-link-button")
-                        model.mdc
-                        (Button.link "#theme"
-                            :: options
-                        )
-                        [ text "Link Theme" ]
-                    ]
-                ]
+        _ =
+            Nothing
     in
     page.body "Home"
-        [ styled Html.div
-            [ css "padding" "24px"
-            , Theme.secondary
-            , Theme.secondaryBg
-            , Theme.textSecondaryOnLight
-            ]
-            [ text model.message
-            ]
-        , styled Html.div
+        [ styled Html.section
             []
-            [ Textfield.view (lift << Mdc)
-                "my-text-field"
-                model.mdc
-                [ Textfield.label "Text field"
-                , Options.onInput (lift << UpdateTextMsg)
-                , Textfield.value model.message
-                , Textfield.fullwidth
-
-                -- , cs "mdc-theme--surface"
-                -- , cs "mdc-theme--on-surface"
-                , css "padding" "16px"
-                , css "background-color" "rgba(255, 255, 255, 0.1)"
+            [ styled Html.div
+                [ css "margin" "24px"
+                , css "margin-top" "0"
+                , css "margin-bottom" "16px"
                 ]
+                [ LinearProgress.view
+                    [ LinearProgress.buffered 0.0 0.0
+                    , Theme.secondary
+                    ]
+                    []
+                ]
+            ]
+        , styled Html.section
+            []
+            [ styled Html.div
                 []
-            ]
-        , styled Html.div
-            [ cs "demo-wrapper"
-            ]
-            [ styled Html.h1
-                [ Typography.display2
-                , css "padding-left" "36px"
-                , css "padding-top" "64px"
-                , css "padding-bottom" "8px"
+                [ text "Nothing yet"
                 ]
-                [ text "Ripple Enabled"
-                ]
-            , textButtons "buttons-text-buttons"
-            , raisedButtons "buttons-raised-buttons"
-            , unelevatedButtons "buttons-unelevated-buttons"
-            , outlinedButtons "buttons-outlined-buttons"
             ]
         ]

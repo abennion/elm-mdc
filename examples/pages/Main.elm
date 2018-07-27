@@ -23,6 +23,7 @@ import Ports exposing (..)
 type alias Model =
     { mdc : Material.Model Msg
     , url : Url
+    , pageState : PageState
     , home : Pages.Home.Model Msg
     , imageList : Pages.ImageList.Model Msg
     , layoutGrid : Pages.LayoutGrid.Model
@@ -32,10 +33,16 @@ type alias Model =
     }
 
 
+type PageState
+    = Loaded Page
+    | TransitioningFrom Page
+
+
 defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
     , url = Home
+    , pageState = Home Pages.Home.defaultModel
     , home = Pages.Home.defaultModel
     , imageList = Pages.ImageList.defaultModel
     , layoutGrid = Pages.LayoutGrid.defaultModel
@@ -142,7 +149,7 @@ view_ model =
             Debug.log "(view_) url:" (Url.toString model.url)
 
         page =
-            { toolbar = Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url
+            { toolbar = Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url model.login.email
             , fixedAdjust = Page.fixedAdjust "page-toolbar" model.mdc
             , navigate = Navigate
             , body =
@@ -154,7 +161,7 @@ view_ model =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url title
+                            [ [ Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url title model.login.email
                               ]
                             , [ styled Html.div [ Toolbar.fixedAdjust "page-toolbar" model.mdc ] []
                               ]

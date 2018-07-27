@@ -58,20 +58,30 @@ toolbar :
     -> (Url -> m)
     -> Url
     -> String
+    -> String
     -> Html m
-toolbar lift idx mdc navigate url title =
+toolbar lift idx mdc navigate url title email =
     let
         -- figure out how to see if signed in...
         viewSignIn =
-            -- Navigation.newUrl (Url.toString Url.Home
-            -- i guess we need to know the user...
-            Button.view lift
-                "login-link-button"
-                mdc
-                [ Button.link "#login"
-                , css "margin-top" "8px"
-                ]
-                [ text "Sign in" ]
+            case email of
+                "" ->
+                    Button.view lift
+                        "login-link-button"
+                        mdc
+                        [ Button.link "#login"
+                        , css "margin-top" "8px"
+                        ]
+                        [ text "Sign in" ]
+
+                _ ->
+                    Button.view lift
+                        "login-link-button"
+                        mdc
+                        [ Button.link "#login"
+                        , css "margin-top" "8px"
+                        ]
+                        [ text email ]
     in
     Toolbar.view lift
         idx
@@ -122,6 +132,7 @@ toolbar lift idx mdc navigate url title =
                 , styled Html.div
                     [ cs "catalog-back"
                     , css "padding-right" "24px"
+                    , css "font-family" "'Cinzel', monospace"
                     ]
                     [ case url of
                         Url.Home ->
@@ -146,7 +157,7 @@ toolbar lift idx mdc navigate url title =
                          else
                             "24"
                         )
-                    , css "font-family" "'Roboto Mono', monospace"
+                    , css "font-family" "'Monoton', 'Roboto Mono', monospace"
                     ]
                     [ text title ]
                 ]
@@ -154,7 +165,11 @@ toolbar lift idx mdc navigate url title =
                 [ Toolbar.alignEnd
                 ]
                 [ viewSignIn
-                , Icon.view [ Toolbar.icon ] "file_download"
+                , Icon.view
+                    [ Toolbar.icon
+                    , css "color" "rgba(255, 255, 255, 0.2)"
+                    ]
+                    "file_download"
                 , Icon.view [ Toolbar.icon ] "print"
                 , Icon.view [ Toolbar.icon ] "bookmark"
                 ]
