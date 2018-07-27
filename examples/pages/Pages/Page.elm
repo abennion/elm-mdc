@@ -7,14 +7,12 @@ module Pages.Page
         )
 
 import Html exposing (Html, text)
-import Html.Attributes as Html
 import Material
 import Material.Button as Button
-import Material.Icon as Icon
-import Material.Menu as Menu
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.Theme as Theme
 import Material.Toolbar as Toolbar
+import Material.TopAppBar as TopAppBar
 import Pages.Url as Url exposing (Url)
 
 
@@ -26,29 +24,37 @@ type alias Page m =
     }
 
 
+type Msg m
+    = OpenDrawer
+    | CloseDrawer
 
--- viewSignIn : ActivePage -> Maybe User -> List (Html msg)
--- viewSignIn page user =
---     let
---         linkTo =
---             navbarLink page
---     in
---     case user of
---         Nothing ->
---             [ linkTo Route.Login [ text "Sign in" ]
---             , linkTo Route.Register [ text "Sign up" ]
---             ]
---         Just user ->
---             [ linkTo Route.NewArticle [ i [ class "ion-compose" ] [], text " New Post" ]
---             , linkTo Route.Settings [ i [ class "ion-gear-a" ] [], text " Settings" ]
---             , linkTo
---                 (Route.Profile user.username)
---                 [ img [ class "user-pic", UserPhoto.src user.image ] []
---                 , User.usernameToHtml user.username
+
+
+-- import Material.Drawer.Temporary as Drawer
+-- import Material.List as Lists
+-- Drawer.view Mdc "my-drawer" model.mdc []
+--     [ Drawer.toolbarSpacer [] []
+--     , Lists.ul
+--           [ Drawer.content
+--           ]
+--           [ Lists.li []
+--                 [ Lists.graphicIcon [] "inbox"
+--                 , text "Inbox"
 --                 ]
---             , linkTo Route.Logout [ text "Sign out" ]
---             ]
--- toolbar = Page.toolbar Mdc "page-toolbar" model.mdc Navigate model.url
+--           , Lists.li []
+--                 [ Lists.graphicIcon [] "star"
+--                 , text "Star"
+--                 ]
+--           , Lists.li []
+--                 [ Lists.graphicIcon [] "send"
+--                 , text "Sent Mail"
+--                 ]
+--           , Lists.li []
+--                 [ Lists.graphicIcon [] "drafts"
+--                 , text "Drafts"
+--                 ]
+--           ]
+--     ]
 
 
 toolbar :
@@ -62,7 +68,6 @@ toolbar :
     -> Html m
 toolbar lift idx mdc navigate url title email =
     let
-        -- figure out how to see if signed in...
         viewSignIn =
             case email of
                 "" ->
@@ -83,73 +88,24 @@ toolbar lift idx mdc navigate url title email =
                         ]
                         [ text email ]
     in
-    Toolbar.view lift
-        idx
-        mdc
-        [ Toolbar.fixed
-        , cs "catalog-top-app-bar"
-        ]
-        [ Toolbar.row
-            [ Theme.background
-            , css "color" "rgba(255, 255, 255, 0.2)"
-            ]
-            [ Toolbar.section
-                [ Toolbar.alignStart
+    styled Html.div
+        []
+        [ TopAppBar.view
+            lift
+            idx
+            mdc
+            [ TopAppBar.fixed ]
+            [ TopAppBar.section
+                [ TopAppBar.alignStart
+                , Theme.background
+                , css "color" "rgba(255, 255, 255, 0.3)"
                 ]
-                [ Icon.view
-                    [ Toolbar.menuIcon
-                    , Menu.attach lift "my-menu"
+                [ TopAppBar.navigationIcon
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    , Options.onClick OpenDrawer
                     ]
                     "menu"
-                , Menu.view
-                    lift
-                    "my-menu"
-                    mdc
-                    []
-                    (Menu.ul []
-                        [ Menu.li
-                            [ Menu.onSelect (navigate Url.Home)
-                            ]
-                            [ text "Home"
-                            ]
-                        , Menu.li
-                            [ Menu.onSelect (navigate Url.ImageList)
-                            ]
-                            [ text "Images"
-                            ]
-                        , Menu.li
-                            [ Menu.onSelect (navigate Url.Todo)
-                            ]
-                            [ text "Todo"
-                            ]
-                        , Menu.li
-                            [ Menu.onSelect (navigate Url.Login)
-                            ]
-                            [ text "Login"
-                            ]
-                        ]
-                    )
-                , styled Html.div
-                    [ cs "catalog-back"
-                    , css "padding-right" "24px"
-                    , css "font-family" "'Cinzel', monospace"
-                    ]
-                    [ case url of
-                        Url.Home ->
-                            styled Html.img
-                                [ cs "mdc-toolbar__menu-icon"
-                                , Options.attribute (Html.src "images/ic_component_24px_white.svg")
-                                ]
-                                []
-
-                        _ ->
-                            Icon.view
-                                [ Options.onClick (navigate Url.Home)
-                                , Toolbar.menuIcon
-                                ]
-                                "arrow_back"
-                    ]
-                , Toolbar.title
+                , TopAppBar.title
                     [ cs "catalog-title"
                     , css "margin-left"
                         (if url == Url.Home then
@@ -161,17 +117,24 @@ toolbar lift idx mdc navigate url title email =
                     ]
                     [ text title ]
                 ]
-            , Toolbar.section
-                [ Toolbar.alignEnd
+            , TopAppBar.section
+                [ TopAppBar.alignEnd
+                , Theme.background
+                , css "color" "rgba(255, 255, 255, 0.3)"
                 ]
                 [ viewSignIn
-                , Icon.view
-                    [ Toolbar.icon
-                    , css "color" "rgba(255, 255, 255, 0.2)"
+                , TopAppBar.actionItem
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
                     ]
                     "file_download"
-                , Icon.view [ Toolbar.icon ] "print"
-                , Icon.view [ Toolbar.icon ] "bookmark"
+                , TopAppBar.actionItem
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    ]
+                    "print"
+                , TopAppBar.actionItem
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    ]
+                    "bookmark"
                 ]
             ]
         ]

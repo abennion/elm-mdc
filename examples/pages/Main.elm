@@ -23,7 +23,7 @@ import Ports exposing (..)
 type alias Model =
     { mdc : Material.Model Msg
     , url : Url
-    , pageState : PageState
+    , drawerOpen : Bool
     , home : Pages.Home.Model Msg
     , imageList : Pages.ImageList.Model Msg
     , layoutGrid : Pages.LayoutGrid.Model
@@ -33,16 +33,17 @@ type alias Model =
     }
 
 
-type PageState
-    = Loaded Page
-    | TransitioningFrom Page
+
+-- type PageState
+--     = Loaded Page
+--     | TransitioningFrom Page
 
 
 defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
     , url = Home
-    , pageState = Home Pages.Home.defaultModel
+    , drawerOpen = False
     , home = Pages.Home.defaultModel
     , imageList = Pages.ImageList.defaultModel
     , layoutGrid = Pages.LayoutGrid.defaultModel

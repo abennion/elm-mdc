@@ -3,6 +3,7 @@ module Pages.ImageList exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Html exposing (Html, text)
 import Material
 import Material.ImageList as ImageList
+import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Typography as Typography
 import Pages.Page as Page exposing (Page)
@@ -145,7 +146,22 @@ view lift page model =
         [ styled Html.div
             [ cs "Pages-wrapper"
             ]
-            [ styled Html.h1
+            [ styled Html.section
+                []
+                [ styled Html.div
+                    [ css "margin" "24px"
+                    , css "margin-top" "0"
+                    , css "margin-bottom" "16px"
+                    ]
+                    [ LinearProgress.view
+                        [ LinearProgress.buffered 0.3 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        ]
+                        []
+                    ]
+                ]
+            , styled Html.h1
                 [ Typography.display2
                 , css "padding-left" "36px"
                 , css "padding-top" "64px"

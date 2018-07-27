@@ -77,6 +77,20 @@ update lift msg model =
 
 
 -- VIEW
+-- view : Model -> Html Msg
+-- view model =
+--     case model.pageState of
+--         Loaded page ->
+--             viewPage model.session False page
+--         TransitioningFrom page ->
+--             viewPage model.session True page
+-- viewPage : Session -> Bool -> Page -> Html Msg
+-- viewPage session isLoading page =
+--     let
+--         frame =
+--             Page.frame isLoading session.user
+--     in
+--     case page of
 
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
@@ -84,6 +98,16 @@ view lift page model =
     let
         _ =
             Nothing
+
+        -- .demo-linear-progress--custom .mdc-linear-progress__bar-inner {
+        --   background-color: rgba(170, 7, 28, 0.5);
+        -- }
+        -- .demo-linear-progress--custom .mdc-linear-progress__buffering-dots {
+        --   background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' enable-background='new 0 0 5 2' xml:space='preserve' viewBox='0 0 5 2' preserveAspectRatio='none slice'%3E%3Ccircle cx='1' cy='1' r='1' fill='rgba(170, 7, 28, 0.5)'/%3E%3C/svg%3E");
+        -- }
+        -- .demo-linear-progress--custom .mdc-linear-progress__buffer {
+        --   background-color: rgba(170, 7, 28, 0.5);
+        -- }
     in
     page.body "Home"
         [ styled Html.section
@@ -94,8 +118,9 @@ view lift page model =
                 , css "margin-bottom" "16px"
                 ]
                 [ LinearProgress.view
-                    [ LinearProgress.buffered 0.0 0.0
-                    , Theme.secondary
+                    [ LinearProgress.buffered 0.3 0.0
+                    , LinearProgress.indeterminate
+                    , cs "demo-linear-progress--custom"
                     ]
                     []
                 ]
