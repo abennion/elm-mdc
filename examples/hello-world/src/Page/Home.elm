@@ -8,12 +8,16 @@ module Page.Home
         , view
         )
 
+-- import Page.Errored
+
+import Data.Session
 import Html exposing (Html, text)
+import Http
 import Material
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Typography as Typography
-import Page.Errored
 import Page.Page exposing (Page)
+import Task exposing (Task)
 
 
 type alias Model m =
@@ -31,27 +35,31 @@ type Msg m
     = Mdc (Material.Msg m)
 
 
-init : Session -> Task PageLoadError Model
+
+-- init : Session -> Task PageLoadError Model
+
+
 init session =
-    let
-        feedSources =
-            if session.user == Nothing then
-                SelectList.singleton globalFeed
-            else
-                SelectList.fromLists [] yourFeed [ globalFeed ]
+    Nothing
 
-        loadTags =
-            Request.Article.tags
-                |> Http.toTask
 
-        loadSources =
-            Feed.init session feedSources
 
-        handleLoadError _ =
-            pageLoadError Page.Home "Homepage is currently unavailable."
-    in
-    Task.map2 Model loadTags loadSources
-        |> Task.mapError handleLoadError
+-- let
+--     feedSources =
+--         if session.user == Nothing then
+--             SelectList.singleton globalFeed
+--         else
+--             SelectList.fromLists [] yourFeed [ globalFeed ]
+--     loadTags =
+--         Request.Article.tags
+--             |> Http.toTask
+--     loadSources =
+--         Feed.init session feedSources
+--     handleLoadError _ =
+--         pageLoadError Page.Home "Homepage is currently unavailable."
+-- in
+-- Task.map2 Model loadTags loadSources
+--     |> Task.mapError handleLoadError
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
