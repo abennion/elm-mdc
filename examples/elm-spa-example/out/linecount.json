@@ -1,0 +1,1007 @@
+{
+    "extension": "linecount",
+    "version": "0.1.7",
+    "workspace": "/home/user/github.com/abennion/elm-spa-example",
+    "linecount": [
+        {
+            "version": "0.1.7",
+            "counttime": "2018-07-25 21:33:25",
+            "filesum": 49,
+            "codesum": 41397,
+            "commentsum": 712,
+            "blanksum": 3332,
+            "filelist": [
+                {
+                    "blank": 3,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 5,
+                    "code": 29,
+                    "comment": 2,
+                    "filename": ".travis.yml"
+                },
+                {
+                    "blank": 0,
+                    "code": 1,
+                    "comment": 0,
+                    "filename": "elm-mdc.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 29,
+                    "comment": 0,
+                    "filename": "elm-package.json"
+                },
+                {
+                    "blank": 1193,
+                    "code": 30376,
+                    "comment": 248,
+                    "filename": "elm.js"
+                },
+                {
+                    "blank": 16,
+                    "code": 82,
+                    "comment": 3,
+                    "filename": "index.backup.html"
+                },
+                {
+                    "blank": 6,
+                    "code": 24,
+                    "comment": 1,
+                    "filename": "index.elm-mdc-demo.html"
+                },
+                {
+                    "blank": 17,
+                    "code": 82,
+                    "comment": 2,
+                    "filename": "index.html"
+                },
+                {
+                    "blank": 4,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "LICENSE"
+                },
+                {
+                    "blank": 1256,
+                    "code": 8193,
+                    "comment": 447,
+                    "filename": "material-components-web.css"
+                },
+                {
+                    "blank": 1,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "README-BUILD.md"
+                },
+                {
+                    "blank": 11,
+                    "code": 11,
+                    "comment": 8,
+                    "filename": "README.md"
+                },
+                {
+                    "blank": 49,
+                    "code": 105,
+                    "comment": 0,
+                    "filename": "src/Data/Article.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Author.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 31,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Comment.elm"
+                },
+                {
+                    "blank": 8,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Feed.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "src/Data/AuthToken.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Profile.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Data/Session.elm"
+                },
+                {
+                    "blank": 25,
+                    "code": 59,
+                    "comment": 0,
+                    "filename": "src/Data/User.elm"
+                },
+                {
+                    "blank": 18,
+                    "code": 27,
+                    "comment": 0,
+                    "filename": "src/Data/UserPhoto.elm"
+                },
+                {
+                    "blank": 111,
+                    "code": 343,
+                    "comment": 0,
+                    "filename": "src/Main.elm"
+                },
+                {
+                    "blank": 68,
+                    "code": 333,
+                    "comment": 0,
+                    "filename": "src/Page/Article.elm"
+                },
+                {
+                    "blank": 52,
+                    "code": 190,
+                    "comment": 0,
+                    "filename": "src/Page/Article/Editor.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "src/Page/Errored.elm"
+                },
+                {
+                    "blank": 32,
+                    "code": 99,
+                    "comment": 0,
+                    "filename": "src/Page/Home.elm"
+                },
+                {
+                    "blank": 38,
+                    "code": 122,
+                    "comment": 0,
+                    "filename": "src/Page/Login.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Page/NotFound.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "src/Page/Profile.elm"
+                },
+                {
+                    "blank": 43,
+                    "code": 151,
+                    "comment": 0,
+                    "filename": "src/Page/Register.elm"
+                },
+                {
+                    "blank": 46,
+                    "code": 203,
+                    "comment": 0,
+                    "filename": "src/Page/Settings.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Ports.elm"
+                },
+                {
+                    "blank": 67,
+                    "code": 205,
+                    "comment": 0,
+                    "filename": "src/Request/Article.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 37,
+                    "comment": 0,
+                    "filename": "src/Request/Article/Comments.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Request/Helpers.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 41,
+                    "comment": 0,
+                    "filename": "src/Request/Profile.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 82,
+                    "comment": 0,
+                    "filename": "src/Request/User.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "src/Route.elm"
+                },
+                {
+                    "blank": 15,
+                    "code": 35,
+                    "comment": 0,
+                    "filename": "src/Util.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 47,
+                    "comment": 0,
+                    "filename": "src/Views/Article.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "src/Views/Article/Favorite.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 1,
+                    "filename": "src/Views/Article/Feed.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "src/Views/Assets.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": "src/Views/Author.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 24,
+                    "comment": 0,
+                    "filename": "src/Views/Errors.elm"
+                },
+                {
+                    "blank": 14,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "src/Views/Form.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 98,
+                    "comment": 0,
+                    "filename": "src/Views/Page.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "src/Views/Spinner.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Views/User/Follow.elm"
+                }
+            ]
+        },
+        {
+            "version": "0.1.7",
+            "counttime": "2018-07-25 21:34:24",
+            "filesum": 37,
+            "codesum": 2542,
+            "commentsum": 1,
+            "blanksum": 819,
+            "filelist": [
+                {
+                    "blank": 49,
+                    "code": 105,
+                    "comment": 0,
+                    "filename": "src/Data/Article.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Author.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 31,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Comment.elm"
+                },
+                {
+                    "blank": 8,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Feed.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "src/Data/AuthToken.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Profile.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Data/Session.elm"
+                },
+                {
+                    "blank": 25,
+                    "code": 59,
+                    "comment": 0,
+                    "filename": "src/Data/User.elm"
+                },
+                {
+                    "blank": 18,
+                    "code": 27,
+                    "comment": 0,
+                    "filename": "src/Data/UserPhoto.elm"
+                },
+                {
+                    "blank": 111,
+                    "code": 343,
+                    "comment": 0,
+                    "filename": "src/Main.elm"
+                },
+                {
+                    "blank": 68,
+                    "code": 333,
+                    "comment": 0,
+                    "filename": "src/Page/Article.elm"
+                },
+                {
+                    "blank": 52,
+                    "code": 190,
+                    "comment": 0,
+                    "filename": "src/Page/Article/Editor.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "src/Page/Errored.elm"
+                },
+                {
+                    "blank": 32,
+                    "code": 99,
+                    "comment": 0,
+                    "filename": "src/Page/Home.elm"
+                },
+                {
+                    "blank": 38,
+                    "code": 122,
+                    "comment": 0,
+                    "filename": "src/Page/Login.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Page/NotFound.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "src/Page/Profile.elm"
+                },
+                {
+                    "blank": 43,
+                    "code": 151,
+                    "comment": 0,
+                    "filename": "src/Page/Register.elm"
+                },
+                {
+                    "blank": 46,
+                    "code": 203,
+                    "comment": 0,
+                    "filename": "src/Page/Settings.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Ports.elm"
+                },
+                {
+                    "blank": 67,
+                    "code": 205,
+                    "comment": 0,
+                    "filename": "src/Request/Article.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 37,
+                    "comment": 0,
+                    "filename": "src/Request/Article/Comments.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Request/Helpers.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 41,
+                    "comment": 0,
+                    "filename": "src/Request/Profile.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 82,
+                    "comment": 0,
+                    "filename": "src/Request/User.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "src/Route.elm"
+                },
+                {
+                    "blank": 15,
+                    "code": 35,
+                    "comment": 0,
+                    "filename": "src/Util.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 47,
+                    "comment": 0,
+                    "filename": "src/Views/Article.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "src/Views/Article/Favorite.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 1,
+                    "filename": "src/Views/Article/Feed.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "src/Views/Assets.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": "src/Views/Author.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 24,
+                    "comment": 0,
+                    "filename": "src/Views/Errors.elm"
+                },
+                {
+                    "blank": 14,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "src/Views/Form.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 98,
+                    "comment": 0,
+                    "filename": "src/Views/Page.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "src/Views/Spinner.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Views/User/Follow.elm"
+                }
+            ]
+        },
+        {
+            "version": "0.1.7",
+            "counttime": "2018-07-25 21:35:08",
+            "filesum": 37,
+            "codesum": 2542,
+            "commentsum": 1,
+            "blanksum": 819,
+            "filelist": [
+                {
+                    "blank": 49,
+                    "code": 105,
+                    "comment": 0,
+                    "filename": "src/Data/Article.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Author.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 31,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Comment.elm"
+                },
+                {
+                    "blank": 8,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Feed.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "src/Data/AuthToken.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Profile.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Data/Session.elm"
+                },
+                {
+                    "blank": 25,
+                    "code": 59,
+                    "comment": 0,
+                    "filename": "src/Data/User.elm"
+                },
+                {
+                    "blank": 18,
+                    "code": 27,
+                    "comment": 0,
+                    "filename": "src/Data/UserPhoto.elm"
+                },
+                {
+                    "blank": 111,
+                    "code": 343,
+                    "comment": 0,
+                    "filename": "src/Main.elm"
+                },
+                {
+                    "blank": 68,
+                    "code": 333,
+                    "comment": 0,
+                    "filename": "src/Page/Article.elm"
+                },
+                {
+                    "blank": 52,
+                    "code": 190,
+                    "comment": 0,
+                    "filename": "src/Page/Article/Editor.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "src/Page/Errored.elm"
+                },
+                {
+                    "blank": 32,
+                    "code": 99,
+                    "comment": 0,
+                    "filename": "src/Page/Home.elm"
+                },
+                {
+                    "blank": 38,
+                    "code": 122,
+                    "comment": 0,
+                    "filename": "src/Page/Login.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Page/NotFound.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "src/Page/Profile.elm"
+                },
+                {
+                    "blank": 43,
+                    "code": 151,
+                    "comment": 0,
+                    "filename": "src/Page/Register.elm"
+                },
+                {
+                    "blank": 46,
+                    "code": 203,
+                    "comment": 0,
+                    "filename": "src/Page/Settings.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Ports.elm"
+                },
+                {
+                    "blank": 67,
+                    "code": 205,
+                    "comment": 0,
+                    "filename": "src/Request/Article.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 37,
+                    "comment": 0,
+                    "filename": "src/Request/Article/Comments.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Request/Helpers.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 41,
+                    "comment": 0,
+                    "filename": "src/Request/Profile.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 82,
+                    "comment": 0,
+                    "filename": "src/Request/User.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "src/Route.elm"
+                },
+                {
+                    "blank": 15,
+                    "code": 35,
+                    "comment": 0,
+                    "filename": "src/Util.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 47,
+                    "comment": 0,
+                    "filename": "src/Views/Article.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "src/Views/Article/Favorite.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 1,
+                    "filename": "src/Views/Article/Feed.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "src/Views/Assets.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": "src/Views/Author.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 24,
+                    "comment": 0,
+                    "filename": "src/Views/Errors.elm"
+                },
+                {
+                    "blank": 14,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "src/Views/Form.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 98,
+                    "comment": 0,
+                    "filename": "src/Views/Page.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "src/Views/Spinner.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Views/User/Follow.elm"
+                }
+            ]
+        },
+        {
+            "version": "0.1.7",
+            "counttime": "2018-07-25 21:41:23",
+            "filesum": 37,
+            "codesum": 2537,
+            "commentsum": 1,
+            "blanksum": 819,
+            "filelist": [
+                {
+                    "blank": 49,
+                    "code": 105,
+                    "comment": 0,
+                    "filename": "src/Data/Article.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Author.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 31,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Comment.elm"
+                },
+                {
+                    "blank": 8,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "src/Data/Article/Feed.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 21,
+                    "comment": 0,
+                    "filename": "src/Data/AuthToken.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 0,
+                    "filename": "src/Data/Profile.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Data/Session.elm"
+                },
+                {
+                    "blank": 25,
+                    "code": 59,
+                    "comment": 0,
+                    "filename": "src/Data/User.elm"
+                },
+                {
+                    "blank": 18,
+                    "code": 27,
+                    "comment": 0,
+                    "filename": "src/Data/UserPhoto.elm"
+                },
+                {
+                    "blank": 111,
+                    "code": 338,
+                    "comment": 0,
+                    "filename": "src/Main.elm"
+                },
+                {
+                    "blank": 68,
+                    "code": 333,
+                    "comment": 0,
+                    "filename": "src/Page/Article.elm"
+                },
+                {
+                    "blank": 52,
+                    "code": 190,
+                    "comment": 0,
+                    "filename": "src/Page/Article/Editor.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "src/Page/Errored.elm"
+                },
+                {
+                    "blank": 32,
+                    "code": 99,
+                    "comment": 0,
+                    "filename": "src/Page/Home.elm"
+                },
+                {
+                    "blank": 38,
+                    "code": 122,
+                    "comment": 0,
+                    "filename": "src/Page/Login.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 13,
+                    "comment": 0,
+                    "filename": "src/Page/NotFound.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "src/Page/Profile.elm"
+                },
+                {
+                    "blank": 43,
+                    "code": 151,
+                    "comment": 0,
+                    "filename": "src/Page/Register.elm"
+                },
+                {
+                    "blank": 46,
+                    "code": 203,
+                    "comment": 0,
+                    "filename": "src/Page/Settings.elm"
+                },
+                {
+                    "blank": 5,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Ports.elm"
+                },
+                {
+                    "blank": 67,
+                    "code": 205,
+                    "comment": 0,
+                    "filename": "src/Request/Article.elm"
+                },
+                {
+                    "blank": 17,
+                    "code": 37,
+                    "comment": 0,
+                    "filename": "src/Request/Article/Comments.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Request/Helpers.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 41,
+                    "comment": 0,
+                    "filename": "src/Request/Profile.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 82,
+                    "comment": 0,
+                    "filename": "src/Request/User.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 73,
+                    "comment": 0,
+                    "filename": "src/Route.elm"
+                },
+                {
+                    "blank": 15,
+                    "code": 35,
+                    "comment": 0,
+                    "filename": "src/Util.elm"
+                },
+                {
+                    "blank": 13,
+                    "code": 47,
+                    "comment": 0,
+                    "filename": "src/Views/Article.elm"
+                },
+                {
+                    "blank": 10,
+                    "code": 32,
+                    "comment": 0,
+                    "filename": "src/Views/Article/Favorite.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 9,
+                    "comment": 1,
+                    "filename": "src/Views/Article/Feed.elm"
+                },
+                {
+                    "blank": 16,
+                    "code": 17,
+                    "comment": 0,
+                    "filename": "src/Views/Assets.elm"
+                },
+                {
+                    "blank": 1,
+                    "code": 3,
+                    "comment": 0,
+                    "filename": "src/Views/Author.elm"
+                },
+                {
+                    "blank": 6,
+                    "code": 24,
+                    "comment": 0,
+                    "filename": "src/Views/Errors.elm"
+                },
+                {
+                    "blank": 14,
+                    "code": 26,
+                    "comment": 0,
+                    "filename": "src/Views/Form.elm"
+                },
+                {
+                    "blank": 30,
+                    "code": 98,
+                    "comment": 0,
+                    "filename": "src/Views/Page.elm"
+                },
+                {
+                    "blank": 3,
+                    "code": 11,
+                    "comment": 0,
+                    "filename": "src/Views/Spinner.elm"
+                },
+                {
+                    "blank": 2,
+                    "code": 4,
+                    "comment": 0,
+                    "filename": "src/Views/User/Follow.elm"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,208 @@
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2018-07-25 21:33:25
+count workspace : /home/user/github.com/abennion/elm-spa-example
+total files : 49
+total code lines : 41397
+total comment lines : 712
+total blank lines : 3332
+
+.gitignore, code is 7, comment is 0, blank is 3.
+.travis.yml, code is 29, comment is 2, blank is 5.
+elm-mdc.js, code is 1, comment is 0, blank is 0.
+elm-package.json, code is 29, comment is 0, blank is 1.
+elm.js, code is 30376, comment is 248, blank is 1193.
+index.backup.html, code is 82, comment is 3, blank is 16.
+index.elm-mdc-demo.html, code is 24, comment is 1, blank is 6.
+index.html, code is 82, comment is 2, blank is 17.
+LICENSE, code is 17, comment is 0, blank is 4.
+material-components-web.css, code is 8193, comment is 447, blank is 1256.
+README-BUILD.md, code is 4, comment is 0, blank is 1.
+README.md, code is 11, comment is 8, blank is 11.
+src/Data/Article.elm, code is 105, comment is 0, blank is 49.
+src/Data/Article/Author.elm, code is 18, comment is 0, blank is 5.
+src/Data/Article/Comment.elm, code is 31, comment is 0, blank is 17.
+src/Data/Article/Feed.elm, code is 14, comment is 0, blank is 8.
+src/Data/AuthToken.elm, code is 21, comment is 0, blank is 10.
+src/Data/Profile.elm, code is 18, comment is 0, blank is 5.
+src/Data/Session.elm, code is 13, comment is 0, blank is 6.
+src/Data/User.elm, code is 59, comment is 0, blank is 25.
+src/Data/UserPhoto.elm, code is 27, comment is 0, blank is 18.
+src/Main.elm, code is 343, comment is 0, blank is 111.
+src/Page/Article.elm, code is 333, comment is 0, blank is 68.
+src/Page/Article/Editor.elm, code is 190, comment is 0, blank is 52.
+src/Page/Errored.elm, code is 28, comment is 0, blank is 17.
+src/Page/Home.elm, code is 99, comment is 0, blank is 32.
+src/Page/Login.elm, code is 122, comment is 0, blank is 38.
+src/Page/NotFound.elm, code is 13, comment is 0, blank is 5.
+src/Page/Profile.elm, code is 2, comment is 0, blank is 1.
+src/Page/Register.elm, code is 151, comment is 0, blank is 43.
+src/Page/Settings.elm, code is 203, comment is 0, blank is 46.
+src/Ports.elm, code is 4, comment is 0, blank is 5.
+src/Request/Article.elm, code is 205, comment is 0, blank is 67.
+src/Request/Article/Comments.elm, code is 37, comment is 0, blank is 17.
+src/Request/Helpers.elm, code is 4, comment is 0, blank is 2.
+src/Request/Profile.elm, code is 41, comment is 0, blank is 16.
+src/Request/User.elm, code is 82, comment is 0, blank is 13.
+src/Route.elm, code is 73, comment is 0, blank is 30.
+src/Util.elm, code is 35, comment is 0, blank is 15.
+src/Views/Article.elm, code is 47, comment is 0, blank is 13.
+src/Views/Article/Favorite.elm, code is 32, comment is 0, blank is 10.
+src/Views/Article/Feed.elm, code is 9, comment is 1, blank is 3.
+src/Views/Assets.elm, code is 17, comment is 0, blank is 16.
+src/Views/Author.elm, code is 3, comment is 0, blank is 1.
+src/Views/Errors.elm, code is 24, comment is 0, blank is 6.
+src/Views/Form.elm, code is 26, comment is 0, blank is 14.
+src/Views/Page.elm, code is 98, comment is 0, blank is 30.
+src/Views/Spinner.elm, code is 11, comment is 0, blank is 3.
+src/Views/User/Follow.elm, code is 4, comment is 0, blank is 2.
+===============================================================================
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2018-07-25 21:34:24
+count workspace : /home/user/github.com/abennion/elm-spa-example
+total files : 37
+total code lines : 2542
+total comment lines : 1
+total blank lines : 819
+
+src/Data/Article.elm, code is 105, comment is 0, blank is 49.
+src/Data/Article/Author.elm, code is 18, comment is 0, blank is 5.
+src/Data/Article/Comment.elm, code is 31, comment is 0, blank is 17.
+src/Data/Article/Feed.elm, code is 14, comment is 0, blank is 8.
+src/Data/AuthToken.elm, code is 21, comment is 0, blank is 10.
+src/Data/Profile.elm, code is 18, comment is 0, blank is 5.
+src/Data/Session.elm, code is 13, comment is 0, blank is 6.
+src/Data/User.elm, code is 59, comment is 0, blank is 25.
+src/Data/UserPhoto.elm, code is 27, comment is 0, blank is 18.
+src/Main.elm, code is 343, comment is 0, blank is 111.
+src/Page/Article.elm, code is 333, comment is 0, blank is 68.
+src/Page/Article/Editor.elm, code is 190, comment is 0, blank is 52.
+src/Page/Errored.elm, code is 28, comment is 0, blank is 17.
+src/Page/Home.elm, code is 99, comment is 0, blank is 32.
+src/Page/Login.elm, code is 122, comment is 0, blank is 38.
+src/Page/NotFound.elm, code is 13, comment is 0, blank is 5.
+src/Page/Profile.elm, code is 2, comment is 0, blank is 1.
+src/Page/Register.elm, code is 151, comment is 0, blank is 43.
+src/Page/Settings.elm, code is 203, comment is 0, blank is 46.
+src/Ports.elm, code is 4, comment is 0, blank is 5.
+src/Request/Article.elm, code is 205, comment is 0, blank is 67.
+src/Request/Article/Comments.elm, code is 37, comment is 0, blank is 17.
+src/Request/Helpers.elm, code is 4, comment is 0, blank is 2.
+src/Request/Profile.elm, code is 41, comment is 0, blank is 16.
+src/Request/User.elm, code is 82, comment is 0, blank is 13.
+src/Route.elm, code is 73, comment is 0, blank is 30.
+src/Util.elm, code is 35, comment is 0, blank is 15.
+src/Views/Article.elm, code is 47, comment is 0, blank is 13.
+src/Views/Article/Favorite.elm, code is 32, comment is 0, blank is 10.
+src/Views/Article/Feed.elm, code is 9, comment is 1, blank is 3.
+src/Views/Assets.elm, code is 17, comment is 0, blank is 16.
+src/Views/Author.elm, code is 3, comment is 0, blank is 1.
+src/Views/Errors.elm, code is 24, comment is 0, blank is 6.
+src/Views/Form.elm, code is 26, comment is 0, blank is 14.
+src/Views/Page.elm, code is 98, comment is 0, blank is 30.
+src/Views/Spinner.elm, code is 11, comment is 0, blank is 3.
+src/Views/User/Follow.elm, code is 4, comment is 0, blank is 2.
+===============================================================================
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2018-07-25 21:35:08
+count workspace : /home/user/github.com/abennion/elm-spa-example
+total files : 37
+total code lines : 2542
+total comment lines : 1
+total blank lines : 819
+
+src/Data/Article.elm, code is 105, comment is 0, blank is 49.
+src/Data/Article/Author.elm, code is 18, comment is 0, blank is 5.
+src/Data/Article/Comment.elm, code is 31, comment is 0, blank is 17.
+src/Data/Article/Feed.elm, code is 14, comment is 0, blank is 8.
+src/Data/AuthToken.elm, code is 21, comment is 0, blank is 10.
+src/Data/Profile.elm, code is 18, comment is 0, blank is 5.
+src/Data/Session.elm, code is 13, comment is 0, blank is 6.
+src/Data/User.elm, code is 59, comment is 0, blank is 25.
+src/Data/UserPhoto.elm, code is 27, comment is 0, blank is 18.
+src/Main.elm, code is 343, comment is 0, blank is 111.
+src/Page/Article.elm, code is 333, comment is 0, blank is 68.
+src/Page/Article/Editor.elm, code is 190, comment is 0, blank is 52.
+src/Page/Errored.elm, code is 28, comment is 0, blank is 17.
+src/Page/Home.elm, code is 99, comment is 0, blank is 32.
+src/Page/Login.elm, code is 122, comment is 0, blank is 38.
+src/Page/NotFound.elm, code is 13, comment is 0, blank is 5.
+src/Page/Profile.elm, code is 2, comment is 0, blank is 1.
+src/Page/Register.elm, code is 151, comment is 0, blank is 43.
+src/Page/Settings.elm, code is 203, comment is 0, blank is 46.
+src/Ports.elm, code is 4, comment is 0, blank is 5.
+src/Request/Article.elm, code is 205, comment is 0, blank is 67.
+src/Request/Article/Comments.elm, code is 37, comment is 0, blank is 17.
+src/Request/Helpers.elm, code is 4, comment is 0, blank is 2.
+src/Request/Profile.elm, code is 41, comment is 0, blank is 16.
+src/Request/User.elm, code is 82, comment is 0, blank is 13.
+src/Route.elm, code is 73, comment is 0, blank is 30.
+src/Util.elm, code is 35, comment is 0, blank is 15.
+src/Views/Article.elm, code is 47, comment is 0, blank is 13.
+src/Views/Article/Favorite.elm, code is 32, comment is 0, blank is 10.
+src/Views/Article/Feed.elm, code is 9, comment is 1, blank is 3.
+src/Views/Assets.elm, code is 17, comment is 0, blank is 16.
+src/Views/Author.elm, code is 3, comment is 0, blank is 1.
+src/Views/Errors.elm, code is 24, comment is 0, blank is 6.
+src/Views/Form.elm, code is 26, comment is 0, blank is 14.
+src/Views/Page.elm, code is 98, comment is 0, blank is 30.
+src/Views/Spinner.elm, code is 11, comment is 0, blank is 3.
+src/Views/User/Follow.elm, code is 4, comment is 0, blank is 2.
+===============================================================================
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2018-07-25 21:41:23
+count workspace : /home/user/github.com/abennion/elm-spa-example
+total files : 37
+total code lines : 2537
+total comment lines : 1
+total blank lines : 819
+
+src/Data/Article.elm, code is 105, comment is 0, blank is 49.
+src/Data/Article/Author.elm, code is 18, comment is 0, blank is 5.
+src/Data/Article/Comment.elm, code is 31, comment is 0, blank is 17.
+src/Data/Article/Feed.elm, code is 14, comment is 0, blank is 8.
+src/Data/AuthToken.elm, code is 21, comment is 0, blank is 10.
+src/Data/Profile.elm, code is 18, comment is 0, blank is 5.
+src/Data/Session.elm, code is 13, comment is 0, blank is 6.
+src/Data/User.elm, code is 59, comment is 0, blank is 25.
+src/Data/UserPhoto.elm, code is 27, comment is 0, blank is 18.
+src/Main.elm, code is 338, comment is 0, blank is 111.
+src/Page/Article.elm, code is 333, comment is 0, blank is 68.
+src/Page/Article/Editor.elm, code is 190, comment is 0, blank is 52.
+src/Page/Errored.elm, code is 28, comment is 0, blank is 17.
+src/Page/Home.elm, code is 99, comment is 0, blank is 32.
+src/Page/Login.elm, code is 122, comment is 0, blank is 38.
+src/Page/NotFound.elm, code is 13, comment is 0, blank is 5.
+src/Page/Profile.elm, code is 2, comment is 0, blank is 1.
+src/Page/Register.elm, code is 151, comment is 0, blank is 43.
+src/Page/Settings.elm, code is 203, comment is 0, blank is 46.
+src/Ports.elm, code is 4, comment is 0, blank is 5.
+src/Request/Article.elm, code is 205, comment is 0, blank is 67.
+src/Request/Article/Comments.elm, code is 37, comment is 0, blank is 17.
+src/Request/Helpers.elm, code is 4, comment is 0, blank is 2.
+src/Request/Profile.elm, code is 41, comment is 0, blank is 16.
+src/Request/User.elm, code is 82, comment is 0, blank is 13.
+src/Route.elm, code is 73, comment is 0, blank is 30.
+src/Util.elm, code is 35, comment is 0, blank is 15.
+src/Views/Article.elm, code is 47, comment is 0, blank is 13.
+src/Views/Article/Favorite.elm, code is 32, comment is 0, blank is 10.
+src/Views/Article/Feed.elm, code is 9, comment is 1, blank is 3.
+src/Views/Assets.elm, code is 17, comment is 0, blank is 16.
+src/Views/Author.elm, code is 3, comment is 0, blank is 1.
+src/Views/Errors.elm, code is 24, comment is 0, blank is 6.
+src/Views/Form.elm, code is 26, comment is 0, blank is 14.
+src/Views/Page.elm, code is 98, comment is 0, blank is 30.
+src/Views/Spinner.elm, code is 11, comment is 0, blank is 3.
+src/Views/User/Follow.elm, code is 4, comment is 0, blank is 2.
+===============================================================================
