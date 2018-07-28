@@ -1,6 +1,9 @@
-port module Ports exposing (onSessionChange, storeSession)
+port module Ports exposing (onSessionChange, scrollTop, storeSession)
 
 import Json.Encode exposing (Value)
+
+
+port scrollTop : () -> Cmd msg
 
 
 port storeSession : Maybe String -> Cmd msg

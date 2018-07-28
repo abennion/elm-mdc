@@ -46,25 +46,16 @@ toolbar lift idx mdc navigate url title =
                     [ cs "catalog-back"
                     , css "padding-right" "24px"
                     ]
-                    [ case url of
-                        Url.StartPage ->
-                            styled Html.img
-                                [ cs "mdc-toolbar__menu-icon"
-                                , Options.attribute (Html.src "images/ic_component_24px_white.svg")
-                                ]
-                                []
-
-                        _ ->
-                            Icon.view
-                                [ Options.onClick (navigate Url.StartPage)
-                                , Toolbar.menuIcon
-                                ]
-                                "arrow_back"
+                    [ Icon.view
+                        [ Options.onClick (navigate Url.Button)
+                        , Toolbar.menuIcon
+                        ]
+                        "arrow_back"
                     ]
                 , Toolbar.title
                     [ cs "cataloge-title"
                     , css "margin-left"
-                        (if url == Url.StartPage then
+                        (if url == Url.Button then
                             "8px"
                          else
                             "24"
