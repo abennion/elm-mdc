@@ -1,12 +1,12 @@
 module Main exposing (..)
 
-import App.Page
-import App.Page.Home
-import App.Url
 import Html exposing (Html, text)
 import Material
 import Material.Button as Button
 import Material.Options as Options
+import Page.Home
+import Page.Page
+import Url
 
 
 type alias Model =

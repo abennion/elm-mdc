@@ -1,2 +1,3 @@
 build:
-	elm-make --warn Main.elm --output elm.js
+	elm-live src/Main.elm --output=elm.js --open --debug
+
