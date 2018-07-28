@@ -4,6 +4,7 @@ import Html exposing (Html, text)
 import Material
 import Material.Button as Button
 import Material.Options as Options
+import Route exposing (Route(..))
 
 
 type alias Model =
@@ -20,6 +21,45 @@ defaultModel =
 type Msg
     = Mdc (Material.Msg Msg)
     | Click
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Mdc msg_ ->
+            Material.update Mdc msg_ model
+
+        Click ->
+            ( model, Cmd.none )
+
+
+setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
+setRoute maybeRoute model =
+    case maybeRoute of
+        Nothing ->
+            model ! []
+
+        Just Route.Home ->
+            model ! []
+
+        Just Route.Root ->
+            model ! []
+
+        Just Route.Other ->
+            model ! []
+
+
+view : Model -> Html Msg
+view model =
+    Html.div []
+        [ Button.view Mdc
+            "my-button"
+            model.mdc
+            [ Button.ripple
+            , Options.onClick Click
+            ]
+            [ text "Click me!" ]
+        ]
 
 
 main : Program Never Model Msg
@@ -40,26 +80,3 @@ init =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Material.subscriptions Mdc model
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        Mdc msg_ ->
-            Material.update Mdc msg_ model
-
-        Click ->
-            ( model, Cmd.none )
-
-
-view : Model -> Html Msg
-view model =
-    Html.div []
-        [ Button.view Mdc
-            "my-button"
-            model.mdc
-            [ Button.ripple
-            , Options.onClick Click
-            ]
-            [ text "Click me!" ]
-        ]
