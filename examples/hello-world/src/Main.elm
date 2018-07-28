@@ -4,7 +4,8 @@ import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
-import Material.Options as Options exposing (css, styled, when)
+import Material.LinearProgress as LinearProgress
+import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Typography
 import Navigation
 import Page.Buttons
@@ -80,6 +81,14 @@ init val location =
 
 
 -- UPDATE
+-- setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
+-- setRoute maybeRoute model =
+--     let
+--         transition toMsg task =
+--             { model | pageState = TransitioningFrom (getPage model.pageState) }
+--                 => Task.attempt toMsg task
+--         errored =
+--             pageErrored model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -137,7 +146,20 @@ viewPage model isLoading url =
                 \title nodes ->
                     styled Html.div
                         []
-                        [ Button.view Mdc
+                        [ Html.h2 [] [ text title ]
+                        , styled Html.div
+                            [ css "margin" "24px"
+                            , css "margin-top" "0"
+                            , css "margin-bottom" "16px"
+                            ]
+                            [ LinearProgress.view
+                                [ LinearProgress.buffered 0.3 0.0
+                                , LinearProgress.indeterminate
+                                , cs "demo-linear-progress--custom"
+                                ]
+                                []
+                            ]
+                        , Button.view Mdc
                             "my-button"
                             model.mdc
                             [ Button.ripple
