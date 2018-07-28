@@ -1,11 +1,14 @@
 module Internal.Chip.Implementation
     exposing
-        ( Property
+        ( checkmark
         , chipset
+        , choice
+        , filter
+        , input
         , leadingIcon
         , onClick
+        , Property
         , react
-        , ripple
         , selected
         , trailingIcon
         , view
@@ -13,13 +16,17 @@ module Internal.Chip.Implementation
 
 import Html exposing (Html, text)
 import Html.Attributes as Html
-import Internal.Chip.Model exposing (Model, Msg(..), defaultModel)
+import Html.Events as Html
+import Internal.Chip.Model exposing (Key, KeyCode, Model, Msg(..), defaultModel)
 import Internal.Component as Component exposing (Index, Indexed)
 import Internal.Helpers as Helpers
 import Internal.Icon.Implementation as Icon
 import Internal.Msg
 import Internal.Options as Options exposing (cs, css, styled, when)
 import Internal.Ripple.Implementation as Ripple
+import Json.Decode as Json exposing (Decoder)
+import Svg exposing (path)
+import Svg.Attributes as Svg
 
 
 update : (Msg m -> m) -> Msg m -> Model -> ( Maybe Model, Cmd m )
@@ -32,32 +39,26 @@ update lift msg model =
             in
             ( Just { model | ripple = ripple }, Cmd.map (lift << RippleMsg) cmd )
 
-        Click ripple msg_ ->
-            ( Nothing
-            , Helpers.delayedCmd
-                (if ripple then
-                    150
-                 else
-                    0
-                )
-                msg_
-            )
+        Click msg_ ->
+            ( Nothing, Helpers.delayedCmd 150 msg_ )
 
 
 type alias Config m =
-    { ripple : Bool
-    , leadingIcon : Maybe String
+    { leadingIcon : Maybe String
     , trailingIcon : Maybe String
     , onClick : Maybe m
+    , selected : Bool
+    , checkmark : Bool
     }
 
 
 defaultConfig : Config m
 defaultConfig =
-    { ripple = False
-    , leadingIcon = Nothing
+    { leadingIcon = Nothing
     , trailingIcon = Nothing
     , onClick = Nothing
+    , selected = False
+    , checkmark = False
     }
 
 
@@ -77,22 +78,70 @@ trailingIcon str =
 
 selected : Property m
 selected =
-    cs "mdc-chip--selected"
+    Options.option (\config -> { config | selected = True })
 
 
-ripple : Property m
-ripple =
-    Options.option (\options -> { options | ripple = True })
+checkmark : Property m
+checkmark =
+    Options.option (\config -> { config | checkmark = True })
 
 
 onClick : m -> Property m
-onClick onClick =
-    Options.option (\options -> { options | onClick = Just onClick })
+onClick msg =
+    let
+        trigger key keyCode =
+            let
+                isEnter =
+                    key == "Enter" || keyCode == 13
+            in
+            if isEnter then
+                Json.succeed msg
+            else
+                Json.fail ""
+    in
+    Options.many
+        [ Options.onClick msg
+        , Options.on "keyup" (Json.map2 trigger decodeKey decodeKeyCode |> Json.andThen identity)
+        ]
 
 
-chipset : List (Html m) -> Html m
-chipset nodes =
-    styled Html.div [ cs "mdc-chip-set" ] nodes
+decodeKey : Decoder Key
+decodeKey =
+    Json.at [ "key" ] Json.string
+
+
+decodeKeyCode : Decoder KeyCode
+decodeKeyCode =
+    Html.keyCode
+
+
+chipset : List (Property m) -> List (Html m) -> Html m
+chipset options nodes =
+  let
+      ({ config } as summary) =
+        Options.collect defaultConfig options
+  in
+    Options.apply summary
+        Html.div
+        [ cs "mdc-chip-set"
+        ]
+        []
+        nodes
+
+
+filter : Property m
+filter =
+    cs "mdc-chip-set--filter"
+
+
+choice : Property m
+choice =
+    cs "mdc-chip-set--choice"
+
+
+input : Property m
+input =
+    cs "mdc-chip-set--input"
 
 
 chip : (Msg m -> m) -> Model -> List (Property m) -> List (Html m) -> Html m
@@ -107,15 +156,14 @@ chip lift model options nodes =
     Options.apply summary
         Html.div
         [ cs "mdc-chip"
-        , cs "mdc-js-ripple-effect" |> when summary.config.ripple
-        , when config.ripple
-            << Options.many
-          <|
+        , when config.selected (cs "mdc-chip--selected")
+        , cs "mdc-js-ripple-effect"
+        , Options.many
             [ ripple.interactionHandler
             , ripple.properties
             ]
         , config.onClick
-            |> Maybe.map (Options.onClick << lift << Click config.ripple)
+            |> Maybe.map (Options.onClick << lift << Click)
             |> Maybe.withDefault Options.nop
         , Options.attribute (Html.tabindex 0)
         ]
@@ -125,11 +173,35 @@ chip lift model options nodes =
                 |> Maybe.map
                     (\icon ->
                         [ Icon.view
-                            [ cs "mdc-chip__icon mdc-chip__icon--leading" ]
+                            [ cs "mdc-chip__icon mdc-chip__icon--leading"
+                            , when (config.selected && config.checkmark) <|
+                                cs "mdc-chip__icon--leading-hidden"
+                            , -- Make icon size fixed during animation
+                              css "font-size" "20px"
+                            ]
                             icon
                         ]
                     )
                 |> Maybe.withDefault []
+            , [ if config.checkmark then
+                    styled Html.div
+                        [ cs "mdc-chip__checkmark" ]
+                        [ Svg.svg
+                            [ Svg.class "mdc-chip__checkmark-svg"
+                            , Svg.viewBox "-2 -3 30 30"
+                            ]
+                            [ path
+                                [ Svg.class "mdc-chip__checkmark-path"
+                                , Svg.fill "none"
+                                , Svg.stroke "white"
+                                , Svg.d "M1.73,12.91 8.1,19.28 22.79,4.59"
+                                ]
+                                []
+                            ]
+                        ]
+                else
+                    text ""
+              ]
             , [ styled Html.div [ cs "mdc-chip__text" ] nodes ]
             , config.trailingIcon
                 |> Maybe.map

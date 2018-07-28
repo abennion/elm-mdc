@@ -1,10 +1,13 @@
 module Material.Chip
     exposing
-        ( Property
+        ( checkmark
         , chipset
+        , choice
+        , filter
+        , input
         , leadingIcon
         , onClick
-        , ripple
+        , Property
         , selected
         , trailingIcon
         , view
@@ -13,41 +16,48 @@ module Material.Chip
 {-| The Chip component is a spec-aligned chip component adhering to the
 Material Design chip requirements.
 
+
 # Resources
 
-- [Chips - Internal.Components for the Web](https://material.io/develop/web/components/chips/)
-- [Material Design guidelines: Chips](https://material.io/guidelines/components/chips.html)
-- [Demo](https://aforemny.github.io/elm-mdc/#chips)
+  - [Chips - Internal.Components for the Web](https://material.io/develop/web/components/chips/)
+  - [Material Design guidelines: Chips](https://material.io/guidelines/components/chips.html)
+  - [Demo](https://aforemny.github.io/elm-mdc/#chips)
 
 
 # Example
 
-```elm
-import Html exposing (text)
-import Material.Chip as Chip
-import Material.Options as Options
+    import Html exposing (text)
+    import Material.Chip as Chip
+    import Material.Options as Options
 
-Chip.view Mdc "my-chip" model.mdc
-    [ Chip.ripple
-    , Chip.onClick Click
-    ]
-    [ text "Chip"
-    ]
-```
+    Chip.view Mdc "my-chip" model.mdc
+        [ Chip.ripple
+        , Chip.onClick Click
+        ]
+        [ text "Chip"
+        ]
 
 
 # Usage
 
 @docs Property
 @docs view
+@docs selected
+@docs onClick
+@docs checkmark
 
-@docs chipset
+
+### Leading and trailing icon
 
 @docs leadingIcon
 @docs trailingIcon
-@docs selected
-@docs ripple
-@docs onClick
+
+# Chip sets
+
+@docs chipset
+@docs choice
+@docs filter
+@docs input
 -}
 
 import Html exposing (Html)
@@ -96,26 +106,45 @@ selected =
     Chip.selected
 
 
-{-| Enable ripple ink effect for the chip.
--}
-ripple : Property m
-ripple =
-    Chip.ripple
+{-| Click handler that respects the chip's ripple ink effect.
 
-
-{-| Container of chips
--}
-chipset : List (Html m) -> Html m
-chipset =
-    Chip.chipset
-
-
-{-| Click handler that respects `ripple`.
-
-The event will be raised only after the ripple animation finished playing. If
-the chip does not ripple, it is identical to `Options.onClick`.
-
+The event will be raised only after the ripple animation finished playing.
 -}
 onClick : m -> Property m
 onClick =
     Chip.onClick
+
+
+{-| Container of chips
+-}
+chipset : List (Property m) -> List (Html m) -> Html m
+chipset =
+    Chip.chipset
+
+
+{-| Use this property when you allow multiple selection from a collection.
+-}
+filter : Property m
+filter =
+    Chip.filter
+
+
+{-| Use this property when you allow single selection from a collection.
+-}
+choice : Property m
+choice =
+    Chip.choice
+
+
+{-| Use this property if you are conveing user input into a collection.
+-}
+input : Property m
+input =
+    Chip.input
+
+
+{-| Show a checkmark if the chip is selected.
+-}
+checkmark : Property m
+checkmark =
+    Chip.checkmark
