@@ -5,6 +5,7 @@ import Data.Session exposing (Session)
 import Data.User as User exposing (User, Username)
 import Html exposing (..)
 import Json.Decode as Decode exposing (Value)
+import Material
 import Navigation exposing (Location)
 import Page.Article as Article
 import Page.Article.Editor as Editor
@@ -46,12 +47,9 @@ type PageState
     | TransitioningFrom Page
 
 
-
--- MODEL --
-
-
 type alias Model =
-    { session : Session
+    { mdc : Material.Model Msg
+    , session : Session
     , pageState : PageState
     }
 
@@ -59,7 +57,8 @@ type alias Model =
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     setRoute (Route.fromLocation location)
-        { pageState = Loaded initialPage
+        { mdc = Material.defaultModel
+        , pageState = Loaded initialPage
         , session = { user = decodeUserFromJson val }
         }
 
@@ -75,6 +74,250 @@ decodeUserFromJson json =
 initialPage : Page
 initialPage =
     Blank
+
+
+
+-- UPDATE --
+
+
+type Msg
+    = Mdc (Material.Msg Msg)
+    | SetRoute (Maybe Route)
+    | HomeLoaded (Result PageLoadError Home.Model)
+    | ArticleLoaded (Result PageLoadError Article.Model)
+    | ProfileLoaded Username (Result PageLoadError Profile.Model)
+    | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
+    | HomeMsg Home.Msg
+    | SettingsMsg Settings.Msg
+    | SetUser (Maybe User)
+    | LoginMsg Login.Msg
+    | RegisterMsg Register.Msg
+    | ProfileMsg Profile.Msg
+    | ArticleMsg Article.Msg
+    | EditorMsg Editor.Msg
+
+
+setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
+setRoute maybeRoute model =
+    let
+        transition toMsg task =
+            { model | pageState = TransitioningFrom (getPage model.pageState) }
+                => Task.attempt toMsg task
+
+        errored =
+            pageErrored model
+    in
+    case maybeRoute of
+        Nothing ->
+            { model | pageState = Loaded NotFound } => Cmd.none
+
+        Just Route.NewArticle ->
+            case model.session.user of
+                Just user ->
+                    { model | pageState = Loaded (Editor Nothing Editor.initNew) } => Cmd.none
+
+                Nothing ->
+                    errored Page.NewArticle "You must be signed in to post an article."
+
+        Just (Route.EditArticle slug) ->
+            case model.session.user of
+                Just user ->
+                    transition (EditArticleLoaded slug) (Editor.initEdit model.session slug)
+
+                Nothing ->
+                    errored Page.Other "You must be signed in to edit an article."
+
+        Just Route.Settings ->
+            case model.session.user of
+                Just user ->
+                    { model | pageState = Loaded (Settings (Settings.init user)) } => Cmd.none
+
+                Nothing ->
+                    errored Page.Settings "You must be signed in to access your settings."
+
+        Just Route.Home ->
+            transition HomeLoaded (Home.init model.session)
+
+        Just Route.Root ->
+            model => Route.modifyUrl Route.Home
+
+        Just Route.Login ->
+            { model | pageState = Loaded (Login Login.initialModel) } => Cmd.none
+
+        Just Route.Logout ->
+            let
+                session =
+                    model.session
+            in
+            { model | session = { session | user = Nothing } }
+                => Cmd.batch
+                    [ Ports.storeSession Nothing
+                    , Route.modifyUrl Route.Home
+                    ]
+
+        Just Route.Register ->
+            { model | pageState = Loaded (Register Register.initialModel) } => Cmd.none
+
+        Just (Route.Profile username) ->
+            transition (ProfileLoaded username) (Profile.init model.session username)
+
+        Just (Route.Article slug) ->
+            transition ArticleLoaded (Article.init model.session slug)
+
+
+pageErrored : Model -> ActivePage -> String -> ( Model, Cmd msg )
+pageErrored model activePage errorMessage =
+    let
+        error =
+            Errored.pageLoadError activePage errorMessage
+    in
+    { model | pageState = Loaded (Errored error) } => Cmd.none
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Mdc msg ->
+            Material.update Mdc msg model
+
+        _ ->
+            updatePage (getPage model.pageState) msg model
+
+
+updatePage : Page -> Msg -> Model -> ( Model, Cmd Msg )
+updatePage page msg model =
+    let
+        session =
+            model.session
+
+        toPage toModel toMsg subUpdate subMsg subModel =
+            let
+                ( newModel, newCmd ) =
+                    subUpdate subMsg subModel
+            in
+            ( { model | pageState = Loaded (toModel newModel) }, Cmd.map toMsg newCmd )
+
+        errored =
+            pageErrored model
+    in
+    case ( msg, page ) of
+        ( SetRoute route, _ ) ->
+            setRoute route model
+
+        ( HomeLoaded (Ok subModel), _ ) ->
+            { model | pageState = Loaded (Home subModel) } => Cmd.none
+
+        ( HomeLoaded (Err error), _ ) ->
+            { model | pageState = Loaded (Errored error) } => Cmd.none
+
+        ( ProfileLoaded username (Ok subModel), _ ) ->
+            { model | pageState = Loaded (Profile username subModel) } => Cmd.none
+
+        ( ProfileLoaded username (Err error), _ ) ->
+            { model | pageState = Loaded (Errored error) } => Cmd.none
+
+        ( ArticleLoaded (Ok subModel), _ ) ->
+            { model | pageState = Loaded (Article subModel) } => Cmd.none
+
+        ( ArticleLoaded (Err error), _ ) ->
+            { model | pageState = Loaded (Errored error) } => Cmd.none
+
+        ( EditArticleLoaded slug (Ok subModel), _ ) ->
+            { model | pageState = Loaded (Editor (Just slug) subModel) } => Cmd.none
+
+        ( EditArticleLoaded slug (Err error), _ ) ->
+            { model | pageState = Loaded (Errored error) } => Cmd.none
+
+        ( SetUser user, _ ) ->
+            let
+                cmd =
+                    -- If we just signed out, then redirect to Home.
+                    if session.user /= Nothing && user == Nothing then
+                        Route.modifyUrl Route.Home
+                    else
+                        Cmd.none
+            in
+            { model | session = { session | user = user } }
+                => cmd
+
+        ( SettingsMsg subMsg, Settings subModel ) ->
+            let
+                ( ( pageModel, cmd ), msgFromPage ) =
+                    Settings.update model.session subMsg subModel
+
+                newModel =
+                    case msgFromPage of
+                        Settings.NoOp ->
+                            model
+
+                        Settings.SetUser user ->
+                            { model | session = { user = Just user } }
+            in
+            { newModel | pageState = Loaded (Settings pageModel) }
+                => Cmd.map SettingsMsg cmd
+
+        ( LoginMsg subMsg, Login subModel ) ->
+            let
+                ( ( pageModel, cmd ), msgFromPage ) =
+                    Login.update subMsg subModel
+
+                newModel =
+                    case msgFromPage of
+                        Login.NoOp ->
+                            model
+
+                        Login.SetUser user ->
+                            { model | session = { user = Just user } }
+            in
+            { newModel | pageState = Loaded (Login pageModel) }
+                => Cmd.map LoginMsg cmd
+
+        ( RegisterMsg subMsg, Register subModel ) ->
+            let
+                ( ( pageModel, cmd ), msgFromPage ) =
+                    Register.update subMsg subModel
+
+                newModel =
+                    case msgFromPage of
+                        Register.NoOp ->
+                            model
+
+                        Register.SetUser user ->
+                            { model | session = { user = Just user } }
+            in
+            { newModel | pageState = Loaded (Register pageModel) }
+                => Cmd.map RegisterMsg cmd
+
+        ( HomeMsg subMsg, Home subModel ) ->
+            toPage Home HomeMsg (Home.update session) subMsg subModel
+
+        ( ProfileMsg subMsg, Profile username subModel ) ->
+            toPage (Profile username) ProfileMsg (Profile.update model.session) subMsg subModel
+
+        ( ArticleMsg subMsg, Article subModel ) ->
+            toPage Article ArticleMsg (Article.update model.session) subMsg subModel
+
+        ( EditorMsg subMsg, Editor slug subModel ) ->
+            case model.session.user of
+                Nothing ->
+                    if slug == Nothing then
+                        errored Page.NewArticle
+                            "You must be signed in to post articles."
+                    else
+                        errored Page.Other
+                            "You must be signed in to edit articles."
+
+                Just user ->
+                    toPage (Editor slug) EditorMsg (Editor.update user) subMsg subModel
+
+        ( _, NotFound ) ->
+            -- Disregard incoming messages when we're on the
+            -- NotFound page.
+            model => Cmd.none
+
+        ( _, _ ) ->
+            -- Disregard incoming messages that arrived for the wrong page
+            model => Cmd.none
 
 
 
@@ -217,244 +460,6 @@ pageSubscriptions page =
 
         Editor _ _ ->
             Sub.none
-
-
-
--- UPDATE --
-
-
-type Msg
-    = SetRoute (Maybe Route)
-    | HomeLoaded (Result PageLoadError Home.Model)
-    | ArticleLoaded (Result PageLoadError Article.Model)
-    | ProfileLoaded Username (Result PageLoadError Profile.Model)
-    | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
-    | HomeMsg Home.Msg
-    | SettingsMsg Settings.Msg
-    | SetUser (Maybe User)
-    | LoginMsg Login.Msg
-    | RegisterMsg Register.Msg
-    | ProfileMsg Profile.Msg
-    | ArticleMsg Article.Msg
-    | EditorMsg Editor.Msg
-
-
-setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
-setRoute maybeRoute model =
-    let
-        transition toMsg task =
-            { model | pageState = TransitioningFrom (getPage model.pageState) }
-                => Task.attempt toMsg task
-
-        errored =
-            pageErrored model
-    in
-    case maybeRoute of
-        Nothing ->
-            { model | pageState = Loaded NotFound } => Cmd.none
-
-        Just Route.NewArticle ->
-            case model.session.user of
-                Just user ->
-                    { model | pageState = Loaded (Editor Nothing Editor.initNew) } => Cmd.none
-
-                Nothing ->
-                    errored Page.NewArticle "You must be signed in to post an article."
-
-        Just (Route.EditArticle slug) ->
-            case model.session.user of
-                Just user ->
-                    transition (EditArticleLoaded slug) (Editor.initEdit model.session slug)
-
-                Nothing ->
-                    errored Page.Other "You must be signed in to edit an article."
-
-        Just Route.Settings ->
-            case model.session.user of
-                Just user ->
-                    { model | pageState = Loaded (Settings (Settings.init user)) } => Cmd.none
-
-                Nothing ->
-                    errored Page.Settings "You must be signed in to access your settings."
-
-        Just Route.Home ->
-            transition HomeLoaded (Home.init model.session)
-
-        Just Route.Root ->
-            model => Route.modifyUrl Route.Home
-
-        Just Route.Login ->
-            { model | pageState = Loaded (Login Login.initialModel) } => Cmd.none
-
-        Just Route.Logout ->
-            let
-                session =
-                    model.session
-            in
-            { model | session = { session | user = Nothing } }
-                => Cmd.batch
-                    [ Ports.storeSession Nothing
-                    , Route.modifyUrl Route.Home
-                    ]
-
-        Just Route.Register ->
-            { model | pageState = Loaded (Register Register.initialModel) } => Cmd.none
-
-        Just (Route.Profile username) ->
-            transition (ProfileLoaded username) (Profile.init model.session username)
-
-        Just (Route.Article slug) ->
-            transition ArticleLoaded (Article.init model.session slug)
-
-
-pageErrored : Model -> ActivePage -> String -> ( Model, Cmd msg )
-pageErrored model activePage errorMessage =
-    let
-        error =
-            Errored.pageLoadError activePage errorMessage
-    in
-    { model | pageState = Loaded (Errored error) } => Cmd.none
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    updatePage (getPage model.pageState) msg model
-
-
-updatePage : Page -> Msg -> Model -> ( Model, Cmd Msg )
-updatePage page msg model =
-    let
-        session =
-            model.session
-
-        toPage toModel toMsg subUpdate subMsg subModel =
-            let
-                ( newModel, newCmd ) =
-                    subUpdate subMsg subModel
-            in
-            ( { model | pageState = Loaded (toModel newModel) }, Cmd.map toMsg newCmd )
-
-        errored =
-            pageErrored model
-    in
-    case ( msg, page ) of
-        ( SetRoute route, _ ) ->
-            setRoute route model
-
-        ( HomeLoaded (Ok subModel), _ ) ->
-            { model | pageState = Loaded (Home subModel) } => Cmd.none
-
-        ( HomeLoaded (Err error), _ ) ->
-            { model | pageState = Loaded (Errored error) } => Cmd.none
-
-        ( ProfileLoaded username (Ok subModel), _ ) ->
-            { model | pageState = Loaded (Profile username subModel) } => Cmd.none
-
-        ( ProfileLoaded username (Err error), _ ) ->
-            { model | pageState = Loaded (Errored error) } => Cmd.none
-
-        ( ArticleLoaded (Ok subModel), _ ) ->
-            { model | pageState = Loaded (Article subModel) } => Cmd.none
-
-        ( ArticleLoaded (Err error), _ ) ->
-            { model | pageState = Loaded (Errored error) } => Cmd.none
-
-        ( EditArticleLoaded slug (Ok subModel), _ ) ->
-            { model | pageState = Loaded (Editor (Just slug) subModel) } => Cmd.none
-
-        ( EditArticleLoaded slug (Err error), _ ) ->
-            { model | pageState = Loaded (Errored error) } => Cmd.none
-
-        ( SetUser user, _ ) ->
-            let
-                cmd =
-                    -- If we just signed out, then redirect to Home.
-                    if session.user /= Nothing && user == Nothing then
-                        Route.modifyUrl Route.Home
-                    else
-                        Cmd.none
-            in
-            { model | session = { session | user = user } }
-                => cmd
-
-        ( SettingsMsg subMsg, Settings subModel ) ->
-            let
-                ( ( pageModel, cmd ), msgFromPage ) =
-                    Settings.update model.session subMsg subModel
-
-                newModel =
-                    case msgFromPage of
-                        Settings.NoOp ->
-                            model
-
-                        Settings.SetUser user ->
-                            { model | session = { user = Just user } }
-            in
-            { newModel | pageState = Loaded (Settings pageModel) }
-                => Cmd.map SettingsMsg cmd
-
-        ( LoginMsg subMsg, Login subModel ) ->
-            let
-                ( ( pageModel, cmd ), msgFromPage ) =
-                    Login.update subMsg subModel
-
-                newModel =
-                    case msgFromPage of
-                        Login.NoOp ->
-                            model
-
-                        Login.SetUser user ->
-                            { model | session = { user = Just user } }
-            in
-            { newModel | pageState = Loaded (Login pageModel) }
-                => Cmd.map LoginMsg cmd
-
-        ( RegisterMsg subMsg, Register subModel ) ->
-            let
-                ( ( pageModel, cmd ), msgFromPage ) =
-                    Register.update subMsg subModel
-
-                newModel =
-                    case msgFromPage of
-                        Register.NoOp ->
-                            model
-
-                        Register.SetUser user ->
-                            { model | session = { user = Just user } }
-            in
-            { newModel | pageState = Loaded (Register pageModel) }
-                => Cmd.map RegisterMsg cmd
-
-        ( HomeMsg subMsg, Home subModel ) ->
-            toPage Home HomeMsg (Home.update session) subMsg subModel
-
-        ( ProfileMsg subMsg, Profile username subModel ) ->
-            toPage (Profile username) ProfileMsg (Profile.update model.session) subMsg subModel
-
-        ( ArticleMsg subMsg, Article subModel ) ->
-            toPage Article ArticleMsg (Article.update model.session) subMsg subModel
-
-        ( EditorMsg subMsg, Editor slug subModel ) ->
-            case model.session.user of
-                Nothing ->
-                    if slug == Nothing then
-                        errored Page.NewArticle
-                            "You must be signed in to post articles."
-                    else
-                        errored Page.Other
-                            "You must be signed in to edit articles."
-
-                Just user ->
-                    toPage (Editor slug) EditorMsg (Editor.update user) subMsg subModel
-
-        ( _, NotFound ) ->
-            -- Disregard incoming messages when we're on the
-            -- NotFound page.
-            model => Cmd.none
-
-        ( _, _ ) ->
-            -- Disregard incoming messages that arrived for the wrong page
-            model => Cmd.none
 
 
 
