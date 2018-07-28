@@ -1,4 +1,4 @@
-module Internal.Chip.Model exposing (Model, Msg(..), defaultModel)
+module Internal.Chip.Model exposing (Key, KeyCode, Model, Msg(..), defaultModel)
 
 import Internal.Ripple.Model as Ripple
 
@@ -14,6 +14,14 @@ defaultModel =
     }
 
 
+type alias Key =
+    String
+
+
+type alias KeyCode =
+    Int
+
+
 type Msg m
     = RippleMsg Ripple.Msg
-    | Click Bool m
+    | Click m
