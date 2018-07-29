@@ -72,6 +72,9 @@ view session model =
             session.user
                 |> Maybe.map (\{ username } -> username == profile.username)
                 |> Maybe.withDefault False
+
+        _ =
+            Debug.log "Profile.view" session
     in
     div [ class "profile-page" ]
         [ Errors.view DismissErrors model.errors
@@ -121,7 +124,7 @@ update session msg model =
         profile =
             model.profile
     in
-    case msg of
+    case Debug.log "Profile.update" msg of
         DismissErrors ->
             { model | errors = [] } => Cmd.none
 

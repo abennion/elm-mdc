@@ -56,6 +56,10 @@ init session =
 
 view : Session -> Model -> Html Msg
 view session model =
+    let
+        _ =
+            Debug.log "Home.view" session
+    in
     div [ class "home-page" ]
         [ viewBanner
         , div [ class "container page" ]
@@ -115,7 +119,7 @@ type Msg
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
-    case msg of
+    case Debug.log "Home.update" msg of
         FeedMsg subMsg ->
             let
                 ( newFeed, subCmd ) =

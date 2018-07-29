@@ -26,6 +26,7 @@ import Views.Page as Page exposing (ActivePage)
 -- like code splitting and lazy loading have been shaping up, I expect
 -- most of this file to become unnecessary in a future release of Elm.
 -- Avoid putting things in here unless there is no alternative!
+-- MODEL --
 
 
 type Page
@@ -46,22 +47,44 @@ type PageState
     | TransitioningFrom Page
 
 
-
--- MODEL --
-
-
 type alias Model =
     { session : Session
     , pageState : PageState
     }
 
 
+
+-- MAIN --
+
+
+main : Program Value Model Msg
+main =
+    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
+
+
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
+    let
+        _ =
+            Debug.log "init val" val
+
+        _ =
+            Debug.log "init location" location
+    in
     setRoute (Route.fromLocation location)
         { pageState = Loaded initialPage
         , session = { user = decodeUserFromJson val }
         }
+
+
+initialPage : Page
+initialPage =
+    Blank
 
 
 decodeUserFromJson : Value -> Maybe User
@@ -70,173 +93,6 @@ decodeUserFromJson json =
         |> Decode.decodeValue Decode.string
         |> Result.toMaybe
         |> Maybe.andThen (Decode.decodeString User.decoder >> Result.toMaybe)
-
-
-initialPage : Page
-initialPage =
-    Blank
-
-
-
--- VIEW --
-
-
-view : Model -> Html Msg
-view model =
-    case model.pageState of
-        Loaded page ->
-            viewPage model.session False page
-
-        TransitioningFrom page ->
-            viewPage model.session True page
-
-
-viewPage : Session -> Bool -> Page -> Html Msg
-viewPage session isLoading page =
-    let
-        frame =
-            Page.frame isLoading session.user
-    in
-    case page of
-        NotFound ->
-            NotFound.view session
-                |> frame Page.Other
-
-        Blank ->
-            -- This is for the very initial page load, while we are loading
-            -- data via HTTP. We could also render a spinner here.
-            Html.text ""
-                |> frame Page.Other
-
-        Errored subModel ->
-            Errored.view session subModel
-                |> frame Page.Other
-
-        Settings subModel ->
-            Settings.view session subModel
-                |> frame Page.Other
-                |> Html.map SettingsMsg
-
-        Home subModel ->
-            Home.view session subModel
-                |> frame Page.Home
-                |> Html.map HomeMsg
-
-        Login subModel ->
-            Login.view session subModel
-                |> frame Page.Other
-                |> Html.map LoginMsg
-
-        Register subModel ->
-            Register.view session subModel
-                |> frame Page.Other
-                |> Html.map RegisterMsg
-
-        Profile username subModel ->
-            Profile.view session subModel
-                |> frame (Page.Profile username)
-                |> Html.map ProfileMsg
-
-        Article subModel ->
-            Article.view session subModel
-                |> frame Page.Other
-                |> Html.map ArticleMsg
-
-        Editor maybeSlug subModel ->
-            let
-                framePage =
-                    if maybeSlug == Nothing then
-                        Page.NewArticle
-                    else
-                        Page.Other
-            in
-            Editor.view subModel
-                |> frame framePage
-                |> Html.map EditorMsg
-
-
-
--- SUBSCRIPTIONS --
--- Note: we aren't currently doing any page subscriptions, but I thought it would
--- be a good idea to put this in here as an example. If I were actually
--- maintaining this in production, I wouldn't bother until I needed this!
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.batch
-        [ pageSubscriptions (getPage model.pageState)
-        , Sub.map SetUser sessionChange
-        ]
-
-
-sessionChange : Sub (Maybe User)
-sessionChange =
-    Ports.onSessionChange (Decode.decodeValue User.decoder >> Result.toMaybe)
-
-
-getPage : PageState -> Page
-getPage pageState =
-    case pageState of
-        Loaded page ->
-            page
-
-        TransitioningFrom page ->
-            page
-
-
-pageSubscriptions : Page -> Sub Msg
-pageSubscriptions page =
-    case page of
-        Blank ->
-            Sub.none
-
-        Errored _ ->
-            Sub.none
-
-        NotFound ->
-            Sub.none
-
-        Settings _ ->
-            Sub.none
-
-        Home _ ->
-            Sub.none
-
-        Login _ ->
-            Sub.none
-
-        Register _ ->
-            Sub.none
-
-        Profile _ _ ->
-            Sub.none
-
-        Article _ ->
-            Sub.none
-
-        Editor _ _ ->
-            Sub.none
-
-
-
--- UPDATE --
-
-
-type Msg
-    = SetRoute (Maybe Route)
-    | HomeLoaded (Result PageLoadError Home.Model)
-    | ArticleLoaded (Result PageLoadError Article.Model)
-    | ProfileLoaded Username (Result PageLoadError Profile.Model)
-    | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
-    | HomeMsg Home.Msg
-    | SettingsMsg Settings.Msg
-    | SetUser (Maybe User)
-    | LoginMsg Login.Msg
-    | RegisterMsg Register.Msg
-    | ProfileMsg Profile.Msg
-    | ArticleMsg Article.Msg
-    | EditorMsg Editor.Msg
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -249,7 +105,7 @@ setRoute maybeRoute model =
         errored =
             pageErrored model
     in
-    case maybeRoute of
+    case Debug.log "setRoute maybeRoute" maybeRoute of
         Nothing ->
             { model | pageState = Loaded NotFound } => Cmd.none
 
@@ -278,9 +134,17 @@ setRoute maybeRoute model =
                     errored Page.Settings "You must be signed in to access your settings."
 
         Just Route.Home ->
+            let
+                _ =
+                    Debug.log "Just Route.Home" ""
+            in
             transition HomeLoaded (Home.init model.session)
 
         Just Route.Root ->
+            let
+                _ =
+                    Debug.log "Just Route.Root"
+            in
             model => Route.modifyUrl Route.Home
 
         Just Route.Login ->
@@ -316,14 +180,41 @@ pageErrored model activePage errorMessage =
     { model | pageState = Loaded (Errored error) } => Cmd.none
 
 
+
+-- UPDATE --
+
+
+type Msg
+    = SetRoute (Maybe Route)
+    | HomeLoaded (Result PageLoadError Home.Model)
+    | ArticleLoaded (Result PageLoadError Article.Model)
+    | ProfileLoaded Username (Result PageLoadError Profile.Model)
+    | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
+    | HomeMsg Home.Msg
+    | SettingsMsg Settings.Msg
+    | SetUser (Maybe User)
+    | LoginMsg Login.Msg
+    | RegisterMsg Register.Msg
+    | ProfileMsg Profile.Msg
+    | ArticleMsg Article.Msg
+    | EditorMsg Editor.Msg
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        _ =
+            Debug.log "update msg" msg
+    in
     updatePage (getPage model.pageState) msg model
 
 
 updatePage : Page -> Msg -> Model -> ( Model, Cmd Msg )
 updatePage page msg model =
     let
+        _ =
+            Debug.log "updatePage _ msg _" msg
+
         session =
             model.session
 
@@ -331,8 +222,28 @@ updatePage page msg model =
             let
                 ( newModel, newCmd ) =
                     subUpdate subMsg subModel
+
+                _ =
+                    Debug.log "toPage" toPage
+
+                _ =
+                    Debug.log "toModel" toModel
+
+                _ =
+                    Debug.log "toMsg" toMsg
+
+                _ =
+                    Debug.log "subUpdate" subUpdate
+
+                _ =
+                    Debug.log "subMsg" subMsg
+
+                _ =
+                    Debug.log "subModel" subModel
             in
-            ( { model | pageState = Loaded (toModel newModel) }, Cmd.map toMsg newCmd )
+            ( { model | pageState = Loaded (toModel newModel) }
+            , Cmd.map toMsg newCmd
+            )
 
         errored =
             pageErrored model
@@ -458,14 +369,148 @@ updatePage page msg model =
 
 
 
--- MAIN --
+-- VIEW --
 
 
-main : Program Value Model Msg
-main =
-    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
+view : Model -> Html Msg
+view model =
+    case model.pageState of
+        Loaded page ->
+            viewPage model.session False page
+
+        TransitioningFrom page ->
+            viewPage model.session True page
+
+
+viewPage : Session -> Bool -> Page -> Html Msg
+viewPage session isLoading page =
+    let
+        frame =
+            Page.frame isLoading session.user
+
+        _ =
+            Debug.log "viewPage page" page
+
+        _ =
+            Debug.log "viewPage isLoading" isLoading
+    in
+    case page of
+        NotFound ->
+            NotFound.view session
+                |> frame Page.Other
+
+        Blank ->
+            -- This is for the very initial page load, while we are loading
+            -- data via HTTP. We could also render a spinner here.
+            Html.text ""
+                |> frame Page.Other
+
+        Errored subModel ->
+            Errored.view session subModel
+                |> frame Page.Other
+
+        Settings subModel ->
+            Settings.view session subModel
+                |> frame Page.Other
+                |> Html.map SettingsMsg
+
+        Home subModel ->
+            Home.view session subModel
+                |> frame Page.Home
+                |> Html.map HomeMsg
+
+        Login subModel ->
+            Login.view session subModel
+                |> frame Page.Other
+                |> Html.map LoginMsg
+
+        Register subModel ->
+            Register.view session subModel
+                |> frame Page.Other
+                |> Html.map RegisterMsg
+
+        Profile username subModel ->
+            Profile.view session subModel
+                |> frame (Page.Profile username)
+                |> Html.map ProfileMsg
+
+        Article subModel ->
+            Article.view session subModel
+                |> frame Page.Other
+                |> Html.map ArticleMsg
+
+        Editor maybeSlug subModel ->
+            let
+                framePage =
+                    if maybeSlug == Nothing then
+                        Page.NewArticle
+                    else
+                        Page.Other
+            in
+            Editor.view subModel
+                |> frame framePage
+                |> Html.map EditorMsg
+
+
+
+-- SUBSCRIPTIONS --
+-- Note: we aren't currently doing any page subscriptions, but I thought it would
+-- be a good idea to put this in here as an example. If I were actually
+-- maintaining this in production, I wouldn't bother until I needed this!
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ pageSubscriptions (getPage model.pageState)
+        , Sub.map SetUser sessionChange
+        ]
+
+
+sessionChange : Sub (Maybe User)
+sessionChange =
+    Ports.onSessionChange (Decode.decodeValue User.decoder >> Result.toMaybe)
+
+
+getPage : PageState -> Page
+getPage pageState =
+    case pageState of
+        Loaded page ->
+            page
+
+        TransitioningFrom page ->
+            page
+
+
+pageSubscriptions : Page -> Sub Msg
+pageSubscriptions page =
+    case page of
+        Blank ->
+            Sub.none
+
+        Errored _ ->
+            Sub.none
+
+        NotFound ->
+            Sub.none
+
+        Settings _ ->
+            Sub.none
+
+        Home _ ->
+            Sub.none
+
+        Login _ ->
+            Sub.none
+
+        Register _ ->
+            Sub.none
+
+        Profile _ _ ->
+            Sub.none
+
+        Article _ ->
+            Sub.none
+
+        Editor _ _ ->
+            Sub.none
