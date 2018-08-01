@@ -1,15 +1,9 @@
-module Pages.Home exposing (..)
+module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 
 import Html exposing (Html, div, text)
 import Material
 import Material.Button as Button
-import Material.Options as Options
-    exposing
-        ( cs
-        , css
-        , styled
-        , when
-        )
+import Material.Options as Options exposing (cs, css, styled, when)
 
 
 type alias Model m =
@@ -46,11 +40,19 @@ view : (Msg m -> m) -> Model m -> Html m
 view lift model =
     styled Html.div
         []
-        [ Button.view Mdc
-            "my-button"
-            model.mdc
-            [ Button.ripple
-            , Options.onClick (Click "Do the click")
+        [ styled Html.div
+            []
+            [ styled Html.h2
+                []
+                [ text model.text
+                ]
+            , Button.view (lift << Mdc)
+                "my-button"
+                model.mdc
+                [ Button.ripple
+                , Options.onClick (lift (Click "Do the click"))
+                ]
+                [ text "Other!"
+                ]
             ]
-            [ text "Click me!" ]
         ]

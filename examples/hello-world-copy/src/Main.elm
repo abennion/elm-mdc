@@ -1,56 +1,82 @@
 module Main exposing (..)
 
 import Html exposing (Html, text)
+import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
 import Material.Options as Options
+import Navigation exposing (Location)
+import Pages.Home
+    exposing
+        ( Model
+        , Msg(Mdc)
+        , defaultModel
+        , update
+        , view
+        )
 import Route exposing (Route(..))
 
 
 type alias Model =
     { mdc : Material.Model Msg
+    , home : Pages.Home.Model Msg
     }
 
 
 defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
+    , home = Pages.Home.defaultModel
     }
 
 
 type Msg
     = Mdc (Material.Msg Msg)
+    | SetRoute (Maybe Route)
     | Click
+    | HomeMsg (Pages.Home.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
+    case Debug.log "update msg" msg of
         Mdc msg_ ->
             Material.update Mdc msg_ model
+
+        SetRoute route ->
+            setRoute route model
 
         Click ->
             ( model, Cmd.none )
 
+        HomeMsg msg_ ->
+            let
+                ( home, effects ) =
+                    Pages.Home.update HomeMsg msg_ model.home
+            in
+            ( { model | home = home }, effects )
+
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
-    case maybeRoute of
+    case Debug.log "setRoute maybeRoute" maybeRoute of
         Nothing ->
-            model ! []
+            ( model, Cmd.none )
 
         Just Route.Home ->
-            model ! []
+            ( model, Route.modifyUrl Route.Home )
 
         Just Route.Root ->
-            model ! []
+            ( model, Cmd.none )
 
         Just Route.Other ->
-            model ! []
+            ( model, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
+    -- put Pages.Home.view in here
+    -- need to pass the page or url we're on...
     Html.div []
         [ Button.view Mdc
             "my-button"
@@ -62,9 +88,9 @@ view model =
         ]
 
 
-main : Program Never Model Msg
+main : Program Value Model Msg
 main =
-    Html.program
+    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
         { init = init
         , subscriptions = subscriptions
         , update = update
@@ -72,8 +98,8 @@ main =
         }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Value -> Location -> ( Model, Cmd Msg )
+init value location =
     ( defaultModel, Material.init Mdc )
 
 
