@@ -24,11 +24,17 @@ import Pages.Other
         , view
         )
 import Route exposing (Route(..))
+import Task
+
+
+type PageState
+    = Loaded Route
+    | TransitioningFrom Route
 
 
 type alias Model =
     { mdc : Material.Model Msg
-    , route : Route
+    , pageState : PageState
     , home : Pages.Home.Model Msg
     , other : Pages.Other.Model Msg
     }
@@ -37,7 +43,7 @@ type alias Model =
 defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
-    , route = Route.Home
+    , pageState = Loaded Route.Home
     , home = Pages.Home.defaultModel
     , other = Pages.Other.defaultModel
     }
@@ -78,32 +84,62 @@ update msg model =
             ( { model | other = other }, effects )
 
 
+getRoute : PageState -> Route
+getRoute pageState =
+    case pageState of
+        Loaded route ->
+            route
+
+        TransitioningFrom route ->
+            route
+
+
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
+    let
+        transition toMsg task =
+            ( { model | pageState = TransitioningFrom (getRoute model.pageState) }
+            , Task.attempt toMsg task
+            )
+    in
     case Debug.log "setRoute maybeRoute" maybeRoute of
         Nothing ->
             ( model, Cmd.none )
 
         Just Route.Home ->
-            ( { model | route = Route.Home }, Cmd.none )
+            ( { model | pageState = Loaded Route.Home }, Cmd.none )
 
         Just Route.Root ->
-            ( { model | route = Route.Home }, Cmd.none )
+            ( { model | pageState = Loaded Route.Home }, Cmd.none )
 
         Just Route.Other ->
-            ( { model | route = Route.Other }, Cmd.none )
+            ( { model | pageState = Loaded Route.Other }, Cmd.none )
+
+
+
+-- view : Model -> Html Msg
+-- view =
+--     view_
+-- view_ : Model -> Html Msg
+-- view_ model =
 
 
 view : Model -> Html Msg
-view =
-    view_
+view model =
+    case model.pageState of
+        Loaded route ->
+            viewPage model False route
+
+        TransitioningFrom route ->
+            viewPage model True route
 
 
-view_ : Model -> Html Msg
-view_ model =
+viewPage : Model -> Bool -> Route -> Html Msg
+viewPage model isLoading route =
     let
         page =
             { navigate = SetRoute
+            , isLoading = False
             , body =
                 \title nodes ->
                     styled Html.div
@@ -116,11 +152,11 @@ view_ model =
                         )
             }
     in
-    case model.route of
-        Route.Home ->
+    case model.pageState of
+        Loaded Route.Home ->
             Pages.Home.view HomeMsg page model.home
 
-        Route.Other ->
+        Loaded Route.Other ->
             Pages.Other.view OtherMsg page model.other
 
         _ ->

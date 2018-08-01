@@ -25,6 +25,7 @@ import Route exposing (Route)
 
 type alias Page m =
     { navigate : Maybe Route -> m
+    , isLoading : Bool
     , body : String -> List (Html m) -> Html m
     }
 
