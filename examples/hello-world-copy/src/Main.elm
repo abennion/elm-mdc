@@ -19,6 +19,7 @@ import Route exposing (Route(..))
 
 type alias Model =
     { mdc : Material.Model Msg
+    , route : Route
     , home : Pages.Home.Model Msg
     }
 
@@ -26,6 +27,7 @@ type alias Model =
 defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
+    , route = Route.Home
     , home = Pages.Home.defaultModel
     }
 
@@ -64,28 +66,31 @@ setRoute maybeRoute model =
             ( model, Cmd.none )
 
         Just Route.Home ->
-            ( model, Route.modifyUrl Route.Home )
+            ( { model | route = Route.Home }, Cmd.none )
 
         Just Route.Root ->
-            ( model, Cmd.none )
+            ( { model | route = Route.Home }, Cmd.none )
 
         Just Route.Other ->
-            ( model, Cmd.none )
+            ( { model | route = Route.Other }, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
-    -- put Pages.Home.view in here
-    -- need to pass the page or url we're on...
-    Html.div []
-        [ Button.view Mdc
-            "my-button"
-            model.mdc
-            [ Button.ripple
-            , Options.onClick Click
-            ]
-            [ text "Click me!" ]
-        ]
+    case model.route of
+        Route.Home ->
+            Pages.Home.view HomeMsg model.home
+
+        _ ->
+            Html.div []
+                [ Button.view Mdc
+                    "my-button"
+                    model.mdc
+                    [ Button.ripple
+                    , Options.onClick Click
+                    ]
+                    [ text "Click me!" ]
+                ]
 
 
 main : Program Value Model Msg
@@ -98,9 +103,41 @@ main =
         }
 
 
+
+-- init : Value -> Location -> ( Model, Cmd Msg )
+-- init value location =
+--     ( defaultModel, Material.init Mdc )
+
+
 init : Value -> Location -> ( Model, Cmd Msg )
-init value location =
-    ( defaultModel, Material.init Mdc )
+init val location =
+    let
+        _ =
+            Debug.log "init val" val
+
+        _ =
+            Debug.log "init location" location
+    in
+    setRoute (Route.fromLocation location)
+        defaultModel
+
+
+
+-- init : Navigation.Location -> ( Model, Cmd Msg )
+-- init location =
+--     let
+--         ( layoutGrid, layoutGridEffects ) =
+--             Demo.LayoutGrid.init LayoutGridMsg
+--     in
+--     ( { defaultModel
+--         | layoutGrid = layoutGrid
+--         , url = Url.fromString location.hash
+--       }
+--     , Cmd.batch
+--         [ Material.init Mdc
+--         , layoutGridEffects
+--         ]
+--     )
 
 
 subscriptions : Model -> Sub Msg
