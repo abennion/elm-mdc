@@ -4,8 +4,9 @@ import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
-import Material.Options as Options
+import Material.Options as Options exposing (styled)
 import Navigation exposing (Location)
+import Page
 import Pages.Home
     exposing
         ( Model
@@ -94,13 +95,31 @@ setRoute maybeRoute model =
 
 
 view : Model -> Html Msg
-view model =
+view =
+    view_
+
+
+view_ : Model -> Html Msg
+view_ model =
+    let
+        page =
+            { navigate = SetRoute
+            , body =
+                \title nodes ->
+                    styled Html.div
+                        []
+                        (List.concat
+                            [ nodes
+                            ]
+                        )
+            }
+    in
     case model.route of
         Route.Home ->
-            Pages.Home.view HomeMsg model.home
+            Pages.Home.view HomeMsg page model.home
 
         Route.Other ->
-            Pages.Other.view OtherMsg model.other
+            Pages.Other.view OtherMsg page model.other
 
         _ ->
             Html.div []

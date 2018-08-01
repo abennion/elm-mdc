@@ -4,6 +4,7 @@ import Html exposing (Html, div, text)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled, when)
+import Page exposing (Page)
 
 
 type alias Model m =
@@ -36,10 +37,9 @@ update lift msg model =
             )
 
 
-view : (Msg m -> m) -> Model m -> Html m
-view lift model =
-    styled Html.div
-        []
+view : (Msg m -> m) -> Page m -> Model m -> Html m
+view lift page model =
+    page.body "Home"
         [ styled Html.div
             []
             [ styled Html.h2
