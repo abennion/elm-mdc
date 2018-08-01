@@ -14,6 +14,14 @@ import Pages.Home
         , update
         , view
         )
+import Pages.Other
+    exposing
+        ( Model
+        , Msg(Mdc)
+        , defaultModel
+        , update
+        , view
+        )
 import Route exposing (Route(..))
 
 
@@ -21,6 +29,7 @@ type alias Model =
     { mdc : Material.Model Msg
     , route : Route
     , home : Pages.Home.Model Msg
+    , other : Pages.Other.Model Msg
     }
 
 
@@ -29,6 +38,7 @@ defaultModel =
     { mdc = Material.defaultModel
     , route = Route.Home
     , home = Pages.Home.defaultModel
+    , other = Pages.Other.defaultModel
     }
 
 
@@ -37,6 +47,7 @@ type Msg
     | SetRoute (Maybe Route)
     | Click
     | HomeMsg (Pages.Home.Msg Msg)
+    | OtherMsg (Pages.Other.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -57,6 +68,13 @@ update msg model =
                     Pages.Home.update HomeMsg msg_ model.home
             in
             ( { model | home = home }, effects )
+
+        OtherMsg msg_ ->
+            let
+                ( other, effects ) =
+                    Pages.Other.update OtherMsg msg_ model.home
+            in
+            ( { model | other = other }, effects )
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -81,6 +99,9 @@ view model =
         Route.Home ->
             Pages.Home.view HomeMsg model.home
 
+        Route.Other ->
+            Pages.Other.view OtherMsg model.other
+
         _ ->
             Html.div []
                 [ Button.view Mdc
@@ -103,12 +124,6 @@ main =
         }
 
 
-
--- init : Value -> Location -> ( Model, Cmd Msg )
--- init value location =
---     ( defaultModel, Material.init Mdc )
-
-
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     let
@@ -120,24 +135,6 @@ init val location =
     in
     setRoute (Route.fromLocation location)
         defaultModel
-
-
-
--- init : Navigation.Location -> ( Model, Cmd Msg )
--- init location =
---     let
---         ( layoutGrid, layoutGridEffects ) =
---             Demo.LayoutGrid.init LayoutGridMsg
---     in
---     ( { defaultModel
---         | layoutGrid = layoutGrid
---         , url = Url.fromString location.hash
---       }
---     , Cmd.batch
---         [ Material.init Mdc
---         , layoutGridEffects
---         ]
---     )
 
 
 subscriptions : Model -> Sub Msg
