@@ -5,6 +5,7 @@ import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled, when)
 import Page exposing (Page)
+import Route exposing (Route)
 
 
 type alias Model m =
@@ -50,7 +51,7 @@ view lift page model =
                 "my-button"
                 model.mdc
                 [ Button.ripple
-                , Options.onClick (lift (Click "Do the click"))
+                , Options.onClick (page.navigate (Just Route.Other))
                 ]
                 [ text "Other!"
                 ]

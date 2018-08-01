@@ -109,7 +109,9 @@ view_ model =
                     styled Html.div
                         []
                         (List.concat
-                            [ nodes
+                            [ [ styled Html.h2 [] [ text title ]
+                              ]
+                            , nodes
                             ]
                         )
             }
