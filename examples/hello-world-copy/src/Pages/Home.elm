@@ -5,7 +5,9 @@ import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled, when)
 import Page exposing (Page)
+import Pages.Errored exposing (PageLoadError, pageLoadError)
 import Route exposing (Route)
+import Task exposing (Task)
 
 
 type alias Model m =
@@ -57,3 +59,25 @@ view lift page model =
                 ]
             ]
         ]
+
+
+
+-- init : Route -> Task PageLoadError Model m
+-- init route =
+--     let
+--         loadSources =
+--             Feed.init session feedSources
+--         handleLoadError _ =
+--             pageLoadError Route.Home "Homepage is currently unavailable."
+--     in
+--     Task.map Model loadSources
+--         |> Task.mapError handleLoadError
+--
+--
+-- -- we don't want Task.map2 here...
+-- Task.attempt (\ -> Success (Model defaultModel.mdc "ain't nothing here"))
+--     |> Task.mapError handleLoadError
+-- | HomeLoaded (Result PageLoadError Home.Model)
+-- Task.map HomeLoaded
+--     (Ok "something something")
+--     (Model defaultModel.mdc "ain't nothing here")

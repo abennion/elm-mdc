@@ -7,6 +7,7 @@ import Material.Button as Button
 import Material.Options as Options exposing (styled)
 import Navigation exposing (Location)
 import Page
+import Pages.Errored exposing (PageLoadError)
 import Pages.Home
     exposing
         ( Model
@@ -57,6 +58,10 @@ type Msg
     | OtherMsg (Pages.Other.Msg Msg)
 
 
+
+-- | HomeLoaded (Result PageLoadError (Pages.Home.Model String))
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case Debug.log "update msg" msg of
@@ -69,6 +74,17 @@ update msg model =
         Click ->
             ( model, Cmd.none )
 
+        -- ( HomeLoaded (Ok home), _ ) ->
+        --     ( { model
+        --         | home = home
+        --         , pageState = Loaded Route.Home
+        --       }
+        --     , Cmd.none
+        --     )
+        -- ( HomeLoaded (Err error), _ ) ->
+        --     ( { model | pageState = Loaded Route.Home }
+        --     , Cmd.none
+        --     )
         HomeMsg msg_ ->
             let
                 ( home, effects ) =
@@ -97,6 +113,8 @@ getRoute pageState =
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     let
+        -- thinking about this all wrong. forget tasks and just come up with
+        -- a could messages that we can use...
         transition toMsg task =
             ( { model | pageState = TransitioningFrom (getRoute model.pageState) }
             , Task.attempt toMsg task
@@ -107,6 +125,7 @@ setRoute maybeRoute model =
             ( model, Cmd.none )
 
         Just Route.Home ->
+            -- transition HomeLoaded (Home.init Route.Home)
             ( { model | pageState = Loaded Route.Home }, Cmd.none )
 
         Just Route.Root ->
@@ -114,14 +133,6 @@ setRoute maybeRoute model =
 
         Just Route.Other ->
             ( { model | pageState = Loaded Route.Other }, Cmd.none )
-
-
-
--- view : Model -> Html Msg
--- view =
---     view_
--- view_ : Model -> Html Msg
--- view_ model =
 
 
 view : Model -> Html Msg
