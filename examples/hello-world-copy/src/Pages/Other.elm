@@ -3,6 +3,7 @@ module Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Html exposing (Html, div, text)
 import Material
 import Material.Button as Button
+import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Page exposing (Page)
 import Route exposing (Route)
@@ -47,6 +48,20 @@ view lift page model =
                 []
                 [ text model.text
                 ]
+            , case page.isLoading of
+                True ->
+                    styled Html.div
+                        []
+                        [ LinearProgress.view
+                            [ LinearProgress.buffered 0.3 0.0
+                            , LinearProgress.indeterminate
+                            , cs "demo-linear-progress--custom"
+                            ]
+                            []
+                        ]
+
+                False ->
+                    Html.text ""
             , styled Html.h2
                 []
                 [ text ("Is loading: " ++ toString page.isLoading)
