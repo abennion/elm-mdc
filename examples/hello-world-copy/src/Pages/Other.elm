@@ -47,6 +47,10 @@ view lift page model =
                 []
                 [ text model.text
                 ]
+            , styled Html.h2
+                []
+                [ text ("Is loading: " ++ toString page.isLoading)
+                ]
             , Button.view (lift << Mdc)
                 "my-button"
                 model.mdc

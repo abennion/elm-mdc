@@ -24,8 +24,10 @@ import Pages.Other
         , update
         , view
         )
+import Process
 import Route exposing (Route(..))
 import Task
+import Time
 
 
 type PageState
@@ -33,11 +35,16 @@ type PageState
     | TransitioningFrom Route
 
 
+type alias ErrorMsg =
+    String
+
+
 type alias Model =
     { mdc : Material.Model Msg
     , pageState : PageState
     , home : Pages.Home.Model Msg
     , other : Pages.Other.Model Msg
+    , error : ErrorMsg
     }
 
 
@@ -47,6 +54,7 @@ defaultModel =
     , pageState = Loaded Route.Home
     , home = Pages.Home.defaultModel
     , other = Pages.Other.defaultModel
+    , error = "nothing"
     }
 
 
@@ -56,10 +64,8 @@ type Msg
     | Click
     | HomeMsg (Pages.Home.Msg Msg)
     | OtherMsg (Pages.Other.Msg Msg)
-
-
-
--- | HomeLoaded (Result PageLoadError (Pages.Home.Model String))
+    | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
+    | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -74,17 +80,22 @@ update msg model =
         Click ->
             ( model, Cmd.none )
 
-        -- ( HomeLoaded (Ok home), _ ) ->
-        --     ( { model
-        --         | home = home
-        --         , pageState = Loaded Route.Home
-        --       }
-        --     , Cmd.none
-        --     )
-        -- ( HomeLoaded (Err error), _ ) ->
-        --     ( { model | pageState = Loaded Route.Home }
-        --     , Cmd.none
-        --     )
+        HomeLoaded (Ok home) ->
+            ( { model
+                | error = ""
+                , pageState = Loaded Route.Home
+              }
+            , Cmd.none
+            )
+
+        HomeLoaded (Err error) ->
+            ( { model
+                | error = error
+                , pageState = Loaded Route.Home
+              }
+            , Cmd.none
+            )
+
         HomeMsg msg_ ->
             let
                 ( home, effects ) =
@@ -99,6 +110,22 @@ update msg model =
             in
             ( { model | other = other }, effects )
 
+        OtherLoaded (Ok home) ->
+            ( { model
+                | error = ""
+                , pageState = Loaded Route.Other
+              }
+            , Cmd.none
+            )
+
+        OtherLoaded (Err error) ->
+            ( { model
+                | error = error
+                , pageState = Loaded Route.Other
+              }
+            , Cmd.none
+            )
+
 
 getRoute : PageState -> Route
 getRoute pageState =
@@ -110,11 +137,15 @@ getRoute pageState =
             route
 
 
+delay : Time.Time -> msg -> Cmd msg
+delay time msg =
+    Process.sleep time
+        |> Task.perform (\_ -> msg)
+
+
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     let
-        -- thinking about this all wrong. forget tasks and just come up with
-        -- a could messages that we can use...
         transition toMsg task =
             ( { model | pageState = TransitioningFrom (getRoute model.pageState) }
             , Task.attempt toMsg task
@@ -125,19 +156,26 @@ setRoute maybeRoute model =
             ( model, Cmd.none )
 
         Just Route.Home ->
-            -- transition HomeLoaded (Home.init Route.Home)
-            ( { model | pageState = Loaded Route.Home }, Cmd.none )
+            transition HomeLoaded
+                (Task.map
+                    (\_ -> model.home)
+                    (Process.sleep (Time.second * 5))
+                )
 
         Just Route.Root ->
             ( { model | pageState = Loaded Route.Home }, Cmd.none )
 
         Just Route.Other ->
-            ( { model | pageState = Loaded Route.Other }, Cmd.none )
+            transition OtherLoaded
+                (Task.map
+                    (\_ -> model.other)
+                    (Process.sleep (Time.second * 5))
+                )
 
 
 view : Model -> Html Msg
 view model =
-    case model.pageState of
+    case Debug.log "view model.pageState" model.pageState of
         Loaded route ->
             viewPage model False route
 
@@ -150,24 +188,31 @@ viewPage model isLoading route =
     let
         page =
             { navigate = SetRoute
-            , isLoading = False
+            , isLoading = isLoading
             , body =
                 \title nodes ->
                     styled Html.div
                         []
-                        (List.concat
-                            [ [ styled Html.h2 [] [ text title ]
-                              ]
-                            , nodes
+                        [ Html.h2
+                            []
+                            [ text ("Error: " ++ model.error)
                             ]
-                        )
+                        , styled Html.div
+                            []
+                            (List.concat
+                                [ [ styled Html.h2 [] [ text title ]
+                                  ]
+                                , nodes
+                                ]
+                            )
+                        ]
             }
     in
-    case model.pageState of
-        Loaded Route.Home ->
+    case getRoute model.pageState of
+        Route.Home ->
             Pages.Home.view HomeMsg page model.home
 
-        Loaded Route.Other ->
+        Route.Other ->
             Pages.Other.view OtherMsg page model.other
 
         _ ->
