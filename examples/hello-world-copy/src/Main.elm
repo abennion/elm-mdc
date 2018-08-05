@@ -6,6 +6,7 @@ import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
+import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled)
 import Material.Typography as Typography
 import Navigation exposing (Location)
@@ -198,19 +199,28 @@ view model =
 viewPage : Model -> Bool -> Route -> Html Msg
 viewPage model isLoading route =
     let
-        -- (List.concat
-        --     [ [ Page.toolbar
-        --             PageMsg
-        --             model.page
-        --             SetRoute
-        --             (getRoute model.pageState)
-        --             title
-        --             "spam281@gmail.com"
-        --       , Page.drawer PageMsg model.page
-        --       ]
-        --     , nodes
-        --     ]
-        -- )
+        spinner isLoading =
+            case page.isLoading of
+                True ->
+                    styled Html.div
+                        [ cs "mdc-theme--dark-background"
+                        , css "height" "8px"
+                        ]
+                        [ LinearProgress.view
+                            [ LinearProgress.buffered 0.0 0.0
+                            , cs "demo-linear-progress--custom"
+                            ]
+                            []
+                        ]
+
+                False ->
+                    styled Html.div
+                        [ cs "mdc-theme--dark-background"
+                        , css "height" "8px"
+                        ]
+                        [ text ""
+                        ]
+
         page =
             { navigate = SetRoute
             , isLoading = isLoading
@@ -223,7 +233,8 @@ viewPage model isLoading route =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ Page.drawer PageMsg model.page
+                            [ [ spinner isLoading
+                              , Page.drawer PageMsg model.page
                               , Page.toolbar
                                     PageMsg
                                     model.page

@@ -50,21 +50,6 @@ view lift page model =
                 []
                 [ text model.text
                 ]
-            , case page.isLoading of
-                True ->
-                    styled Html.div
-                        []
-                        [ LinearProgress.view
-                            [ LinearProgress.buffered 0.0 0.0
-
-                            -- , LinearProgress.indeterminate
-                            , cs "demo-linear-progress--custom"
-                            ]
-                            []
-                        ]
-
-                False ->
-                    Html.text ""
             , styled Html.h2
                 []
                 [ text ("Is loading: " ++ toString page.isLoading)
@@ -77,19 +62,53 @@ view lift page model =
                 ]
                 [ text "Other!"
                 ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
+            , styled Html.div
+                [ css "padding" "24px" ]
+                [ text "nothing here"
+                ]
             ]
         ]
-
-
-
--- init : Model m -> Task PageLoadError Model m
--- init model =
---     let
---     in
---     Task.map
---         (\_ -> model.home)
---         (Process.sleep (Time.second * 5))
--- delay : Time.Time -> msg -> Cmd msg
--- delay time msg =
---     Process.sleep time
---         |> Task.perform (\_ -> msg)

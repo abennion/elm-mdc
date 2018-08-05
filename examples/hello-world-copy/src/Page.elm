@@ -70,11 +70,10 @@ drawer lift model =
         model.mdc
         [ Drawer.open |> when model.drawerOpen
         , Drawer.onClose (lift CloseDrawer)
+        , cs "mdc-theme--dark-background"
         ]
         [ Drawer.header
-            [ Theme.primaryBg
-            , Theme.textPrimaryOnPrimary
-            ]
+            []
             [ Drawer.headerContent []
                 [ text "Header here"
                 ]
@@ -103,19 +102,6 @@ drawer lift model =
                 ]
             ]
         ]
-
-
-
--- toolbar :
---     (Material.Msg m -> m)
---     -> Material.Index
---     -> Material.Model m
---     -> (Maybe Route -> m)
---     -> Route
---     -> String
---     -> String
---     -> Html m
--- toolbar lift idx mdc navigate route title email =
 
 
 toolbar :
@@ -154,16 +140,14 @@ toolbar lift model navigate route title email =
             (lift << Mdc)
             "main-topappbar"
             model.mdc
-            [ TopAppBar.fixed ]
+            [ TopAppBar.fixed
+            ]
             [ TopAppBar.section
                 [ TopAppBar.alignStart
-                , Theme.background
-                , css "color" "rgba(255, 255, 255, 0.5)"
-                , css "background-color" "#222222"
+                , cs "mdc-theme--dark-background"
                 ]
                 [ TopAppBar.navigationIcon
-                    [ css "color" "rgba(255, 255, 255, 0.5)"
-                    , Options.onClick (lift OpenDrawer)
+                    [ Options.onClick (lift OpenDrawer)
                     ]
                     "menu"
                 , TopAppBar.title
@@ -180,22 +164,17 @@ toolbar lift model navigate route title email =
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignEnd
-                , Theme.background
-                , css "color" "rgba(255, 255, 255, 0.5)"
-                , css "background-color" "#222222"
+                , cs "mdc-theme--dark-background"
                 ]
                 [ viewSignIn
                 , TopAppBar.actionItem
-                    [ css "color" "rgba(255, 255, 255, 0.5)"
-                    ]
+                    []
                     "file_download"
                 , TopAppBar.actionItem
-                    [ css "color" "rgba(255, 255, 255, 0.5)"
-                    ]
+                    []
                     "print"
                 , TopAppBar.actionItem
-                    [ css "color" "rgba(255, 255, 255, 0.5)"
-                    ]
+                    []
                     "bookmark"
                 ]
             ]
