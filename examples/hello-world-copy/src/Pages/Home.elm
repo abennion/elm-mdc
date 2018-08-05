@@ -73,7 +73,7 @@ view lift page model =
                 "my-button"
                 model.mdc
                 [ Button.ripple
-                , Options.onClick (page.navigate Route.Other)
+                , Options.onClick (page.navigate (Just Route.Other))
                 ]
                 [ text "Other!"
                 ]

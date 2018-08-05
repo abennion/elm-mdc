@@ -70,7 +70,7 @@ view lift page model =
                 "my-button"
                 model.mdc
                 [ Button.ripple
-                , Options.onClick (page.navigate Route.Home)
+                , Options.onClick (page.navigate (Just Route.Home))
                 ]
                 [ text "Home!"
                 ]

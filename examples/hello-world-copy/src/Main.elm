@@ -7,6 +7,7 @@ import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled)
+import Material.Typography as Typography
 import Navigation exposing (Location)
 import Page exposing (Page)
 import Pages.Home
@@ -187,32 +188,30 @@ view model =
 viewPage : Model -> Bool -> Route -> Html Msg
 viewPage model isLoading route =
     let
-        -- type alias Page m =
-        --     { navigate : Route -> m
-        --     , isLoading : Bool
-        --     , body : String -> List (Html m) -> Html m
-        --     }
         page =
             { navigate = SetRoute
             , isLoading = isLoading
             , body =
                 \title nodes ->
                     styled Html.div
-                        [ css "padding" "24px"
+                        [ css "display" "flex"
+                        , css "flex-flow" "column"
+                        , css "height" "100%"
+                        , Typography.typography
                         ]
-                        [ Html.h2
-                            []
-                            [ text ("Error: " ++ model.error)
+                        (List.concat
+                            [ [ Page.toolbar
+                                    Mdc
+                                    "page-toolbar"
+                                    model.mdc
+                                    SetRoute
+                                    (getRoute model.pageState)
+                                    title
+                                    "spam281@gmail.com"
+                              ]
+                            , nodes
                             ]
-                        , styled Html.div
-                            []
-                            (List.concat
-                                [ [ styled Html.h2 [] [ text title ]
-                                  ]
-                                , nodes
-                                ]
-                            )
-                        ]
+                        )
             }
     in
     case getRoute model.pageState of

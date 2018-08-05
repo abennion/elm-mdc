@@ -9,22 +9,21 @@ import Material
 import Material.Button as Button
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.Theme as Theme
-import Material.Toolbar as Toolbar
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
 
 
 -- type alias Page m =
 --     { toolbar : String -> Html m
---     , fixedAdjust : Options.Property () m
+--     , isLoading : Bool
 --     , navigate : Route -> m
 --     , body : String -> List (Html m) -> Html m
 --     }
 
 
 type alias Page m =
-    { navigate : Route -> m
-    , isLoading : Bool
+    { isLoading : Bool
+    , navigate : Maybe Route -> m
     , body : String -> List (Html m) -> Html m
     }
 
@@ -60,13 +59,22 @@ type Msg m
 --                 ]
 --           ]
 --     ]
+-- toolbar :
+--     (Material.Msg m -> m)
+--     -> Material.Index
+--     -> Material.Model m
+--     -> (Url -> m)
+--     -> Url
+--     -> String
+--     -> Html m
+-- toolbar lift idx mdc navigate url title =
 
 
 toolbar :
     (Material.Msg m -> m)
     -> Material.Index
     -> Material.Model m
-    -> (Route -> m)
+    -> (Maybe Route -> m)
     -> Route
     -> String
     -> String
@@ -149,7 +157,8 @@ toolbar lift idx mdc navigate route title email =
 
 -- fixedAdjust : Material.Index -> Material.Model m -> Options.Property c m
 -- fixedAdjust idx mdc =
---     Toolbar.fixedAdjust idx mdc
+--     TopAppBar.fixedAdjust
+--idx mdc
 -- hero : List (Property c m) -> List (Html m) -> Html m
 -- hero options =
 --     styled Html.section
