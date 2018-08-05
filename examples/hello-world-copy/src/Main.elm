@@ -4,7 +4,7 @@ import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
-import Material.Options as Options exposing (styled)
+import Material.Options as Options exposing (cs, css, styled)
 import Navigation exposing (Location)
 import Page
 import Pages.Errored exposing (PageLoadError)
@@ -189,10 +189,16 @@ viewPage model isLoading route =
         page =
             { navigate = SetRoute
             , isLoading = isLoading
+            , toolbar =
+                \title ->
+                    styled Html.div
+                        []
+                        []
             , body =
                 \title nodes ->
                     styled Html.div
-                        []
+                        [ css "padding" "24px"
+                        ]
                         [ Html.h2
                             []
                             [ text ("Error: " ++ model.error)

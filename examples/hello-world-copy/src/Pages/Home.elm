@@ -55,8 +55,9 @@ view lift page model =
                     styled Html.div
                         []
                         [ LinearProgress.view
-                            [ LinearProgress.buffered 0.3 0.0
-                            , LinearProgress.indeterminate
+                            [ LinearProgress.buffered 0.0 0.0
+
+                            -- , LinearProgress.indeterminate
                             , cs "demo-linear-progress--custom"
                             ]
                             []
@@ -81,22 +82,14 @@ view lift page model =
 
 
 
--- init : Route -> Task PageLoadError Model m
--- init route =
+-- init : Model m -> Task PageLoadError Model m
+-- init model =
 --     let
---         loadSources =
---             Feed.init session feedSources
---         handleLoadError _ =
---             pageLoadError Route.Home "Homepage is currently unavailable."
 --     in
---     Task.map Model loadSources
---         |> Task.mapError handleLoadError
---
---
--- -- we don't want Task.map2 here...
--- Task.attempt (\ -> Success (Model defaultModel.mdc "ain't nothing here"))
---     |> Task.mapError handleLoadError
--- | HomeLoaded (Result PageLoadError Home.Model)
--- Task.map HomeLoaded
---     (Ok "something something")
---     (Model defaultModel.mdc "ain't nothing here")
+--     Task.map
+--         (\_ -> model.home)
+--         (Process.sleep (Time.second * 5))
+-- delay : Time.Time -> msg -> Cmd msg
+-- delay time msg =
+--     Process.sleep time
+--         |> Task.perform (\_ -> msg)
