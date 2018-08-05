@@ -16,7 +16,6 @@ import Material.Drawer.Temporary as Drawer
 import Material.LinearProgress as LinearProgress
 import Material.List as Lists
 import Material.Options as Options exposing (Property, cs, css, styled, when)
-import Material.Theme as Theme
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
 
@@ -74,7 +73,8 @@ drawer lift model =
         , cs "mdc-theme--dark-background"
         ]
         [ Drawer.header
-            []
+            [ cs "mdc-theme--dark-background"
+            ]
             [ Drawer.headerContent []
                 [ text "Header here"
                 ]
@@ -179,8 +179,22 @@ toolbar lift model isLoading navigate route title email =
                         )
                     , css "font-family" "'Monoton', 'Roboto Mono', monospace"
                     ]
-                    [ text title
-                    , spinner isLoading
+                    [ styled Html.table
+                        []
+                        [ styled Html.tr
+                            []
+                            [ styled Html.td
+                                []
+                                [ text title
+                                ]
+                            , styled Html.td
+                                [ css "width" "200px"
+                                , css "padding-left" "16px"
+                                ]
+                                [ spinner isLoading
+                                ]
+                            ]
+                        ]
                     ]
                 ]
             , TopAppBar.section

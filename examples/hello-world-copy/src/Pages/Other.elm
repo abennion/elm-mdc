@@ -51,27 +51,14 @@ view lift page model =
                 ++ " nulla pariatur. Excepteur sint occaecat cupidatat non proident,"
                 ++ " sunt in culpa qui officia deserunt mollit anim id est laborum."
     in
-    page.body "Other" page.isLoading
+    page.body "Other"
+        page.isLoading
         [ styled Html.div
             []
             [ styled Html.h2
                 []
                 [ text model.text
                 ]
-            , case page.isLoading of
-                True ->
-                    styled Html.div
-                        []
-                        [ LinearProgress.view
-                            [ LinearProgress.buffered 0.3 0.0
-                            , LinearProgress.indeterminate
-                            , cs "demo-linear-progress--custom"
-                            ]
-                            []
-                        ]
-
-                False ->
-                    Html.text ""
             , styled Html.h2
                 []
                 [ text ("Is loading: " ++ toString page.isLoading)
