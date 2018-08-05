@@ -1,24 +1,23 @@
 module Page
     exposing
-        ( Page
+        ( Model
+        , Msg(Mdc)
+        , Page
+        , defaultModel
+        , drawer
         , toolbar
+        , update
         )
 
 import Html exposing (Html, text)
 import Material
 import Material.Button as Button
+import Material.Drawer.Temporary as Drawer
+import Material.List as Lists
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.Theme as Theme
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
-
-
--- type alias Page m =
---     { toolbar : String -> Html m
---     , isLoading : Bool
---     , navigate : Route -> m
---     , body : String -> List (Html m) -> Html m
---     }
 
 
 type alias Page m =
@@ -28,95 +27,135 @@ type alias Page m =
     }
 
 
+type alias Model m =
+    { mdc : Material.Model m
+    , drawerOpen : Bool
+    }
+
+
+defaultModel : Model m
+defaultModel =
+    { mdc = Material.defaultModel
+    , drawerOpen = True
+    }
+
+
 type Msg m
-    = OpenDrawer
+    = Mdc (Material.Msg m)
+    | OpenDrawer
     | CloseDrawer
 
 
+update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
+update lift msg model =
+    case msg of
+        Mdc msg_ ->
+            Material.update (lift << Mdc) msg_ model
 
--- import Material.Drawer.Temporary as Drawer
--- import Material.List as Lists
--- Drawer.view Mdc "my-drawer" model.mdc []
---     [ Drawer.toolbarSpacer [] []
---     , Lists.ul
---           [ Drawer.content
---           ]
---           [ Lists.li []
---                 [ Lists.graphicIcon [] "inbox"
---                 , text "Inbox"
---                 ]
---           , Lists.li []
---                 [ Lists.graphicIcon [] "star"
---                 , text "Star"
---                 ]
---           , Lists.li []
---                 [ Lists.graphicIcon [] "send"
---                 , text "Sent Mail"
---                 ]
---           , Lists.li []
---                 [ Lists.graphicIcon [] "drafts"
---                 , text "Drafts"
---                 ]
---           ]
---     ]
+        OpenDrawer ->
+            ( { model | drawerOpen = True }
+            , Cmd.none
+            )
+
+        CloseDrawer ->
+            ( { model | drawerOpen = False }
+            , Cmd.none
+            )
+
+
+drawer : (Msg m -> m) -> Model m -> Html m
+drawer lift model =
+    Drawer.view (lift << Mdc)
+        "main-drawer"
+        model.mdc
+        [ Drawer.open |> when model.drawerOpen
+        , Drawer.onClose (lift CloseDrawer)
+        ]
+        [ Drawer.toolbarSpacer
+            []
+            []
+        , Lists.ul
+            [ Drawer.content
+            ]
+            [ Lists.li []
+                [ Lists.graphicIcon [] "inbox"
+                , text "Inbox"
+                ]
+            , Lists.li []
+                [ Lists.graphicIcon [] "star"
+                , text "Star"
+                ]
+            , Lists.li []
+                [ Lists.graphicIcon [] "send"
+                , text "Sent Mail"
+                ]
+            , Lists.li []
+                [ Lists.graphicIcon [] "drafts"
+                , text "Drafts"
+                ]
+            ]
+        ]
+
+
+
 -- toolbar :
 --     (Material.Msg m -> m)
 --     -> Material.Index
 --     -> Material.Model m
---     -> (Url -> m)
---     -> Url
+--     -> (Maybe Route -> m)
+--     -> Route
+--     -> String
 --     -> String
 --     -> Html m
--- toolbar lift idx mdc navigate url title =
+-- toolbar lift idx mdc navigate route title email =
 
 
 toolbar :
-    (Material.Msg m -> m)
-    -> Material.Index
-    -> Material.Model m
+    (Msg m -> m)
+    -> Model m
     -> (Maybe Route -> m)
     -> Route
     -> String
     -> String
     -> Html m
-toolbar lift idx mdc navigate route title email =
+toolbar lift model navigate route title email =
     let
         viewSignIn =
             case email of
                 "" ->
-                    Button.view lift
+                    Button.view
+                        (lift << Mdc)
                         "login-link-button"
-                        mdc
+                        model.mdc
                         [ Button.link "#login"
-                        , css "margin-top" "8px"
                         ]
                         [ text "Sign in" ]
 
                 _ ->
-                    Button.view lift
+                    Button.view
+                        (lift << Mdc)
                         "login-link-button"
-                        mdc
+                        model.mdc
                         [ Button.link "#login"
-                        , css "margin-top" "8px"
                         ]
                         [ text email ]
     in
     styled Html.div
         []
         [ TopAppBar.view
-            lift
-            idx
-            mdc
+            (lift << Mdc)
+            "main-topappbar"
+            model.mdc
             [ TopAppBar.fixed ]
             [ TopAppBar.section
                 [ TopAppBar.alignStart
                 , Theme.background
-                , css "color" "rgba(255, 255, 255, 0.3)"
+                , css "color" "rgba(255, 255, 255, 0.5)"
+                , css "background-color" "#222222"
                 ]
                 [ TopAppBar.navigationIcon
-                    [ css "color" "rgba(255, 255, 255, 0.3)"
-
-                    -- , Options.onClick (lift OpenDrawer)
+                    [ css "color" "rgba(255, 255, 255, 0.5)"
+                    , Options.onClick (lift OpenDrawer)
                     ]
                     "menu"
                 , TopAppBar.title
@@ -134,53 +173,23 @@ toolbar lift idx mdc navigate route title email =
             , TopAppBar.section
                 [ TopAppBar.alignEnd
                 , Theme.background
-                , css "color" "rgba(255, 255, 255, 0.3)"
+                , css "color" "rgba(255, 255, 255, 0.5)"
+                , css "background-color" "#222222"
                 ]
                 [ viewSignIn
                 , TopAppBar.actionItem
-                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    [ css "color" "rgba(255, 255, 255, 0.5)"
                     ]
                     "file_download"
                 , TopAppBar.actionItem
-                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    [ css "color" "rgba(255, 255, 255, 0.5)"
                     ]
                     "print"
                 , TopAppBar.actionItem
-                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    [ css "color" "rgba(255, 255, 255, 0.5)"
                     ]
                     "bookmark"
                 ]
             ]
+        , drawer lift model
         ]
-
-
-
--- fixedAdjust : Material.Index -> Material.Model m -> Options.Property c m
--- fixedAdjust idx mdc =
---     TopAppBar.fixedAdjust
---idx mdc
--- hero : List (Property c m) -> List (Html m) -> Html m
--- hero options =
---     styled Html.section
---         (List.reverse
---             -- TODO: dang it
---             (cs "hero"
---                 :: css "display" "-webkit-box"
---                 :: css "display" "-ms-flexbox"
---                 :: css "display" "flex"
---                 :: css "-webkit-box-orient" "horizontal"
---                 :: css "-webkit-box-direction" "normal"
---                 :: css "-ms-flex-flow" "row nowrap"
---                 :: css "flex-flow" "row nowrap"
---                 :: css "-webkit-box-align" "center"
---                 :: css "-ms-flex-align" "center"
---                 :: css "align-items" "center"
---                 :: css "-webkit-box-pack" "center"
---                 :: css "-ms-flex-pack" "center"
---                 :: css "justify-content" "center"
---                 :: css "height" "360px"
---                 :: css "min-height" "360px"
---                 :: css "background-color" "rgba(0, 0, 0, 0.05)"
---                 :: options
---             )
---         )

@@ -47,6 +47,7 @@ type alias Model =
     , home : Pages.Home.Model Msg
     , other : Pages.Other.Model Msg
     , error : ErrorMsg
+    , page : Page.Model Msg
     }
 
 
@@ -57,6 +58,7 @@ defaultModel =
     , home = Pages.Home.defaultModel
     , other = Pages.Other.defaultModel
     , error = "nothing"
+    , page = Page.defaultModel
     }
 
 
@@ -68,6 +70,7 @@ type Msg
     | OtherMsg (Pages.Other.Msg Msg)
     | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
+    | PageMsg (Page.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -81,6 +84,13 @@ update msg model =
 
         Click ->
             ( model, Cmd.none )
+
+        PageMsg msg_ ->
+            let
+                ( page, effects ) =
+                    Page.update PageMsg msg_ model.page
+            in
+            ( { model | page = page }, effects )
 
         HomeLoaded (Ok home) ->
             ( { model
@@ -201,9 +211,8 @@ viewPage model isLoading route =
                         ]
                         (List.concat
                             [ [ Page.toolbar
-                                    Mdc
-                                    "page-toolbar"
-                                    model.mdc
+                                    PageMsg
+                                    model.page
                                     SetRoute
                                     (getRoute model.pageState)
                                     title
