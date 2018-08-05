@@ -198,6 +198,19 @@ view model =
 viewPage : Model -> Bool -> Route -> Html Msg
 viewPage model isLoading route =
     let
+        -- (List.concat
+        --     [ [ Page.toolbar
+        --             PageMsg
+        --             model.page
+        --             SetRoute
+        --             (getRoute model.pageState)
+        --             title
+        --             "spam281@gmail.com"
+        --       , Page.drawer PageMsg model.page
+        --       ]
+        --     , nodes
+        --     ]
+        -- )
         page =
             { navigate = SetRoute
             , isLoading = isLoading
@@ -210,7 +223,8 @@ viewPage model isLoading route =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ Page.toolbar
+                            [ [ Page.drawer PageMsg model.page
+                              , Page.toolbar
                                     PageMsg
                                     model.page
                                     SetRoute

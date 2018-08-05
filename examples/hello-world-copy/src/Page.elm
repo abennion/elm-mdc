@@ -71,7 +71,15 @@ drawer lift model =
         [ Drawer.open |> when model.drawerOpen
         , Drawer.onClose (lift CloseDrawer)
         ]
-        [ Drawer.toolbarSpacer
+        [ Drawer.header
+            [ Theme.primaryBg
+            , Theme.textPrimaryOnPrimary
+            ]
+            [ Drawer.headerContent []
+                [ text "Header here"
+                ]
+            ]
+        , Drawer.toolbarSpacer
             []
             []
         , Lists.ul
@@ -191,5 +199,4 @@ toolbar lift model navigate route title email =
                     "bookmark"
                 ]
             ]
-        , drawer lift model
         ]
