@@ -1,13 +1,14 @@
 module Main exposing (..)
 
+-- import Pages.Errored exposing (PageLoadError)
+
 import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled)
 import Navigation exposing (Location)
-import Page
-import Pages.Errored exposing (PageLoadError)
+import Page exposing (Page)
 import Pages.Home
     exposing
         ( Model
@@ -186,14 +187,14 @@ view model =
 viewPage : Model -> Bool -> Route -> Html Msg
 viewPage model isLoading route =
     let
+        -- type alias Page m =
+        --     { navigate : Route -> m
+        --     , isLoading : Bool
+        --     , body : String -> List (Html m) -> Html m
+        --     }
         page =
             { navigate = SetRoute
             , isLoading = isLoading
-            , toolbar =
-                \title ->
-                    styled Html.div
-                        []
-                        []
             , body =
                 \title nodes ->
                     styled Html.div

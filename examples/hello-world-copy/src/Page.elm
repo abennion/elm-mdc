@@ -1,15 +1,14 @@
 module Page
     exposing
         ( Page
+        , toolbar
         )
 
--- import Demo.Url as Url exposing (Url)
-
 import Html exposing (Html, text)
-import Html.Attributes as Html
 import Material
-import Material.Icon as Icon
+import Material.Button as Button
 import Material.Options as Options exposing (Property, cs, css, styled, when)
+import Material.Theme as Theme
 import Material.Toolbar as Toolbar
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
@@ -24,60 +23,130 @@ import Route exposing (Route)
 
 
 type alias Page m =
-    { navigate : Maybe Route -> m
+    { navigate : Route -> m
     , isLoading : Bool
     , body : String -> List (Html m) -> Html m
     }
 
 
+type Msg m
+    = OpenDrawer
+    | CloseDrawer
 
--- toolbar :
---     (Material.Msg m -> m)
---     -> Material.Index
---     -> Material.Model m
---     -> (Route -> m)
---     -> Route
---     -> String
---     -> Html m
--- toolbar lift idx mdc navigate url title =
---     TopAppBar.view lift
---         idx
---         mdc
---         [ cs "catalog-top-app-bar"
---         ]
---         [ TopAppBar.section
---             [ TopAppBar.alignStart
---             ]
---             [ styled Html.div
---                 [ cs "catalog-back"
---                 , css "padding-right" "24px"
+
+
+-- import Material.Drawer.Temporary as Drawer
+-- import Material.List as Lists
+-- Drawer.view Mdc "my-drawer" model.mdc []
+--     [ Drawer.toolbarSpacer [] []
+--     , Lists.ul
+--           [ Drawer.content
+--           ]
+--           [ Lists.li []
+--                 [ Lists.graphicIcon [] "inbox"
+--                 , text "Inbox"
 --                 ]
---                 [ case url of
---                     Route.Home ->
---                         styled Html.img
---                             [ cs "mdc-toolbar__menu-icon"
---                             , Options.attribute (Html.src "images/ic_component_24px_white.svg")
---                             ]
---                             []
---                     _ ->
---                         Icon.view
---                             [ Options.onClick (navigate Route.Home)
---                             , Toolbar.menuIcon
---                             ]
---                             "arrow_back"
+--           , Lists.li []
+--                 [ Lists.graphicIcon [] "star"
+--                 , text "Star"
 --                 ]
---             , TopAppBar.title
---                 [ cs "catalog-top-app-bar__title"
---                 , css "margin-left"
---                     (if url == Route.Home then
---                         "8px"
---                      else
---                         "24"
---                     )
+--           , Lists.li []
+--                 [ Lists.graphicIcon [] "send"
+--                 , text "Sent Mail"
 --                 ]
---                 [ text title ]
---             ]
---         ]
+--           , Lists.li []
+--                 [ Lists.graphicIcon [] "drafts"
+--                 , text "Drafts"
+--                 ]
+--           ]
+--     ]
+
+
+toolbar :
+    (Material.Msg m -> m)
+    -> Material.Index
+    -> Material.Model m
+    -> (Route -> m)
+    -> Route
+    -> String
+    -> String
+    -> Html m
+toolbar lift idx mdc navigate route title email =
+    let
+        viewSignIn =
+            case email of
+                "" ->
+                    Button.view lift
+                        "login-link-button"
+                        mdc
+                        [ Button.link "#login"
+                        , css "margin-top" "8px"
+                        ]
+                        [ text "Sign in" ]
+
+                _ ->
+                    Button.view lift
+                        "login-link-button"
+                        mdc
+                        [ Button.link "#login"
+                        , css "margin-top" "8px"
+                        ]
+                        [ text email ]
+    in
+    styled Html.div
+        []
+        [ TopAppBar.view
+            lift
+            idx
+            mdc
+            [ TopAppBar.fixed ]
+            [ TopAppBar.section
+                [ TopAppBar.alignStart
+                , Theme.background
+                , css "color" "rgba(255, 255, 255, 0.3)"
+                ]
+                [ TopAppBar.navigationIcon
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+
+                    -- , Options.onClick (lift OpenDrawer)
+                    ]
+                    "menu"
+                , TopAppBar.title
+                    [ cs "catalog-title"
+                    , css "margin-left"
+                        (if route == Route.Home then
+                            "8px"
+                         else
+                            "24"
+                        )
+                    , css "font-family" "'Monoton', 'Roboto Mono', monospace"
+                    ]
+                    [ text title ]
+                ]
+            , TopAppBar.section
+                [ TopAppBar.alignEnd
+                , Theme.background
+                , css "color" "rgba(255, 255, 255, 0.3)"
+                ]
+                [ viewSignIn
+                , TopAppBar.actionItem
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    ]
+                    "file_download"
+                , TopAppBar.actionItem
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    ]
+                    "print"
+                , TopAppBar.actionItem
+                    [ css "color" "rgba(255, 255, 255, 0.3)"
+                    ]
+                    "bookmark"
+                ]
+            ]
+        ]
+
+
+
 -- fixedAdjust : Material.Index -> Material.Model m -> Options.Property c m
 -- fixedAdjust idx mdc =
 --     Toolbar.fixedAdjust idx mdc
