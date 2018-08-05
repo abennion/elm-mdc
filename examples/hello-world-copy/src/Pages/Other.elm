@@ -51,7 +51,7 @@ view lift page model =
                 ++ " nulla pariatur. Excepteur sint occaecat cupidatat non proident,"
                 ++ " sunt in culpa qui officia deserunt mollit anim id est laborum."
     in
-    page.body "Other"
+    page.body "Other" page.isLoading
         [ styled Html.div
             []
             [ styled Html.h2

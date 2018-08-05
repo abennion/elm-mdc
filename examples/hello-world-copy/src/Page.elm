@@ -13,6 +13,7 @@ import Html exposing (Html, text)
 import Material
 import Material.Button as Button
 import Material.Drawer.Temporary as Drawer
+import Material.LinearProgress as LinearProgress
 import Material.List as Lists
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.Theme as Theme
@@ -23,7 +24,7 @@ import Route exposing (Route)
 type alias Page m =
     { isLoading : Bool
     , navigate : Maybe Route -> m
-    , body : String -> List (Html m) -> Html m
+    , body : String -> Bool -> List (Html m) -> Html m
     }
 
 
@@ -107,13 +108,31 @@ drawer lift model =
 toolbar :
     (Msg m -> m)
     -> Model m
+    -> Bool
     -> (Maybe Route -> m)
     -> Route
     -> String
     -> String
     -> Html m
-toolbar lift model navigate route title email =
+toolbar lift model isLoading navigate route title email =
     let
+        spinner isLoading =
+            case isLoading of
+                True ->
+                    styled Html.div
+                        [ cs "mdc-theme--dark-background"
+                        ]
+                        [ LinearProgress.view
+                            [ LinearProgress.buffered 0.0 0.0
+                            , LinearProgress.indeterminate
+                            , cs "demo-linear-progress--custom"
+                            ]
+                            []
+                        ]
+
+                False ->
+                    text ""
+
         viewSignIn =
             case email of
                 "" ->
@@ -160,7 +179,15 @@ toolbar lift model navigate route title email =
                         )
                     , css "font-family" "'Monoton', 'Roboto Mono', monospace"
                     ]
-                    [ text title ]
+                    [ text title
+                    , spinner isLoading
+                    ]
+                ]
+            , TopAppBar.section
+                [ TopAppBar.alignStart
+                , cs "mdc-theme--dark-background"
+                ]
+                [ spinner isLoading
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignEnd

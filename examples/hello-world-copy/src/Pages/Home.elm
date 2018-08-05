@@ -44,6 +44,7 @@ update lift msg model =
 view : (Msg m -> m) -> Page m -> Model m -> Html m
 view lift page model =
     page.body "Home"
+        page.isLoading
         [ styled Html.div
             []
             [ styled Html.h2

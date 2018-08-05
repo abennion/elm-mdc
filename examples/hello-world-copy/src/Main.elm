@@ -199,33 +199,11 @@ view model =
 viewPage : Model -> Bool -> Route -> Html Msg
 viewPage model isLoading route =
     let
-        spinner isLoading =
-            case page.isLoading of
-                True ->
-                    styled Html.div
-                        [ cs "mdc-theme--dark-background"
-                        , css "height" "8px"
-                        ]
-                        [ LinearProgress.view
-                            [ LinearProgress.buffered 0.0 0.0
-                            , cs "demo-linear-progress--custom"
-                            ]
-                            []
-                        ]
-
-                False ->
-                    styled Html.div
-                        [ cs "mdc-theme--dark-background"
-                        , css "height" "8px"
-                        ]
-                        [ text ""
-                        ]
-
         page =
             { navigate = SetRoute
             , isLoading = isLoading
             , body =
-                \title nodes ->
+                \title isLoading_ nodes ->
                     styled Html.div
                         [ css "display" "flex"
                         , css "flex-flow" "column"
@@ -233,11 +211,11 @@ viewPage model isLoading route =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ spinner isLoading
-                              , Page.drawer PageMsg model.page
+                            [ [ Page.drawer PageMsg model.page
                               , Page.toolbar
                                     PageMsg
                                     model.page
+                                    isLoading_
                                     SetRoute
                                     (getRoute model.pageState)
                                     title
