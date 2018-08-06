@@ -36,7 +36,7 @@ type alias Model m =
 defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
-    , drawerOpen = True
+    , drawerOpen = False
     }
 
 
@@ -166,6 +166,7 @@ toolbar lift model isLoading navigate route title email =
                 True ->
                     styled Html.div
                         [ cs "mdc-theme--dark-background"
+                        , css "width" "100%"
                         ]
                         [ LinearProgress.view
                             [ LinearProgress.buffered 0.0 0.0
@@ -216,14 +217,15 @@ toolbar lift model isLoading navigate route title email =
                     ]
                     "menu"
                 , TopAppBar.title
-                    [ cs "catalog-title"
-                    , css "margin-left"
+                    [ css "margin-left"
                         (if route == Route.Home then
                             "8px"
                          else
                             "24"
                         )
-                    , css "font-family" "'Monoton', 'Roboto Mono', monospace"
+                    , css "font-family" "'Roboto Mono', Monoton, monospace"
+                    , css "text-transform" "uppercase"
+                    , css "font-weight" "400"
                     , color
                     ]
                     [ styled Html.table
@@ -235,8 +237,8 @@ toolbar lift model isLoading navigate route title email =
                                 [ text title
                                 ]
                             , styled Html.td
-                                [ css "width" "200px"
-                                , css "padding-left" "16px"
+                                [ css "padding-left" "16px"
+                                , css "width" "100%"
                                 ]
                                 [ spinner isLoading
                                 ]
