@@ -63,42 +63,81 @@ update lift msg model =
             )
 
 
-drawer : (Msg m -> m) -> Model m -> Html m
-drawer lift model =
+
+-- TODO: Make drawer and toolbar their own view classes, or something like
+-- that. The page module should just handle state, I guess.
+
+
+drawer :
+    (Msg m -> m)
+    -> Model m
+    -> (Maybe Route -> m)
+    -> Html m
+drawer lift model setRoute =
+    let
+        backgroundColor =
+            cs "mdc-theme--dark-background"
+
+        color =
+            css "color" "rgba(255, 255, 255, 0.5)"
+    in
     Drawer.view (lift << Mdc)
         "main-drawer"
         model.mdc
         [ Drawer.open |> when model.drawerOpen
         , Drawer.onClose (lift CloseDrawer)
-        , cs "mdc-theme--dark-background"
+        , backgroundColor
         ]
         [ Drawer.header
-            [ cs "mdc-theme--dark-background"
+            [ backgroundColor
+            , color
             ]
             [ Drawer.headerContent []
                 [ text "Header here"
                 ]
             ]
         , Drawer.toolbarSpacer
-            []
+            [ backgroundColor
+            , color
+            ]
             []
         , Lists.ul
             [ Drawer.content
+            , backgroundColor
+            , color
             ]
-            [ Lists.li []
-                [ Lists.graphicIcon [] "inbox"
-                , text "Inbox"
+            [ Lists.li
+                [ Options.onClick (setRoute (Just Route.Home))
                 ]
-            , Lists.li []
-                [ Lists.graphicIcon [] "star"
-                , text "Star"
+                [ Lists.graphicIcon
+                    [ color
+                    ]
+                    "inbox"
+                , text "Home"
                 ]
-            , Lists.li []
-                [ Lists.graphicIcon [] "send"
+            , Lists.li
+                [ Options.onClick (setRoute (Just Route.Other))
+                ]
+                [ Lists.graphicIcon
+                    [ color
+                    ]
+                    "star"
+                , text "Other"
+                ]
+            , Lists.li
+                []
+                [ Lists.graphicIcon
+                    [ color
+                    ]
+                    "send"
                 , text "Sent Mail"
                 ]
-            , Lists.li []
-                [ Lists.graphicIcon [] "drafts"
+            , Lists.li
+                []
+                [ Lists.graphicIcon
+                    [ color
+                    ]
+                    "drafts"
                 , text "Drafts"
                 ]
             ]
@@ -116,6 +155,12 @@ toolbar :
     -> Html m
 toolbar lift model isLoading navigate route title email =
     let
+        backgroundColor =
+            cs "mdc-theme--dark-background"
+
+        color =
+            css "color" "rgba(255, 255, 255, 0.5)"
+
         spinner isLoading =
             case isLoading of
                 True ->
@@ -163,10 +208,11 @@ toolbar lift model isLoading navigate route title email =
             ]
             [ TopAppBar.section
                 [ TopAppBar.alignStart
-                , cs "mdc-theme--dark-background"
+                , backgroundColor
                 ]
                 [ TopAppBar.navigationIcon
                     [ Options.onClick (lift OpenDrawer)
+                    , color
                     ]
                     "menu"
                 , TopAppBar.title
@@ -178,6 +224,7 @@ toolbar lift model isLoading navigate route title email =
                             "24"
                         )
                     , css "font-family" "'Monoton', 'Roboto Mono', monospace"
+                    , color
                     ]
                     [ styled Html.table
                         []
@@ -199,23 +246,26 @@ toolbar lift model isLoading navigate route title email =
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignStart
-                , cs "mdc-theme--dark-background"
+                , backgroundColor
                 ]
                 [ spinner isLoading
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignEnd
-                , cs "mdc-theme--dark-background"
+                , backgroundColor
                 ]
                 [ viewSignIn
                 , TopAppBar.actionItem
-                    []
+                    [ color
+                    ]
                     "file_download"
                 , TopAppBar.actionItem
-                    []
+                    [ color
+                    ]
                     "print"
                 , TopAppBar.actionItem
-                    []
+                    [ color
+                    ]
                     "bookmark"
                 ]
             ]

@@ -211,7 +211,10 @@ viewPage model isLoading route =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ Page.drawer PageMsg model.page
+                            [ [ Page.drawer
+                                    PageMsg
+                                    model.page
+                                    SetRoute
                               , Page.toolbar
                                     PageMsg
                                     model.page
