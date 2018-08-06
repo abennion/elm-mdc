@@ -228,27 +228,13 @@ toolbar lift model isLoading navigate route title email =
                     , css "font-weight" "400"
                     , color
                     ]
-                    [ styled Html.table
-                        []
-                        [ styled Html.tr
-                            []
-                            [ styled Html.td
-                                []
-                                [ text title
-                                ]
-                            , styled Html.td
-                                [ css "padding-left" "16px"
-                                , css "width" "100%"
-                                ]
-                                [ spinner isLoading
-                                ]
-                            ]
-                        ]
+                    [ text title
                     ]
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignStart
                 , backgroundColor
+                , css "width" "200px"
                 ]
                 [ spinner isLoading
                 ]
