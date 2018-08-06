@@ -10,12 +10,15 @@ module Page
         )
 
 import Html exposing (Html, text)
+import Html.Attributes as Html
 import Material
 import Material.Button as Button
 import Material.Drawer.Temporary as Drawer
 import Material.LinearProgress as LinearProgress
 import Material.List as Lists
+import Material.Menu as Menu
 import Material.Options as Options exposing (Property, cs, css, styled, when)
+import Material.Theme as Theme
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
 
@@ -79,7 +82,9 @@ drawer lift model setRoute =
             cs "mdc-theme--dark-background"
 
         color =
-            css "color" "rgba(255, 255, 255, 0.5)"
+            Theme.textPrimaryOnDark
+
+        --css "color" "rgba(255, 255, 255, 0.5)"
     in
     Drawer.view (lift << Mdc)
         "main-drawer"
@@ -112,7 +117,7 @@ drawer lift model setRoute =
                 [ Lists.graphicIcon
                     [ color
                     ]
-                    "inbox"
+                    "home"
                 , text "Home"
                 ]
             , Lists.li
@@ -121,13 +126,15 @@ drawer lift model setRoute =
                 [ Lists.graphicIcon
                     [ color
                     ]
-                    "star"
+                    "link"
                 , text "Other"
                 ]
             , Lists.li
-                []
+                [ Theme.textDisabledOnDark
+                ]
                 [ Lists.graphicIcon
                     [ color
+                    , Theme.textDisabledOnDark
                     ]
                     "send"
                 , text "Sent Mail"
