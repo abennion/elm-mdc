@@ -77,75 +77,58 @@ drawer :
     -> (Maybe Route -> m)
     -> Html m
 drawer lift model setRoute =
-    let
-        backgroundColor =
-            cs "mdc-theme--dark-background"
-
-        color =
-            Theme.textPrimaryOnDark
-
-        --css "color" "rgba(255, 255, 255, 0.5)"
-    in
-    Drawer.view (lift << Mdc)
-        "main-drawer"
-        model.mdc
-        [ Drawer.open |> when model.drawerOpen
-        , Drawer.onClose (lift CloseDrawer)
-        , backgroundColor
-        ]
-        [ Drawer.header
-            [ backgroundColor
-            , color
+    styled Html.div
+        []
+        [ Drawer.view (lift << Mdc)
+            "main-drawer"
+            model.mdc
+            [ Drawer.open |> when model.drawerOpen
+            , Drawer.onClose (lift CloseDrawer)
+            , cs "demo-drawer--custom"
             ]
-            [ Drawer.headerContent []
-                [ text "Header here"
-                ]
-            ]
-        , Drawer.toolbarSpacer
-            [ backgroundColor
-            , color
-            ]
-            []
-        , Lists.ul
-            [ Drawer.content
-            , backgroundColor
-            , color
-            ]
-            [ Lists.li
-                [ Options.onClick (setRoute (Just Route.Home))
-                ]
-                [ Lists.graphicIcon
-                    [ color
-                    ]
-                    "home"
-                , text "Home"
-                ]
-            , Lists.li
-                [ Options.onClick (setRoute (Just Route.Other))
-                ]
-                [ Lists.graphicIcon
-                    [ color
-                    ]
-                    "link"
-                , text "Other"
-                ]
-            , Lists.li
-                [ Theme.textDisabledOnDark
-                ]
-                [ Lists.graphicIcon
-                    [ color
-                    , Theme.textDisabledOnDark
-                    ]
-                    "send"
-                , text "Sent Mail"
-                ]
-            , Lists.li
+            [ Drawer.header
                 []
-                [ Lists.graphicIcon
-                    [ color
+                [ Drawer.headerContent []
+                    [ text "Header here"
                     ]
-                    "drafts"
-                , text "Drafts"
+                ]
+            , Drawer.toolbarSpacer
+                []
+                []
+            , Lists.ul
+                [ Drawer.content
+                ]
+                [ Lists.li
+                    [ Options.onClick (setRoute (Just Route.Home))
+                    ]
+                    [ Lists.graphicIcon
+                        []
+                        "home"
+                    , text "Home"
+                    ]
+                , Lists.li
+                    [ Options.onClick (setRoute (Just Route.Other))
+                    ]
+                    [ Lists.graphicIcon
+                        [ cs "demo-drawer--custom"
+                        ]
+                        "link"
+                    , text "Other"
+                    ]
+                , Lists.li
+                    []
+                    [ Lists.graphicIcon
+                        []
+                        "send"
+                    , text "Sent Mail"
+                    ]
+                , Lists.li
+                    []
+                    [ Lists.graphicIcon
+                        []
+                        "drafts"
+                    , text "Drafts"
+                    ]
                 ]
             ]
         ]
@@ -162,18 +145,11 @@ toolbar :
     -> Html m
 toolbar lift model isLoading navigate route title email =
     let
-        backgroundColor =
-            cs "mdc-theme--dark-background"
-
-        color =
-            css "color" "rgba(255, 255, 255, 0.5)"
-
         spinner isLoading =
             case isLoading of
                 True ->
                     styled Html.div
-                        [ cs "mdc-theme--dark-background"
-                        , css "width" "100%"
+                        [ css "width" "100%"
                         ]
                         [ LinearProgress.view
                             [ LinearProgress.buffered 0.0 0.0
@@ -207,7 +183,8 @@ toolbar lift model isLoading navigate route title email =
                         [ text email ]
     in
     styled Html.div
-        []
+        [ cs "demo-top-app-bar--custom"
+        ]
         [ TopAppBar.view
             (lift << Mdc)
             "main-topappbar"
@@ -216,11 +193,10 @@ toolbar lift model isLoading navigate route title email =
             ]
             [ TopAppBar.section
                 [ TopAppBar.alignStart
-                , backgroundColor
+                , cs "demo-top-app-bar--custom"
                 ]
                 [ TopAppBar.navigationIcon
                     [ Options.onClick (lift OpenDrawer)
-                    , color
                     ]
                     "menu"
                 , TopAppBar.title
@@ -233,34 +209,29 @@ toolbar lift model isLoading navigate route title email =
                     , css "font-family" "'Roboto Mono', Monoton, monospace"
                     , css "text-transform" "uppercase"
                     , css "font-weight" "400"
-                    , color
                     ]
                     [ text title
                     ]
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignStart
-                , backgroundColor
-                , css "width" "200px"
+                , cs "demo-top-app-bar--custom"
                 ]
                 [ spinner isLoading
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignEnd
-                , backgroundColor
+                , cs "demo-top-app-bar--custom"
                 ]
                 [ viewSignIn
                 , TopAppBar.actionItem
-                    [ color
-                    ]
+                    []
                     "file_download"
                 , TopAppBar.actionItem
-                    [ color
-                    ]
+                    []
                     "print"
                 , TopAppBar.actionItem
-                    [ color
-                    ]
+                    []
                     "bookmark"
                 ]
             ]

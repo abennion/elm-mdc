@@ -5,6 +5,7 @@ import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
+import Material.Tabs as TabBar
 import Page exposing (Page)
 import Pages.Errored exposing (PageLoadError, pageLoadError)
 import Route exposing (Route)
@@ -47,7 +48,23 @@ view lift page model =
         page.isLoading
         [ styled Html.div
             []
-            [ styled Html.h2
+            [ TabBar.view (lift << Mdc)
+                "my-tab-bar"
+                model.mdc
+                [ TabBar.indicator
+                , TabBar.scrolling
+                ]
+                [ TabBar.tab [] [ text "Item One" ]
+                , TabBar.tab [] [ text "Item Two" ]
+                , TabBar.tab [] [ text "Item Three" ]
+                , TabBar.tab [] [ text "Item Four" ]
+                , TabBar.tab [] [ text "Item Five" ]
+                , TabBar.tab [] [ text "Item Six" ]
+                , TabBar.tab [] [ text "Item Seven" ]
+                , TabBar.tab [] [ text "Item Eight" ]
+                , TabBar.tab [] [ text "Item Nine" ]
+                ]
+            , styled Html.h2
                 []
                 [ text model.text
                 ]
