@@ -78,13 +78,13 @@ drawer :
     -> Html m
 drawer lift model setRoute =
     styled Html.div
-        []
+        [ cs "demo-drawer--custom"
+        ]
         [ Drawer.view (lift << Mdc)
             "main-drawer"
             model.mdc
             [ Drawer.open |> when model.drawerOpen
             , Drawer.onClose (lift CloseDrawer)
-            , cs "demo-drawer--custom"
             ]
             [ Drawer.header
                 []
