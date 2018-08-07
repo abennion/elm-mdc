@@ -157,12 +157,17 @@ viewPage lift page model isLoading tab =
                         []
 
                 False ->
-                    Html.text ""
+                    LinearProgress.view
+                        [ cs "demo-linear-progress--custom"
+                        , cs "mdc-linear-progress--closed"
+                        ]
+                        []
     in
     page.body "Home"
         page.isLoading
         [ styled Html.div
-            []
+            [ css "padding" "24px"
+            ]
             [ TabBar.view (lift << Mdc)
                 "my-tab-bar"
                 model.mdc
