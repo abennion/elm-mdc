@@ -119,7 +119,7 @@ update msg model =
         OtherMsg msg_ ->
             let
                 ( other, effects ) =
-                    Pages.Other.update OtherMsg msg_ model.home
+                    Pages.Other.update OtherMsg msg_ model.other
             in
             ( { model | other = other }, effects )
 

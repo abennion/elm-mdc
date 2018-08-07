@@ -12,9 +12,15 @@ import Route exposing (Route)
 import Task exposing (Task)
 
 
+type Tab
+    = Cats
+    | Dogs
+
+
 type alias Model m =
     { mdc : Material.Model m
     , text : String
+    , tab : Tab
     }
 
 
@@ -22,22 +28,29 @@ defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
     , text = "Nothing to see here."
+    , tab = Cats
     }
 
 
 type Msg m
     = Mdc (Material.Msg m)
     | Click String
+    | SelectTab Tab
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
 update lift msg model =
-    case msg of
+    case Debug.log "Home.update msg" msg of
         Mdc msg_ ->
             Material.update (lift << Mdc) msg_ model
 
         Click text ->
             ( { model | text = text }
+            , Cmd.none
+            )
+
+        SelectTab tab ->
+            ( { model | tab = tab }
             , Cmd.none
             )
 
@@ -54,8 +67,14 @@ view lift page model =
                 [ TabBar.indicator
                 , TabBar.scrolling
                 ]
-                [ TabBar.tab [] [ text "Item One" ]
-                , TabBar.tab [] [ text "Item Two" ]
+                [ TabBar.tab
+                    [ Options.onClick (lift (SelectTab Cats))
+                    ]
+                    [ text "Item One" ]
+                , TabBar.tab
+                    [ Options.onClick (lift (SelectTab Dogs))
+                    ]
+                    [ text "Item Two" ]
                 , TabBar.tab [] [ text "Item Three" ]
                 , TabBar.tab [] [ text "Item Four" ]
                 , TabBar.tab [] [ text "Item Five" ]
@@ -71,6 +90,15 @@ view lift page model =
             , styled Html.h2
                 []
                 [ text ("Is loading: " ++ toString page.isLoading)
+                ]
+            , styled Html.h2
+                []
+                [ case model.tab of
+                    Cats ->
+                        text "Cats"
+
+                    Dogs ->
+                        text "Dogs"
                 ]
             , Button.view (lift << Mdc)
                 "my-button"
