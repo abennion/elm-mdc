@@ -242,7 +242,7 @@ viewPage model isLoading route =
                                     "spam281@gmail.com"
                               ]
                             , [ styled Html.div
-                                    [ css "margin-top" "64px"
+                                    [ css "margin-top" "48px"
                                     ]
                                     [ text ""
                                     ]
