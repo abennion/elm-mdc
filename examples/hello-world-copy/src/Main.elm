@@ -199,6 +199,23 @@ view model =
 viewPage : Model -> Bool -> Route -> Html Msg
 viewPage model isLoading route =
     let
+        spinner isLoading =
+            case isLoading of
+                True ->
+                    LinearProgress.view
+                        [ LinearProgress.buffered 0.0 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        ]
+                        []
+
+                False ->
+                    LinearProgress.view
+                        [ cs "demo-linear-progress--custom"
+                        , cs "mdc-linear-progress--closed"
+                        ]
+                        []
+
         page =
             { navigate = SetRoute
             , isLoading = isLoading
@@ -225,11 +242,12 @@ viewPage model isLoading route =
                                     "spam281@gmail.com"
                               ]
                             , [ styled Html.div
-                                    [ --css "padding" "20px"
-                                      css "margin-top" "64px"
+                                    [ css "margin-top" "64px"
                                     ]
-                                    nodes
+                                    [ text ""
+                                    ]
                               ]
+                            , nodes
                             ]
                         )
             }

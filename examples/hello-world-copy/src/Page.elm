@@ -21,6 +21,8 @@ import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.Theme as Theme
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
 
 
 type alias Page m =
@@ -89,7 +91,7 @@ drawer lift model setRoute =
             [ Drawer.header
                 []
                 [ Drawer.headerContent []
-                    [ text "Header here"
+                    [ Html.text "Header here"
                     ]
                 ]
             , Drawer.toolbarSpacer
@@ -104,7 +106,7 @@ drawer lift model setRoute =
                     [ Lists.graphicIcon
                         []
                         "home"
-                    , text "Home"
+                    , Html.text "Home"
                     ]
                 , Lists.li
                     [ Options.onClick (setRoute (Just Route.Other))
@@ -113,21 +115,21 @@ drawer lift model setRoute =
                         [ cs "demo-drawer--custom"
                         ]
                         "link"
-                    , text "Other"
+                    , Html.text "Other"
                     ]
                 , Lists.li
                     []
                     [ Lists.graphicIcon
                         []
                         "send"
-                    , text "Sent Mail"
+                    , Html.text "Sent Mail"
                     ]
                 , Lists.li
                     []
                     [ Lists.graphicIcon
                         []
                         "drafts"
-                    , text "Drafts"
+                    , Html.text "Drafts"
                     ]
                 ]
             ]
@@ -158,7 +160,7 @@ toolbar lift model isLoading navigate route title email =
                         []
 
                 False ->
-                    text ""
+                    Html.text ""
 
         viewSignIn =
             case email of
@@ -169,7 +171,7 @@ toolbar lift model isLoading navigate route title email =
                         model.mdc
                         [ Button.link "#login"
                         ]
-                        [ text "Sign in" ]
+                        [ Html.text "Sign in" ]
 
                 _ ->
                     Button.view
@@ -178,7 +180,7 @@ toolbar lift model isLoading navigate route title email =
                         model.mdc
                         [ Button.link "#login"
                         ]
-                        [ text email ]
+                        [ Html.text email ]
     in
     styled Html.div
         [ cs "demo-top-app-bar--custom"
@@ -208,10 +210,36 @@ toolbar lift model isLoading navigate route title email =
                     , css "text-transform" "uppercase"
                     , css "font-weight" "400"
                     ]
-                    [ text title
+                    [ Html.text title
                     ]
-                , spinner isLoading
                 ]
+            , case isLoading of
+                True ->
+                    TopAppBar.section
+                        [ cs "demo-top-app-bar--custom"
+                        , css "display" "flex"
+                        , css "align-items" "center"
+                        , css "justify-content" "center"
+                        ]
+                        [ svg
+                            [ class "mdc-circular-progress"
+                            , viewBox "25 25 50 50"
+                            ]
+                            [ Svg.circle
+                                [ class "mdc-circular-progress__path"
+                                , cx "50"
+                                , cy "50"
+                                , r "20"
+                                , fill "none"
+                                , strokeWidth "2"
+                                , strokeMiterlimit "10"
+                                ]
+                                []
+                            ]
+                        ]
+
+                False ->
+                    Html.text ""
             , TopAppBar.section
                 [ TopAppBar.alignEnd
                 , cs "demo-top-app-bar--custom"
@@ -219,13 +247,7 @@ toolbar lift model isLoading navigate route title email =
                 [ viewSignIn
                 , TopAppBar.actionItem
                     []
-                    "file_download"
-                , TopAppBar.actionItem
-                    []
-                    "print"
-                , TopAppBar.actionItem
-                    []
-                    "bookmark"
+                    "more_vert"
                 ]
             ]
         ]
