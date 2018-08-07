@@ -148,16 +148,14 @@ toolbar lift model isLoading navigate route title email =
         spinner isLoading =
             case isLoading of
                 True ->
-                    styled Html.div
-                        [ css "width" "100%"
+                    LinearProgress.view
+                        [ LinearProgress.buffered 0.0 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        , css "margin-left" "24px"
+                        , css "width" "64px"
                         ]
-                        [ LinearProgress.view
-                            [ LinearProgress.buffered 0.0 0.0
-                            , LinearProgress.indeterminate
-                            , cs "demo-linear-progress--custom"
-                            ]
-                            []
-                        ]
+                        []
 
                 False ->
                     text ""
@@ -212,12 +210,7 @@ toolbar lift model isLoading navigate route title email =
                     ]
                     [ text title
                     ]
-                ]
-            , TopAppBar.section
-                [ TopAppBar.alignStart
-                , cs "demo-top-app-bar--custom"
-                ]
-                [ spinner isLoading
+                , spinner isLoading
                 ]
             , TopAppBar.section
                 [ TopAppBar.alignEnd

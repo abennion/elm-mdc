@@ -8,8 +8,10 @@ import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Tabs as TabBar
 import Page exposing (Page)
 import Pages.Errored exposing (PageLoadError, pageLoadError)
+import Process
 import Route exposing (Route)
 import Task exposing (Task)
+import Time
 
 
 type Tab
@@ -17,10 +19,19 @@ type Tab
     | Dogs
 
 
+type TabState
+    = TransitioningFrom Tab
+    | Loaded Tab
+
+
+type alias ErrorMsg =
+    String
+
+
 type alias Model m =
     { mdc : Material.Model m
     , text : String
-    , tab : Tab
+    , tabState : TabState
     }
 
 
@@ -28,14 +39,59 @@ defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
     , text = "Nothing to see here."
-    , tab = Cats
+    , tabState = Loaded Cats
     }
 
 
 type Msg m
     = Mdc (Material.Msg m)
     | Click String
-    | SelectTab Tab
+    | SelectTab (Maybe Tab)
+    | CatsLoaded (Result ErrorMsg (Model m))
+    | DogsLoaded (Result ErrorMsg (Model m))
+
+
+getTab : TabState -> Tab
+getTab tabState =
+    case tabState of
+        Loaded tab ->
+            tab
+
+        TransitioningFrom tab ->
+            tab
+
+
+delay : Time.Time -> msg -> Cmd msg
+delay time msg =
+    Process.sleep time
+        |> Task.perform (\_ -> msg)
+
+
+setTab : (Msg m -> m) -> Maybe Tab -> Model m -> ( Model m, Cmd m )
+setTab lift maybeTab model =
+    let
+        transition toMsg task =
+            ( { model | tabState = TransitioningFrom (getTab model.tabState) }
+            , Task.attempt toMsg task
+            )
+    in
+    case Debug.log "setTab maybeTab" maybeTab of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just Cats ->
+            transition (lift << CatsLoaded)
+                (Task.map
+                    (\_ -> model)
+                    (Process.sleep (Time.second * 5))
+                )
+
+        Just Dogs ->
+            transition (lift << DogsLoaded)
+                (Task.map
+                    (\_ -> model)
+                    (Process.sleep (Time.second * 5))
+                )
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -49,14 +105,60 @@ update lift msg model =
             , Cmd.none
             )
 
-        SelectTab tab ->
-            ( { model | tab = tab }
+        SelectTab maybeTab ->
+            setTab lift maybeTab model
+
+        CatsLoaded (Ok home) ->
+            ( { model
+                | tabState = Loaded Cats
+              }
+            , Cmd.none
+            )
+
+        CatsLoaded (Err error) ->
+            ( model
+            , Cmd.none
+            )
+
+        DogsLoaded (Ok home) ->
+            ( { model
+                | tabState = Loaded Dogs
+              }
+            , Cmd.none
+            )
+
+        DogsLoaded (Err error) ->
+            ( model
             , Cmd.none
             )
 
 
 view : (Msg m -> m) -> Page m -> Model m -> Html m
 view lift page model =
+    case Debug.log "view model.tabState" model.tabState of
+        Loaded tab ->
+            viewPage lift page model False tab
+
+        TransitioningFrom tab ->
+            viewPage lift page model True tab
+
+
+viewPage : (Msg m -> m) -> Page m -> Model m -> Bool -> Tab -> Html m
+viewPage lift page model isLoading tab =
+    let
+        spinner isLoading =
+            case isLoading of
+                True ->
+                    LinearProgress.view
+                        [ LinearProgress.buffered 0.0 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        ]
+                        []
+
+                False ->
+                    Html.text ""
+    in
     page.body "Home"
         page.isLoading
         [ styled Html.div
@@ -68,11 +170,11 @@ view lift page model =
                 , TabBar.scrolling
                 ]
                 [ TabBar.tab
-                    [ Options.onClick (lift (SelectTab Cats))
+                    [ Options.onClick (lift (SelectTab (Just Cats)))
                     ]
                     [ text "Item One" ]
                 , TabBar.tab
-                    [ Options.onClick (lift (SelectTab Dogs))
+                    [ Options.onClick (lift (SelectTab (Just Dogs)))
                     ]
                     [ text "Item Two" ]
                 , TabBar.tab [] [ text "Item Three" ]
@@ -83,6 +185,7 @@ view lift page model =
                 , TabBar.tab [] [ text "Item Eight" ]
                 , TabBar.tab [] [ text "Item Nine" ]
                 ]
+            , spinner isLoading
             , styled Html.h2
                 []
                 [ text model.text
@@ -93,7 +196,7 @@ view lift page model =
                 ]
             , styled Html.h2
                 []
-                [ case model.tab of
+                [ case getTab model.tabState of
                     Cats ->
                         text "Cats"
 
