@@ -179,6 +179,7 @@ toolbar lift model isLoading navigate route title email =
                         "login-link-button"
                         model.mdc
                         [ Button.link "#login"
+                        , Options.onClick (navigate (Just Route.Login))
                         ]
                         [ Html.text email ]
     in

@@ -15,6 +15,7 @@ import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string)
 type Route
     = Home
     | Root
+    | Login
     | Other
 
 
@@ -22,6 +23,7 @@ route : Parser (Route -> a) a
 route =
     oneOf
         [ Url.map Home (s "")
+        , Url.map Login (s "login")
         , Url.map Other (s "other")
         ]
 
@@ -40,6 +42,9 @@ routeToString page =
 
                 Root ->
                     []
+
+                Login ->
+                    [ "login" ]
 
                 Other ->
                     [ "other" ]

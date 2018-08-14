@@ -19,6 +19,7 @@ import Pages.Home
         , update
         , view
         )
+import Pages.Login exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Other
     exposing
         ( Model
@@ -47,6 +48,7 @@ type alias Model =
     , pageState : PageState
     , home : Pages.Home.Model Msg
     , other : Pages.Other.Model Msg
+    , login : Pages.Login.Model Msg
     , error : ErrorMsg
     , page : Page.Model Msg
     }
@@ -58,6 +60,7 @@ defaultModel =
     , pageState = Loaded Route.Home
     , home = Pages.Home.defaultModel
     , other = Pages.Other.defaultModel
+    , login = Pages.Login.defaultModel
     , error = "nothing"
     , page = Page.defaultModel
     }
@@ -69,6 +72,7 @@ type Msg
     | Click
     | HomeMsg (Pages.Home.Msg Msg)
     | OtherMsg (Pages.Other.Msg Msg)
+    | LoginMsg (Pages.Login.Msg Msg)
     | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
     | PageMsg (Page.Msg Msg)
@@ -115,6 +119,13 @@ update msg model =
                     Pages.Home.update HomeMsg msg_ model.home
             in
             ( { model | home = home }, effects )
+
+        LoginMsg msg_ ->
+            let
+                ( login, effects ) =
+                    Pages.Login.update LoginMsg msg_ model.login
+            in
+            ( { model | login = login }, effects )
 
         OtherMsg msg_ ->
             let
@@ -177,6 +188,9 @@ setRoute maybeRoute model =
 
         Just Route.Root ->
             ( { model | pageState = Loaded Route.Home }, Cmd.none )
+
+        Just Route.Login ->
+            ( { model | pageState = Loaded Route.Login }, Cmd.none )
 
         Just Route.Other ->
             transition OtherLoaded
@@ -258,6 +272,9 @@ viewPage model isLoading route =
 
         Route.Other ->
             Pages.Other.view OtherMsg page model.other
+
+        Route.Login ->
+            Pages.Login.view LoginMsg page model.login
 
         _ ->
             Html.div []
