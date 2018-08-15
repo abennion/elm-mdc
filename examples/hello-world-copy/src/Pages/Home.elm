@@ -212,7 +212,7 @@ viewPage lift page model isLoading tab =
                 "my-button"
                 model.mdc
                 [ Button.ripple
-                , Options.onClick (page.navigate (Just Route.Other))
+                , Options.onClick (page.setRoute (Just Route.Other))
                 ]
                 [ text "Other!"
                 ]

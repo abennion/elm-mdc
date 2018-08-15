@@ -1,4 +1,4 @@
-module Pages.Login exposing (Model, Msg(Mdc), defaultModel, update, view)
+module Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 
 import Data.Session exposing (Session)
 import Data.User exposing (User)
@@ -120,7 +120,10 @@ update lift msg model =
 
         LoginCompleted (Ok user) ->
             ( model
-            , Cmd.batch [ storeSession user, Route.modifyUrl Route.Home ]
+            , Cmd.batch
+                [ storeSession user
+                , Route.modifyUrl Route.Home
+                ]
             )
 
 

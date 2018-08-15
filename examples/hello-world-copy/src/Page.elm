@@ -9,6 +9,7 @@ module Page
         , update
         )
 
+import Data.User as User exposing (User, Username)
 import Html exposing (Html, text)
 import Html.Attributes as Html
 import Material
@@ -27,7 +28,8 @@ import Svg.Attributes exposing (..)
 
 type alias Page m =
     { isLoading : Bool
-    , navigate : Maybe Route -> m
+    , setRoute : Maybe Route -> m
+    , setUser : Maybe User -> m
     , body : String -> Bool -> List (Html m) -> Html m
     }
 

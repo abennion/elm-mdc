@@ -13,23 +13,9 @@ import Material.Options as Options exposing (cs, css, styled)
 import Material.Typography as Typography
 import Navigation exposing (Location)
 import Page exposing (Page)
-import Pages.Home
-    exposing
-        ( Model
-        , Msg(Mdc)
-        , defaultModel
-        , update
-        , view
-        )
-import Pages.Login exposing (Model, Msg(Mdc), defaultModel, update, view)
-import Pages.Other
-    exposing
-        ( Model
-        , Msg(Mdc)
-        , defaultModel
-        , update
-        , view
-        )
+import Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
+import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
+import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Ports exposing (..)
 import Process
 import Route exposing (Route(..))
@@ -148,7 +134,18 @@ update msg model =
                 ( login, effects ) =
                     Pages.Login.update LoginMsg msg_ model.login
             in
-            ( { model | login = login }, effects )
+            case msg_ of
+                -- probably not the best way
+                Pages.Login.LoginCompleted (Ok user) ->
+                    ( { model
+                        | login = login
+                        , session = { session | user = Just user }
+                      }
+                    , effects
+                    )
+
+                _ ->
+                    ( { model | login = login }, effects )
 
         OtherMsg msg_ ->
             let
@@ -253,8 +250,17 @@ viewPage model isLoading route =
                         ]
                         []
 
+        email =
+            case model.session.user of
+                Just user ->
+                    user.email
+
+                Nothing ->
+                    ""
+
         page =
-            { navigate = SetRoute
+            { setRoute = SetRoute
+            , setUser = SetUser
             , isLoading = isLoading
             , body =
                 \title isLoading_ nodes ->
@@ -276,7 +282,7 @@ viewPage model isLoading route =
                                     SetRoute
                                     (getRoute model.pageState)
                                     title
-                                    "spam281@gmail.com"
+                                    email
                               ]
                             , [ styled Html.div
                                     [ css "margin-top" "48px"
@@ -323,18 +329,6 @@ main =
 
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
-    let
-        _ =
-            Debug.log "init val" val
-
-        _ =
-            Debug.log "init location" location
-
-        -- setRoute (Route.fromLocation location)
-        --     { pageState = Loaded initialPage
-        --     , session = { user = decodeUserFromJson val }
-        --     }
-    in
     setRoute (Route.fromLocation location)
         { defaultModel | session = { user = decodeUserFromJson val } }
 
