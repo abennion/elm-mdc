@@ -58,6 +58,7 @@ type alias Model m =
     , errors : List Error
     , email : String
     , password : String
+    , isLoading : Bool
     }
 
 
@@ -68,6 +69,7 @@ defaultModel =
     , errors = []
     , email = ""
     , password = ""
+    , isLoading = False
     }
 
 
@@ -98,7 +100,7 @@ update lift msg model =
             ( { model | password = password }, Cmd.none )
 
         SubmitForm ->
-            ( { model | errors = [] }
+            ( { model | errors = [], isLoading = True }
             , Http.send (lift << LoginCompleted) (Request.User.login model)
             )
 
@@ -114,12 +116,15 @@ update lift msg model =
                         _ ->
                             [ "unable to perform login" ]
             in
-            ( { model | errors = List.map (\errorMessage -> ( Form, errorMessage )) errorMessages }
+            ( { model
+                | errors = List.map (\errorMessage -> ( Form, errorMessage )) errorMessages
+                , isLoading = False
+              }
             , Cmd.none
             )
 
         LoginCompleted (Ok user) ->
-            ( model
+            ( { model | isLoading = False }
             , Cmd.batch
                 [ storeSession user
                 , Route.modifyUrl Route.Home
@@ -149,6 +154,24 @@ view lift page model =
 
 viewForm : (Msg m -> m) -> Page m -> Model m -> Html m
 viewForm lift page model =
+    let
+        spinner isLoading =
+            case isLoading of
+                True ->
+                    LinearProgress.view
+                        [ LinearProgress.buffered 0.0 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        ]
+                        []
+
+                False ->
+                    LinearProgress.view
+                        [ cs "demo-linear-progress--custom"
+                        , cs "mdc-linear-progress--closed"
+                        ]
+                        []
+    in
     styled Html.section
         (List.reverse
             -- TODO: dang it
@@ -174,7 +197,8 @@ viewForm lift page model =
         [ styled Html.div
             [ css "width" "360px"
             ]
-            [ Html.div
+            [ spinner model.isLoading
+            , Html.div
                 []
                 [ Textfield.view (lift << Mdc)
                     "login-email"

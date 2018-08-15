@@ -59,6 +59,7 @@ update lift msg model =
         Mdc msg_ ->
             Material.update (lift << Mdc) msg_ model
 
+        -- add msg here to close drawer then return command to set route
         OpenDrawer ->
             ( { model | drawerOpen = True }
             , Cmd.none
