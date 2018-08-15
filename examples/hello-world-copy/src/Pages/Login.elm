@@ -1,7 +1,12 @@
 module Pages.Login exposing (Model, Msg(Mdc), defaultModel, update, view)
 
+import Data.Session exposing (Session)
+import Data.User exposing (User)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (..)
+import Http
+import Json.Decode as Decode exposing (Decoder, decodeString, field, string)
+import Json.Decode.Pipeline exposing (decode, optional)
 import Material
 import Material.Button as Button
 import Material.Checkbox as Checkbox
@@ -11,6 +16,7 @@ import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Textfield as Textfield
 import Material.Textfield.HelperText as Textfield
 import Page exposing (Page)
+import Request.User exposing (storeSession)
 import Route exposing (Route)
 import Views.Form as Form
 
@@ -68,6 +74,10 @@ defaultModel =
 type Msg m
     = Mdc (Material.Msg m)
     | Click String
+    | SetEmail String
+    | SetPassword String
+    | SubmitForm
+    | LoginCompleted (Result Http.Error User)
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -79,6 +89,38 @@ update lift msg model =
         Click text ->
             ( { model | text = text }
             , Cmd.none
+            )
+
+        SetEmail email ->
+            ( { model | email = email }, Cmd.none )
+
+        SetPassword password ->
+            ( { model | password = password }, Cmd.none )
+
+        SubmitForm ->
+            ( { model | errors = [] }
+            , Http.send (lift << LoginCompleted) (Request.User.login model)
+            )
+
+        LoginCompleted (Err error) ->
+            let
+                errorMessages =
+                    case error of
+                        Http.BadStatus response ->
+                            response.body
+                                |> decodeString (field "errors" errorsDecoder)
+                                |> Result.withDefault []
+
+                        _ ->
+                            [ "unable to perform login" ]
+            in
+            ( { model | errors = List.map (\errorMessage -> ( Form, errorMessage )) errorMessages }
+            , Cmd.none
+            )
+
+        LoginCompleted (Ok user) ->
+            ( model
+            , Cmd.batch [ storeSession user, Route.modifyUrl Route.Home ]
             )
 
 
@@ -104,31 +146,76 @@ view lift page model =
 
 viewForm : (Msg m -> m) -> Page m -> Model m -> Html m
 viewForm lift page model =
-    FormField.view []
-        [ Checkbox.view (lift << Mdc)
-            "dialog-toggle-rtl"
-            model.mdc
-            [-- Checkbox.checked model.rtls
-             -- , Options.onClick (lift ToggleRtl)
+    styled Html.section
+        (List.reverse
+            -- TODO: dang it
+            (cs "hero"
+                :: css "display" "-webkit-box"
+                :: css "display" "-ms-flexbox"
+                :: css "display" "flex"
+                :: css "-webkit-box-orient" "horizontal"
+                :: css "-webkit-box-direction" "normal"
+                :: css "-ms-flex-flow" "row nowrap"
+                :: css "flex-flow" "row nowrap"
+                :: css "-webkit-box-align" "center"
+                :: css "-ms-flex-align" "center"
+                :: css "align-items" "center"
+                :: css "-webkit-box-pack" "center"
+                :: css "-ms-flex-pack" "center"
+                :: css "justify-content" "center"
+                -- :: css "height" "360px"
+                :: css "min-height" "360px"
+                :: [ css "background-color" "rgba(0, 0, 0, 0.05)" ]
+            )
+        )
+        [ styled Html.div
+            [ css "width" "360px"
             ]
-            []
-        , Html.label []
-            [ text "Toggle RTL"
-            ]
-        , Textfield.view (lift << Mdc)
-            "my-password"
-            model.mdc
-            [ Textfield.label "Choose password"
-            , Textfield.password
-            , Textfield.pattern ".{8,}"
-            , Textfield.required
-            ]
-            []
-        , Textfield.helperText
-            [ Textfield.persistent
-            , Textfield.validationMsg
-            ]
-            [ Html.text "Must be at least 8 characters long"
+            [ Html.div
+                []
+                [ Textfield.view (lift << Mdc)
+                    "login-email"
+                    model.mdc
+                    [ Textfield.label "Email"
+                    , Textfield.required
+                    , Options.onInput (lift << SetEmail)
+                    ]
+                    []
+                , Textfield.helperText
+                    [ Textfield.persistent
+                    ]
+                    [ Html.text "Valid email address"
+                    ]
+                ]
+            , Html.br [] []
+            , Html.div
+                []
+                [ Textfield.view (lift << Mdc)
+                    "login-password"
+                    model.mdc
+                    [ Textfield.label "Choose password"
+                    , Textfield.password
+                    , Textfield.pattern ".{16,}"
+                    , Textfield.required
+                    , Options.onInput (lift << SetPassword)
+                    ]
+                    []
+                , Textfield.helperText
+                    [ Textfield.persistent
+                    , Textfield.validationMsg
+                    ]
+                    [ Html.text "Must be at least 16 characters long"
+                    ]
+                ]
+            , Html.br [] []
+            , Button.view (lift << Mdc)
+                "login-submit"
+                model.mdc
+                [ Button.raised
+                , Options.onClick (lift SubmitForm)
+                ]
+                [ text "Submit"
+                ]
             ]
         ]
 
@@ -225,3 +312,27 @@ viewForm lift page model =
 --                 ]
 --             ]
 --         ]
+-- modelValidator : Validator Error Model
+-- modelValidator =
+--     Validate.all
+--         [ ifBlank .email (Email => "email can't be blank.")
+--         , ifBlank .password (Password => "password can't be blank.")
+--         ]
+
+
+errorsDecoder : Decoder (List String)
+errorsDecoder =
+    decode (\emailOrPassword email username password -> List.concat [ emailOrPassword, email, username, password ])
+        |> optionalError "email or password"
+        |> optionalError "email"
+        |> optionalError "username"
+        |> optionalError "password"
+
+
+optionalError : String -> Decoder (List String -> a) -> Decoder a
+optionalError fieldName =
+    let
+        errorToString errorMessage =
+            String.join " " [ fieldName, errorMessage ]
+    in
+    optional fieldName (Decode.list (Decode.map errorToString string)) []

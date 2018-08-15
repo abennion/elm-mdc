@@ -1,19 +1,19 @@
--- module Data.Session exposing (Session, attempt)
+module Data.Session exposing (Session, attempt)
 
--- -- import Data.AuthToken exposing (AuthToken)
--- -- import Data.User exposing (User)
--- -- import Util exposing ((=>))
-
-
--- type alias Session =
---     { user : Maybe User }
+import Data.AuthToken exposing (AuthToken)
+import Data.User exposing (User)
+import Util exposing ((=>))
 
 
--- attempt : String -> (AuthToken -> Cmd msg) -> Session -> ( List String, Cmd msg )
--- attempt attemptedAction toCmd session =
---     case Maybe.map .token session.user of
---         Nothing ->
---             [ "You have been signed out. Please sign back in to " ++ attemptedAction ++ "." ] => Cmd.none
+type alias Session =
+    { user : Maybe User }
 
---         Just token ->
---             [] => toCmd token
+
+attempt : String -> (AuthToken -> Cmd msg) -> Session -> ( List String, Cmd msg )
+attempt attemptedAction toCmd session =
+    case Maybe.map .token session.user of
+        Nothing ->
+            [ "You have been signed out. Please sign back in to " ++ attemptedAction ++ "." ] => Cmd.none
+
+        Just token ->
+            [] => toCmd token
