@@ -5,8 +5,8 @@ import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
-import Page exposing (Page)
 import Route exposing (Route)
+import Views.Page exposing (Page)
 
 
 type alias Model m =

@@ -1,6 +1,7 @@
-module Page
+module Views.Page
     exposing
-        ( Model
+        ( ActivePage
+        , Model
         , Msg(Mdc)
         , Page
         , defaultModel
@@ -24,6 +25,16 @@ import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+
+
+type ActivePage
+    = Other
+    | Home
+    | Login
+
+
+
+-- won't need this when frame is implemented
 
 
 type alias Page m =
@@ -165,6 +176,27 @@ toolbar lift model isLoading navigate route title email =
                 False ->
                     Html.text ""
 
+        -- viewSignIn : ActivePage -> Maybe User -> List (Html msg)
+        -- viewSignIn page user =
+        --     let
+        --         linkTo =
+        --             navbarLink page
+        --     in
+        --     case user of
+        --         Nothing ->
+        --             [ linkTo Route.Login [ text "Sign in" ]
+        --             , linkTo Route.Register [ text "Sign up" ]
+        --             ]
+        --         Just user ->
+        --             [ linkTo Route.NewArticle [ i [ class "ion-compose" ] [], text " New Post" ]
+        --             , linkTo Route.Settings [ i [ class "ion-gear-a" ] [], text " Settings" ]
+        --             , linkTo
+        --                 (Route.Profile user.username)
+        --                 [ img [ class "user-pic", UserPhoto.src user.image ] []
+        --                 , User.usernameToHtml user.username
+        --                 ]
+        --             , linkTo Route.Logout [ text "Sign out" ]
+        --             ]
         viewSignIn =
             case email of
                 "" ->

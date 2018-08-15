@@ -6,12 +6,13 @@ import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Tabs as TabBar
-import Page exposing (Page)
+import Material.Theme as Theme
 import Pages.Errored exposing (PageLoadError, pageLoadError)
 import Process
 import Route exposing (Route)
 import Task exposing (Task)
 import Time
+import Views.Page exposing (Page)
 
 
 type Tab
@@ -168,27 +169,32 @@ viewPage lift page model isLoading tab =
         [ styled Html.div
             [ css "padding" "24px"
             ]
-            [ TabBar.view (lift << Mdc)
-                "my-tab-bar"
-                model.mdc
-                [ TabBar.indicator
-                , TabBar.scrolling
+            [ styled Html.div
+                [ Theme.secondary
                 ]
-                [ TabBar.tab
-                    [ Options.onClick (lift (SelectTab (Just Cats)))
+                [ TabBar.view (lift << Mdc)
+                    "my-tab-bar"
+                    model.mdc
+                    [ TabBar.indicator
+                    , TabBar.scrolling
+                    , Theme.secondary
                     ]
-                    [ text "Item One" ]
-                , TabBar.tab
-                    [ Options.onClick (lift (SelectTab (Just Dogs)))
+                    [ TabBar.tab
+                        [ Options.onClick (lift (SelectTab (Just Cats)))
+                        ]
+                        [ text "Item One" ]
+                    , TabBar.tab
+                        [ Options.onClick (lift (SelectTab (Just Dogs)))
+                        ]
+                        [ text "Item Two" ]
+                    , TabBar.tab [ Theme.secondary ] [ text "Item Three" ]
+                    , TabBar.tab [] [ text "Item Four" ]
+                    , TabBar.tab [] [ text "Item Five" ]
+                    , TabBar.tab [] [ text "Item Six" ]
+                    , TabBar.tab [] [ text "Item Seven" ]
+                    , TabBar.tab [] [ text "Item Eight" ]
+                    , TabBar.tab [] [ text "Item Nine" ]
                     ]
-                    [ text "Item Two" ]
-                , TabBar.tab [] [ text "Item Three" ]
-                , TabBar.tab [] [ text "Item Four" ]
-                , TabBar.tab [] [ text "Item Five" ]
-                , TabBar.tab [] [ text "Item Six" ]
-                , TabBar.tab [] [ text "Item Seven" ]
-                , TabBar.tab [] [ text "Item Eight" ]
-                , TabBar.tab [] [ text "Item Nine" ]
                 ]
             , spinner isLoading
             , styled Html.h2

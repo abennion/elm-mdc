@@ -12,7 +12,6 @@ import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled)
 import Material.Typography as Typography
 import Navigation exposing (Location)
-import Page exposing (Page)
 import Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
@@ -21,6 +20,7 @@ import Process
 import Route exposing (Route(..))
 import Task
 import Time
+import Views.Page as Page exposing (ActivePage, Model)
 
 
 type PageState
