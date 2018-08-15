@@ -2,6 +2,8 @@ module Main exposing (..)
 
 -- import Pages.Errored exposing (PageLoadError)
 
+import Data.Session exposing (Session)
+import Data.User as User exposing (User, Username)
 import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
@@ -28,6 +30,7 @@ import Pages.Other
         , update
         , view
         )
+import Ports exposing (..)
 import Process
 import Route exposing (Route(..))
 import Task
@@ -313,4 +316,12 @@ init val location =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Material.subscriptions Mdc model
+    Sub.batch
+        [ Material.subscriptions Mdc model
+        , Sub.map SetUser sessionChange
+        ]
+
+
+sessionChange : Sub (Maybe User)
+sessionChange =
+    Ports.onSessionChange (Decode.decodeValue User.decoder >> Result.toMaybe)
