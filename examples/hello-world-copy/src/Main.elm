@@ -48,6 +48,7 @@ type alias ErrorMsg =
 
 type alias Model =
     { mdc : Material.Model Msg
+    , session : Session
     , pageState : PageState
     , home : Pages.Home.Model Msg
     , other : Pages.Other.Model Msg
@@ -60,6 +61,7 @@ type alias Model =
 defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
+    , session = { user = Nothing }
     , pageState = Loaded Route.Home
     , home = Pages.Home.defaultModel
     , other = Pages.Other.defaultModel
@@ -72,6 +74,7 @@ defaultModel =
 type Msg
     = Mdc (Material.Msg Msg)
     | SetRoute (Maybe Route)
+    | SetUser (Maybe User)
     | Click
     | HomeMsg (Pages.Home.Msg Msg)
     | OtherMsg (Pages.Other.Msg Msg)
@@ -83,12 +86,29 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        session =
+            model.session
+    in
     case Debug.log "update msg" msg of
         Mdc msg_ ->
             Material.update Mdc msg_ model
 
         SetRoute route ->
             setRoute route model
+
+        SetUser user ->
+            let
+                cmd =
+                    -- If we just signed out, then redirect to Home.
+                    if session.user /= Nothing && user == Nothing then
+                        Route.modifyUrl Route.Home
+                    else
+                        Cmd.none
+            in
+            ( { model | session = { session | user = user } }
+            , cmd
+            )
 
         Click ->
             ( model, Cmd.none )
@@ -309,9 +329,22 @@ init val location =
 
         _ =
             Debug.log "init location" location
+
+        -- setRoute (Route.fromLocation location)
+        --     { pageState = Loaded initialPage
+        --     , session = { user = decodeUserFromJson val }
+        --     }
     in
     setRoute (Route.fromLocation location)
-        defaultModel
+        { defaultModel | session = { user = decodeUserFromJson val } }
+
+
+decodeUserFromJson : Value -> Maybe User
+decodeUserFromJson json =
+    json
+        |> Decode.decodeValue Decode.string
+        |> Result.toMaybe
+        |> Maybe.andThen (Decode.decodeString User.decoder >> Result.toMaybe)
 
 
 subscriptions : Model -> Sub Msg
