@@ -8,6 +8,8 @@ import Material.Checkbox as Checkbox
 import Material.FormField as FormField
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
+import Material.Textfield as Textfield
+import Material.Textfield.HelperText as Textfield
 import Page exposing (Page)
 import Route exposing (Route)
 import Views.Form as Form
@@ -113,10 +115,42 @@ viewForm lift page model =
         , Html.label []
             [ text "Toggle RTL"
             ]
+        , Textfield.view (lift << Mdc)
+            "my-password"
+            model.mdc
+            [ Textfield.label "Choose password"
+            , Textfield.password
+            , Textfield.pattern ".{8,}"
+            , Textfield.required
+            ]
+            []
+        , Textfield.helperText
+            [ Textfield.persistent
+            , Textfield.validationMsg
+            ]
+            [ Html.text "Must be at least 8 characters long"
+            ]
         ]
 
 
 
+-- Html.div []
+--     [ Textfield.view (lift << Mdc) index model.mdc
+--       [ Textfield.label "Choose password"
+--       , Textfield.password
+--       , Textfield.pattern ".{8,}"
+--       , Textfield.required
+--       , Textfield.disabled |> when state.disabled
+--       , Textfield.dense |> when state.dense
+--       ]
+--       []
+--     , Textfield.helperText
+--       [ Textfield.persistent
+--       , Textfield.validationMsg
+--       ]
+--       [ Html.text "Must be at least 8 characters long"
+--       ]
+--     ]
 -- styled Html.form
 --     [ Options.onSubmit SubmitForm
 --     ]
