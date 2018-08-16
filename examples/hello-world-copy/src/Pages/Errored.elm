@@ -8,11 +8,10 @@ of a giant walrus exploding the golden gate bridge with laser beams. Pew pew!
 
 -}
 
--- import Data.Session exposing (Session)
-
+import Data.Session exposing (Session)
 import Html exposing (Html, div, h1, img, main_, p, text)
 import Html.Attributes exposing (alt, class, id, tabindex)
-import Route exposing (Route)
+import Pages.Page as Page exposing (Page)
 
 
 -- MODEL --
@@ -23,25 +22,22 @@ type PageLoadError
 
 
 type alias Model =
-    { route : Route
+    { activePage : Page
     , errorMessage : String
     }
 
 
-pageLoadError : Route -> String -> PageLoadError
-pageLoadError route errorMessage =
-    PageLoadError
-        { route = route
-        , errorMessage = errorMessage
-        }
+pageLoadError : Page -> String -> PageLoadError
+pageLoadError activePage errorMessage =
+    PageLoadError { activePage = activePage, errorMessage = errorMessage }
 
 
 
 -- VIEW --
 
 
-view : PageLoadError -> Html msg
-view (PageLoadError model) =
+view : Session -> PageLoadError -> Html msg
+view session (PageLoadError model) =
     main_ [ id "content", class "container", tabindex -1 ]
         [ h1 [] [ text "Error Loading Page" ]
         , div [ class "row" ]

@@ -1,5 +1,7 @@
 module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 
+import Data.Article as Article exposing (Tag)
+import Data.Session exposing (Session)
 import Html exposing (Html, div, text)
 import Html.Attributes as Html
 import Material
