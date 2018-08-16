@@ -24,6 +24,18 @@ import Views.Toolbar exposing (Model, Msg(..), defaultModel, update, view)
 import Views.View exposing (View)
 
 
+{-| TODO
+
+  - Pass messages from components without exposing Msg values?
+  - PageLoadError
+
+-}
+
+
+
+-- MODEL
+
+
 type Page
     = Blank
     | NotFound
@@ -45,12 +57,12 @@ type alias Model =
     { mdc : Material.Model Msg
     , session : Session
     , pageState : PageState
-    , home : Pages.Home.Model Msg
-    , other : Pages.Other.Model Msg
-    , login : Pages.Login.Model Msg
     , error : ErrorMsg
-    , drawer : Views.Drawer.Model Msg
     , toolbar : Views.Toolbar.Model Msg
+    , drawer : Views.Drawer.Model Msg
+    , home : Pages.Home.Model Msg
+    , login : Pages.Login.Model Msg
+    , other : Pages.Other.Model Msg
     }
 
 
@@ -59,12 +71,12 @@ defaultModel =
     { mdc = Material.defaultModel
     , session = { user = Nothing }
     , pageState = Loaded Home
-    , home = Pages.Home.defaultModel
-    , other = Pages.Other.defaultModel
-    , login = Pages.Login.defaultModel
     , error = "nothing"
-    , drawer = Views.Drawer.defaultModel
     , toolbar = Views.Toolbar.defaultModel
+    , drawer = Views.Drawer.defaultModel
+    , home = Pages.Home.defaultModel
+    , login = Pages.Login.defaultModel
+    , other = Pages.Other.defaultModel
     }
 
 
@@ -72,14 +84,46 @@ type Msg
     = Mdc (Material.Msg Msg)
     | SetRoute (Maybe Route)
     | SetUser (Maybe User)
-    | Click
-    | HomeMsg (Pages.Home.Msg Msg)
-    | OtherMsg (Pages.Other.Msg Msg)
-    | LoginMsg (Pages.Login.Msg Msg)
-    | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
-    | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
-    | DrawerMsg (Views.Drawer.Msg Msg)
     | ToolbarMsg (Views.Toolbar.Msg Msg)
+    | DrawerMsg (Views.Drawer.Msg Msg)
+    | HomeMsg (Pages.Home.Msg Msg)
+    | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
+    | LoginMsg (Pages.Login.Msg Msg)
+    | OtherMsg (Pages.Other.Msg Msg)
+    | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
+    | Click
+
+
+
+-- MAIN
+
+
+main : Program Value Model Msg
+main =
+    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }
+
+
+init : Value -> Location -> ( Model, Cmd Msg )
+init val location =
+    setRoute (Route.fromLocation location)
+        { defaultModel | session = { user = decodeUserFromJson val } }
+
+
+decodeUserFromJson : Value -> Maybe User
+decodeUserFromJson json =
+    json
+        |> Decode.decodeValue Decode.string
+        |> Result.toMaybe
+        |> Maybe.andThen (Decode.decodeString User.decoder >> Result.toMaybe)
+
+
+
+-- UPDATE
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -88,7 +132,7 @@ update msg model =
         session =
             model.session
     in
-    case Debug.log "update msg" msg of
+    case Debug.log "Main.update msg" msg of
         Mdc msg_ ->
             Material.update Mdc msg_ model
 
@@ -98,24 +142,19 @@ update msg model =
         SetUser user ->
             let
                 cmd =
-                    -- If we just signed out, then redirect to Home.
                     if session.user /= Nothing && user == Nothing then
                         Route.modifyUrl Route.Home
                     else
                         Cmd.none
             in
-            ( { model | session = { session | user = user } }
-            , cmd
-            )
-
-        Click ->
-            ( model, Cmd.none )
+            ( { model | session = { session | user = user } }, cmd )
 
         ToolbarMsg msg_ ->
             let
                 ( toolbar, effects ) =
                     Views.Toolbar.update ToolbarMsg msg_ model.toolbar
 
+                -- Pass message along to the drawer.
                 ( newModel, drawerEffects ) =
                     case Debug.log "drawerMsg.msg_" msg_ of
                         Views.Toolbar.OpenDrawer ->
@@ -138,22 +177,6 @@ update msg model =
             in
             ( { model | drawer = drawer }, effects )
 
-        HomeLoaded (Ok home) ->
-            ( { model
-                | error = ""
-                , pageState = Loaded Home
-              }
-            , Cmd.none
-            )
-
-        HomeLoaded (Err error) ->
-            ( { model
-                | error = error
-                , pageState = Loaded Home
-              }
-            , Cmd.none
-            )
-
         HomeMsg msg_ ->
             let
                 ( home, effects ) =
@@ -161,13 +184,19 @@ update msg model =
             in
             ( { model | home = home }, effects )
 
+        HomeLoaded (Ok home) ->
+            ( { model | error = "", pageState = Loaded Home }, Cmd.none )
+
+        HomeLoaded (Err error) ->
+            ( { model | error = error, pageState = Loaded Home }, Cmd.none )
+
         LoginMsg msg_ ->
             let
                 ( login, effects ) =
                     Pages.Login.update LoginMsg msg_ model.login
             in
             case msg_ of
-                -- probably not the best way
+                -- Update the session. There's gotta be a better way.
                 Pages.Login.LoginCompleted (Ok user) ->
                     ( { model
                         | login = login
@@ -187,48 +216,26 @@ update msg model =
             ( { model | other = other }, effects )
 
         OtherLoaded (Ok home) ->
-            ( { model
-                | error = ""
-                , pageState = Loaded Other
-              }
-            , Cmd.none
-            )
+            ( { model | error = "", pageState = Loaded Other }, Cmd.none )
 
         OtherLoaded (Err error) ->
-            ( { model
-                | error = error
-                , pageState = Loaded Other
-              }
-            , Cmd.none
-            )
+            ( { model | error = error, pageState = Loaded Other }, Cmd.none )
 
-
-getPage : PageState -> Page
-getPage pageState =
-    case pageState of
-        Loaded page ->
-            page
-
-        TransitioningFrom page ->
-            page
-
-
-
--- delay : Time.Time -> msg -> Cmd msg
--- delay time msg =
---     Process.sleep time
---         |> Task.perform (\_ -> msg)
+        Click ->
+            ( model, Cmd.none )
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     let
         transition toMsg task =
-            ( { model | pageState = TransitioningFrom (getPage model.pageState) }
+            ( { model
+                | pageState = TransitioningFrom (getPage model.pageState)
+              }
             , Task.attempt toMsg task
             )
     in
-    case Debug.log "setRoute maybeRoute" maybeRoute of
+    case Debug.log "Main.setRoute maybeRoute" maybeRoute of
         Nothing ->
             ( model, Cmd.none )
 
@@ -253,9 +260,23 @@ setRoute maybeRoute model =
                 )
 
 
+getPage : PageState -> Page
+getPage pageState =
+    case pageState of
+        Loaded page ->
+            page
+
+        TransitioningFrom page ->
+            page
+
+
+
+-- VIEW
+
+
 view : Model -> Html Msg
 view model =
-    case Debug.log "view model.pageState" model.pageState of
+    case Debug.log "Main.view model.pageState" model.pageState of
         Loaded page ->
             viewPage model False page
 
@@ -308,7 +329,7 @@ viewPage model isLoading page =
                         ]
             }
     in
-    case getPage model.pageState of
+    case Debug.log "Main.getPage model.pageState" getPage model.pageState of
         Home ->
             Pages.Home.view HomeMsg page model.home
 
@@ -331,28 +352,8 @@ viewPage model isLoading page =
                 ]
 
 
-main : Program Value Model Msg
-main =
-    Navigation.programWithFlags (Route.fromLocation >> SetRoute)
-        { init = init
-        , subscriptions = subscriptions
-        , update = update
-        , view = view
-        }
 
-
-init : Value -> Location -> ( Model, Cmd Msg )
-init val location =
-    setRoute (Route.fromLocation location)
-        { defaultModel | session = { user = decodeUserFromJson val } }
-
-
-decodeUserFromJson : Value -> Maybe User
-decodeUserFromJson json =
-    json
-        |> Decode.decodeValue Decode.string
-        |> Result.toMaybe
-        |> Maybe.andThen (Decode.decodeString User.decoder >> Result.toMaybe)
+-- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
