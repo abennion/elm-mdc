@@ -20,12 +20,22 @@ import Process
 import Route exposing (Route(..))
 import Task
 import Time
-import Views.Page as Page exposing (ActivePage, Model)
+import Views.Drawer exposing (Model, Msg(..), defaultModel, update, view)
+import Views.Page as Page exposing (Model, Msg(..), Toolbar)
+import Views.View exposing (View)
+
+
+type Page
+    = Blank
+    | NotFound
+    | Home
+    | Login
+    | Other
 
 
 type PageState
-    = Loaded Route
-    | TransitioningFrom Route
+    = Loaded Page
+    | TransitioningFrom Page
 
 
 type alias ErrorMsg =
@@ -41,6 +51,7 @@ type alias Model =
     , login : Pages.Login.Model Msg
     , error : ErrorMsg
     , page : Page.Model Msg
+    , drawer : Views.Drawer.Model Msg
     }
 
 
@@ -48,12 +59,13 @@ defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
     , session = { user = Nothing }
-    , pageState = Loaded Route.Home
+    , pageState = Loaded Home
     , home = Pages.Home.defaultModel
     , other = Pages.Other.defaultModel
     , login = Pages.Login.defaultModel
     , error = "nothing"
     , page = Page.defaultModel
+    , drawer = Views.Drawer.defaultModel
     }
 
 
@@ -68,6 +80,7 @@ type Msg
     | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
     | PageMsg (Page.Msg Msg)
+    | DrawerMsg (Views.Drawer.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -103,13 +116,33 @@ update msg model =
             let
                 ( page, effects ) =
                     Page.update PageMsg msg_ model.page
+
+                ( newModel, drawerEffects ) =
+                    case Debug.log "drawerMsg.msg_" msg_ of
+                        Page.OpenDrawer ->
+                            update (DrawerMsg Views.Drawer.OpenDrawer) model
+
+                        Page.CloseDrawer ->
+                            update (DrawerMsg Views.Drawer.CloseDrawer) model
+
+                        _ ->
+                            ( model, Cmd.none )
             in
-            ( { model | page = page }, effects )
+            ( { newModel | page = page }
+            , Cmd.batch [ effects, drawerEffects ]
+            )
+
+        DrawerMsg msg_ ->
+            let
+                ( drawer, effects ) =
+                    Views.Drawer.update DrawerMsg msg_ model.drawer
+            in
+            ( { model | drawer = drawer }, effects )
 
         HomeLoaded (Ok home) ->
             ( { model
                 | error = ""
-                , pageState = Loaded Route.Home
+                , pageState = Loaded Home
               }
             , Cmd.none
             )
@@ -117,7 +150,7 @@ update msg model =
         HomeLoaded (Err error) ->
             ( { model
                 | error = error
-                , pageState = Loaded Route.Home
+                , pageState = Loaded Home
               }
             , Cmd.none
             )
@@ -157,7 +190,7 @@ update msg model =
         OtherLoaded (Ok home) ->
             ( { model
                 | error = ""
-                , pageState = Loaded Route.Other
+                , pageState = Loaded Other
               }
             , Cmd.none
             )
@@ -165,20 +198,20 @@ update msg model =
         OtherLoaded (Err error) ->
             ( { model
                 | error = error
-                , pageState = Loaded Route.Other
+                , pageState = Loaded Other
               }
             , Cmd.none
             )
 
 
-getRoute : PageState -> Route
-getRoute pageState =
+getPage : PageState -> Page
+getPage pageState =
     case pageState of
-        Loaded route ->
-            route
+        Loaded page ->
+            page
 
-        TransitioningFrom route ->
-            route
+        TransitioningFrom page ->
+            page
 
 
 delay : Time.Time -> msg -> Cmd msg
@@ -191,7 +224,7 @@ setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     let
         transition toMsg task =
-            ( { model | pageState = TransitioningFrom (getRoute model.pageState) }
+            ( { model | pageState = TransitioningFrom (getPage model.pageState) }
             , Task.attempt toMsg task
             )
     in
@@ -207,10 +240,10 @@ setRoute maybeRoute model =
                 )
 
         Just Route.Root ->
-            ( { model | pageState = Loaded Route.Home }, Cmd.none )
+            ( { model | pageState = Loaded Home }, Cmd.none )
 
         Just Route.Login ->
-            ( { model | pageState = Loaded Route.Login }, Cmd.none )
+            ( { model | pageState = Loaded Login }, Cmd.none )
 
         Just Route.Other ->
             transition OtherLoaded
@@ -223,15 +256,15 @@ setRoute maybeRoute model =
 view : Model -> Html Msg
 view model =
     case Debug.log "view model.pageState" model.pageState of
-        Loaded route ->
-            viewPage model False route
+        Loaded page ->
+            viewPage model False page
 
-        TransitioningFrom route ->
-            viewPage model True route
+        TransitioningFrom page ->
+            viewPage model True page
 
 
-viewPage : Model -> Bool -> Route -> Html Msg
-viewPage model isLoading route =
+viewPage : Model -> Bool -> Page -> Html Msg
+viewPage model isLoading page =
     let
         spinner isLoading =
             case isLoading of
@@ -258,6 +291,11 @@ viewPage model isLoading route =
                 Nothing ->
                     ""
 
+        view_ =
+            View isLoading SetRoute SetUser
+
+        -- frame =
+        --     Page.frame isLoading session.user // Toolbar.Home
         page =
             { setRoute = SetRoute
             , setUser = SetUser
@@ -271,16 +309,20 @@ viewPage model isLoading route =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ Page.drawer
-                                    PageMsg
-                                    model.page
-                                    SetRoute
+                            [ [ -- Page.drawer
+                                --     PageMsg
+                                --     model.page
+                                --     SetRoute
+                                Views.Drawer.view
+                                    DrawerMsg
+                                    view_
+                                    model.drawer
                               , Page.toolbar
                                     PageMsg
                                     model.page
                                     isLoading_
                                     SetRoute
-                                    (getRoute model.pageState)
+                                    Route.Home
                                     title
                                     email
                               ]
@@ -295,17 +337,18 @@ viewPage model isLoading route =
                         )
             }
     in
-    case getRoute model.pageState of
-        Route.Home ->
+    case getPage model.pageState of
+        Home ->
             Pages.Home.view HomeMsg page model.home
 
-        Route.Other ->
+        Other ->
             Pages.Other.view OtherMsg page model.other
 
-        Route.Login ->
+        Login ->
             Pages.Login.view LoginMsg page model.login
 
         _ ->
+            -- NotFound ->
             Html.div []
                 [ Button.view Mdc
                     "my-button"

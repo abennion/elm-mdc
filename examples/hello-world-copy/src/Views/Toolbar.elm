@@ -1,20 +1,26 @@
 module Views.Page
     exposing
         ( Model
-        , Msg(Mdc, OpenDrawer, CloseDrawer)
+        , Msg(Mdc)
         , Page
         , Toolbar
         , defaultModel
+        , drawer
         , toolbar
         , update
         )
 
 import Data.User as User exposing (User, Username)
 import Html exposing (Html, text)
+import Html.Attributes as Html
 import Material
 import Material.Button as Button
+import Material.Drawer.Temporary as Drawer
 import Material.LinearProgress as LinearProgress
+import Material.List as Lists
+import Material.Menu as Menu
 import Material.Options as Options exposing (Property, cs, css, styled, when)
+import Material.Theme as Theme
 import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
 import Svg exposing (..)
@@ -54,6 +60,17 @@ type alias Page m =
     }
 
 
+
+-- body is basically frame. so, we'll return -> Page m
+-- frame : Bool -> Maybe User -> Toolbar -> Html msg -> Html msg
+-- frame isLoading user page content =
+--     div [ class "page-frame" ]
+--         [ viewHeader page user isLoading
+--         , content
+--         , viewFooter
+--         ]
+
+
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
 update lift msg model =
     case msg of
@@ -70,6 +87,104 @@ update lift msg model =
             ( { model | drawerOpen = False }
             , Cmd.none
             )
+
+
+
+-- body title isLoading_ nodes ->
+--     styled Html.div
+--         [ css "display" "flex"
+--         , css "flex-flow" "column"
+--         , css "height" "100%"
+--         , Typography.typography
+--         ]
+--         (List.concat
+--             [ [ Page.drawer
+--                     PageMsg
+--                     model.page
+--                     SetRoute
+--                 , Page.toolbar
+--                     PageMsg
+--                     model.page
+--                     isLoading_
+--                     SetRoute
+--                     Route.Home
+--                     title
+--                     email
+--                 ]
+--             , [ styled Html.div
+--                     [ css "margin-top" "48px"
+--                     ]
+--                     [ text ""
+--                     ]
+--                 ]
+--             , nodes
+--             ]
+--         )
+-- TODO: Make drawer and toolbar their own view classes, or something like
+-- that. The page module should just handle state, I guess.
+
+
+drawer :
+    (Msg m -> m)
+    -> Model m
+    -> (Maybe Route -> m)
+    -> Html m
+drawer lift model setRoute =
+    styled Html.div
+        [ cs "demo-drawer--custom"
+        ]
+        [ Drawer.view (lift << Mdc)
+            "main-drawer"
+            model.mdc
+            [ Drawer.open |> when model.drawerOpen
+            , Drawer.onClose (lift CloseDrawer)
+            ]
+            [ Drawer.header
+                []
+                [ Drawer.headerContent []
+                    [ Html.text "Header here"
+                    ]
+                ]
+            , Drawer.toolbarSpacer
+                []
+                []
+            , Lists.ul
+                [ Drawer.content
+                ]
+                [ Lists.li
+                    [ Options.onClick (setRoute (Just Route.Home))
+                    ]
+                    [ Lists.graphicIcon
+                        []
+                        "home"
+                    , Html.text "Home"
+                    ]
+                , Lists.li
+                    [ Options.onClick (setRoute (Just Route.Other))
+                    ]
+                    [ Lists.graphicIcon
+                        [ cs "demo-drawer--custom"
+                        ]
+                        "link"
+                    , Html.text "Other"
+                    ]
+                , Lists.li
+                    []
+                    [ Lists.graphicIcon
+                        []
+                        "send"
+                    , Html.text "Sent Mail"
+                    ]
+                , Lists.li
+                    []
+                    [ Lists.graphicIcon
+                        []
+                        "drafts"
+                    , Html.text "Drafts"
+                    ]
+                ]
+            ]
+        ]
 
 
 toolbar :
