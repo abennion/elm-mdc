@@ -8,7 +8,7 @@ import Material.Drawer.Temporary as Drawer
 import Material.List as Lists
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Route exposing (Route)
-import Views.View exposing (View)
+import Views.View exposing (Context)
 
 
 type alias Model m =
@@ -43,8 +43,8 @@ update lift msg model =
             ( { model | drawerOpen = False }, Cmd.none )
 
 
-view : (Msg m -> m) -> View m -> Model m -> Html m
-view lift view_ model =
+view : (Msg m -> m) -> Context m -> Model m -> Html m
+view lift context model =
     styled Html.div
         [ cs "demo-drawer--custom"
         ]
@@ -69,7 +69,7 @@ view lift view_ model =
                 [ Drawer.content
                 ]
                 [ Lists.li
-                    [ Options.onClick (view_.setRoute (Just Route.Home))
+                    [ Options.onClick (context.setRoute (Just Route.Home))
                     ]
                     [ Lists.graphicIcon
                         []
@@ -77,7 +77,7 @@ view lift view_ model =
                     , Html.text "Home"
                     ]
                 , Lists.li
-                    [ Options.onClick (view_.setRoute (Just Route.Other))
+                    [ Options.onClick (context.setRoute (Just Route.Other))
                     ]
                     [ Lists.graphicIcon
                         [ cs "demo-drawer--custom"

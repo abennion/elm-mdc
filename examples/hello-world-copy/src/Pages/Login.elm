@@ -15,10 +15,10 @@ import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Textfield as Textfield
 import Material.Textfield.HelperText as Textfield
+import Pages.Page exposing (Context)
 import Request.User exposing (storeSession)
 import Route exposing (Route)
 import Views.Form as Form
-import Views.Page exposing (Page)
 
 
 type Field
@@ -132,7 +132,7 @@ update lift msg model =
             )
 
 
-view : (Msg m -> m) -> Page m -> Model m -> Html m
+view : (Msg m -> m) -> Context m -> Model m -> Html m
 view lift page model =
     page.body "Login"
         [ styled Html.div
@@ -151,7 +151,7 @@ view lift page model =
         ]
 
 
-viewForm : (Msg m -> m) -> Page m -> Model m -> Html m
+viewForm : (Msg m -> m) -> Context m -> Model m -> Html m
 viewForm lift page model =
     let
         spinner isLoading =

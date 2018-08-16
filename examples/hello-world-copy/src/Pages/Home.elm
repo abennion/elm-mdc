@@ -9,11 +9,11 @@ import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Tabs as TabBar
 import Material.Theme as Theme
 import Pages.Errored exposing (PageLoadError, pageLoadError)
+import Pages.Page exposing (Context)
 import Process
 import Route exposing (Route)
 import Task exposing (Task)
 import Time
-import Views.Page exposing (Page)
 
 
 type Tab
@@ -135,7 +135,7 @@ update lift msg model =
             )
 
 
-view : (Msg m -> m) -> Page m -> Model m -> Html m
+view : (Msg m -> m) -> Context m -> Model m -> Html m
 view lift page model =
     case Debug.log "view model.tabState" model.tabState of
         Loaded tab ->
@@ -145,7 +145,7 @@ view lift page model =
             viewPage lift page model True tab
 
 
-viewPage : (Msg m -> m) -> Page m -> Model m -> Bool -> Tab -> Html m
+viewPage : (Msg m -> m) -> Context m -> Model m -> Bool -> Tab -> Html m
 viewPage lift page model isLoading tab =
     let
         spinner isLoading =

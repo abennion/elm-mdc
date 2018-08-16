@@ -5,8 +5,8 @@ import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
+import Pages.Page exposing (Context)
 import Route exposing (Route)
-import Views.Page exposing (Page)
 
 
 type alias Model m =
@@ -39,7 +39,7 @@ update lift msg model =
             )
 
 
-view : (Msg m -> m) -> Page m -> Model m -> Html m
+view : (Msg m -> m) -> Context m -> Model m -> Html m
 view lift page model =
     let
         fakeText =

@@ -8,7 +8,7 @@ module Views.Toolbar
         , view
         )
 
-import Data.User as User exposing (User, Username)
+import Data.User as User exposing (User)
 import Html exposing (Html, text)
 import Material
 import Material.Button as Button
@@ -18,7 +18,10 @@ import Material.TopAppBar as TopAppBar
 import Route exposing (Route)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Views.View exposing (View)
+import Views.View exposing (Context)
+
+
+-- MODEL
 
 
 type alias Model m =
@@ -44,6 +47,10 @@ type Toolbar
     | Login
 
 
+
+-- UPDATE
+
+
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
 update lift msg model =
     case msg of
@@ -57,9 +64,19 @@ update lift msg model =
             ( model, Cmd.none )
 
 
-view : (Msg m -> m) -> View m -> Model m -> Html m
-view lift view_ model =
+
+-- VIEW
+
+
+view : (Msg m -> m) -> Context m -> Model m -> Html m
+view lift context model =
     let
+        page =
+            context.page
+
+        _ =
+            Debug.log "Toolbar.view page" page
+
         spinner isLoading =
             case isLoading of
                 True ->
@@ -97,7 +114,7 @@ view lift view_ model =
         --             , linkTo Route.Logout [ text "Sign out" ]
         --             ]
         viewSignIn =
-            case view_.user of
+            case context.user of
                 Nothing ->
                     Button.view
                         (lift << Mdc)
@@ -113,7 +130,7 @@ view lift view_ model =
                         "login-link-button"
                         model.mdc
                         [ Button.link "#login"
-                        , Options.onClick (view_.setRoute (Just Route.Login))
+                        , Options.onClick (context.setRoute (Just Route.Login))
                         ]
                         [ Html.text user.email ]
     in
@@ -139,10 +156,10 @@ view lift view_ model =
                     , css "text-transform" "uppercase"
                     , css "font-weight" "400"
                     ]
-                    [ Html.text view_.title
+                    [ Html.text context.title
                     ]
                 ]
-            , case view_.isLoading of
+            , case context.isLoading of
                 True ->
                     TopAppBar.section
                         [ cs "demo-top-app-bar--custom"
@@ -178,7 +195,7 @@ view lift view_ model =
                     (lift << Mdc)
                     "sign-out-button"
                     model.mdc
-                    [ Options.onClick (view_.setUser Nothing)
+                    [ Options.onClick (context.setUser Nothing)
                     ]
                     [ Html.text "Sign out" ]
                 , TopAppBar.actionItem

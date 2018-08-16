@@ -14,34 +14,30 @@ import Navigation exposing (Location)
 import Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
+import Pages.Page as Page exposing (Context, Page)
 import Ports exposing (..)
 import Process
-import Route exposing (Route(..))
+import Route exposing (Route)
 import Task
 import Time
 import Views.Drawer exposing (Model, Msg(..), defaultModel, update, view)
 import Views.Toolbar exposing (Model, Msg(..), defaultModel, update, view)
-import Views.View exposing (View)
+import Views.View as View exposing (Context)
 
 
 {-| TODO
 
   - Pass messages from components without exposing Msg values?
+    Use an external message instead?
   - PageLoadError
+  - Can we do a persistent drawer with the top app bar?
+  - How to do proper formatting of main body under top app bar?
 
 -}
 
 
 
 -- MODEL
-
-
-type Page
-    = Blank
-    | NotFound
-    | Home
-    | Login
-    | Other
 
 
 type PageState
@@ -70,7 +66,7 @@ defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
     , session = { user = Nothing }
-    , pageState = Loaded Home
+    , pageState = Loaded Page.Home
     , error = "nothing"
     , toolbar = Views.Toolbar.defaultModel
     , drawer = Views.Drawer.defaultModel
@@ -185,10 +181,10 @@ update msg model =
             ( { model | home = home }, effects )
 
         HomeLoaded (Ok home) ->
-            ( { model | error = "", pageState = Loaded Home }, Cmd.none )
+            ( { model | error = "", pageState = Loaded Page.Home }, Cmd.none )
 
         HomeLoaded (Err error) ->
-            ( { model | error = error, pageState = Loaded Home }, Cmd.none )
+            ( { model | error = error, pageState = Loaded Page.Home }, Cmd.none )
 
         LoginMsg msg_ ->
             let
@@ -216,10 +212,10 @@ update msg model =
             ( { model | other = other }, effects )
 
         OtherLoaded (Ok home) ->
-            ( { model | error = "", pageState = Loaded Other }, Cmd.none )
+            ( { model | error = "", pageState = Loaded Page.Other }, Cmd.none )
 
         OtherLoaded (Err error) ->
-            ( { model | error = error, pageState = Loaded Other }, Cmd.none )
+            ( { model | error = error, pageState = Loaded Page.Other }, Cmd.none )
 
         Click ->
             ( model, Cmd.none )
@@ -247,10 +243,10 @@ setRoute maybeRoute model =
                 )
 
         Just Route.Root ->
-            ( { model | pageState = Loaded Home }, Cmd.none )
+            ( { model | pageState = Loaded Page.Home }, Cmd.none )
 
         Just Route.Login ->
-            ( { model | pageState = Loaded Login }, Cmd.none )
+            ( { model | pageState = Loaded Page.Login }, Cmd.none )
 
         Just Route.Other ->
             transition OtherLoaded
@@ -290,7 +286,7 @@ viewPage model isLoading page =
         user =
             model.session.user
 
-        page =
+        pageContext =
             { setRoute = SetRoute
             , setUser = SetUser
             , isLoading = isLoading
@@ -304,43 +300,50 @@ viewPage model isLoading page =
                         toolbar =
                             model.toolbar
 
-                        view =
-                            View isLoading SetRoute SetUser user title
+                        viewContext =
+                            View.Context
+                                page
+                                isLoading
+                                SetRoute
+                                SetUser
+                                user
+                                title
+
+                        drawerView =
+                            Views.Drawer.view
+                                DrawerMsg
+                                viewContext
+                                drawer
+
+                        toolbarView =
+                            Views.Toolbar.view
+                                ToolbarMsg
+                                viewContext
+                                toolbar
+
+                        dumbSpacer =
+                            styled Html.div
+                                [ css "height" "36px"
+                                ]
+                                []
+
+                        nodes_ =
+                            styled Html.div
+                                [ css "padding" "24px"
+                                ]
+                                nodes
                     in
                     styled Html.div
                         [ Typography.typography
                         ]
-                        [ Views.Drawer.view
-                            DrawerMsg
-                            view
-                            drawer
-                        , Views.Toolbar.view
-                            ToolbarMsg
-                            view
-                            toolbar
-                        , styled Html.div
-                            [ css "height" "36px"
-                            ]
-                            []
-                        , styled Html.div
-                            [ css "padding" "24px"
-                            ]
-                            nodes
+                        [ drawerView
+                        , toolbarView
+                        , dumbSpacer
+                        , nodes_
                         ]
             }
-    in
-    case Debug.log "Main.getPage model.pageState" getPage model.pageState of
-        Home ->
-            Pages.Home.view HomeMsg page model.home
 
-        Other ->
-            Pages.Other.view OtherMsg page model.other
-
-        Login ->
-            Pages.Login.view LoginMsg page model.login
-
-        _ ->
-            -- NotFound ->
+        viewNotFound =
             Html.div []
                 [ Button.view Mdc
                     "my-button"
@@ -350,6 +353,19 @@ viewPage model isLoading page =
                     ]
                     [ text "Click me!" ]
                 ]
+    in
+    case Debug.log "Main.getPage model.pageState" getPage model.pageState of
+        Page.Home ->
+            Pages.Home.view HomeMsg pageContext model.home
+
+        Page.Other ->
+            Pages.Other.view OtherMsg pageContext model.other
+
+        Page.Login ->
+            Pages.Login.view LoginMsg pageContext model.login
+
+        _ ->
+            viewNotFound
 
 
 
