@@ -9,6 +9,9 @@ import Pages.Page exposing (Context)
 import Route exposing (Route)
 
 
+-- MODEL
+
+
 type alias Model m =
     { mdc : Material.Model m
     , text : String
@@ -27,6 +30,10 @@ type Msg m
     | Click String
 
 
+
+-- UPDATE
+
+
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
 update lift msg model =
     case msg of
@@ -39,8 +46,12 @@ update lift msg model =
             )
 
 
+
+-- VIEW
+
+
 view : (Msg m -> m) -> Context m -> Model m -> Html m
-view lift page model =
+view lift context model =
     let
         fakeText =
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
@@ -51,7 +62,7 @@ view lift page model =
                 ++ " nulla pariatur. Excepteur sint occaecat cupidatat non proident,"
                 ++ " sunt in culpa qui officia deserunt mollit anim id est laborum."
     in
-    page.body "Other"
+    context.body "Other"
         [ styled Html.div
             []
             [ styled Html.h2
@@ -60,13 +71,13 @@ view lift page model =
                 ]
             , styled Html.h2
                 []
-                [ text ("Is loading: " ++ toString page.isLoading)
+                [ text ("Is loading: " ++ toString context.isLoading)
                 ]
             , Button.view (lift << Mdc)
                 "my-button"
                 model.mdc
                 [ Button.ripple
-                , Options.onClick (page.setRoute (Just Route.Home))
+                , Options.onClick (context.setRoute (Just Route.Home))
                 ]
                 [ text "Home!"
                 ]

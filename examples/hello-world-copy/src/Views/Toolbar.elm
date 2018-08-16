@@ -15,6 +15,7 @@ import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.TopAppBar as TopAppBar
+import Pages.Page as Page exposing (Page)
 import Route exposing (Route)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -92,6 +93,32 @@ view lift context model =
                 False ->
                     Html.text ""
 
+        leftSide =
+            case context.page of
+                Page.Home ->
+                    [ TopAppBar.title
+                        [ css "font-family" "'Roboto Mono', Monoton, monospace"
+                        , css "text-transform" "uppercase"
+                        , css "font-weight" "400"
+                        ]
+                        [ Html.text context.title
+                        ]
+                    ]
+
+                _ ->
+                    [ TopAppBar.actionItem
+                        [ Options.onClick (context.setRoute (Just Route.Home))
+                        ]
+                        "home"
+                    , TopAppBar.title
+                        [ css "font-family" "'Roboto Mono', Monoton, monospace"
+                        , css "text-transform" "uppercase"
+                        , css "font-weight" "400"
+                        ]
+                        [ Html.text context.title
+                        ]
+                    ]
+
         -- viewSignIn : Toolbar -> Maybe User -> List (Html msg)
         -- viewSignIn page user =
         --     let
@@ -147,18 +174,15 @@ view lift context model =
                 [ TopAppBar.alignStart
                 , cs "demo-top-app-bar--custom"
                 ]
-                [ TopAppBar.navigationIcon
-                    [ Options.onClick (lift OpenDrawer)
+                (List.concat
+                    [ [ TopAppBar.navigationIcon
+                            [ Options.onClick (lift OpenDrawer)
+                            ]
+                            "menu"
+                      ]
+                    , leftSide
                     ]
-                    "menu"
-                , TopAppBar.title
-                    [ css "font-family" "'Roboto Mono', Monoton, monospace"
-                    , css "text-transform" "uppercase"
-                    , css "font-weight" "400"
-                    ]
-                    [ Html.text context.title
-                    ]
-                ]
+                )
             , case context.isLoading of
                 True ->
                     TopAppBar.section

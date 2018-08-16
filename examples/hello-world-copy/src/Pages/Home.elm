@@ -16,6 +16,9 @@ import Task exposing (Task)
 import Time
 
 
+-- MODEL
+
+
 type Tab
     = Cats
     | Dogs
@@ -53,47 +56,8 @@ type Msg m
     | DogsLoaded (Result ErrorMsg (Model m))
 
 
-getTab : TabState -> Tab
-getTab tabState =
-    case tabState of
-        Loaded tab ->
-            tab
 
-        TransitioningFrom tab ->
-            tab
-
-
-delay : Time.Time -> msg -> Cmd msg
-delay time msg =
-    Process.sleep time
-        |> Task.perform (\_ -> msg)
-
-
-setTab : (Msg m -> m) -> Maybe Tab -> Model m -> ( Model m, Cmd m )
-setTab lift maybeTab model =
-    let
-        transition toMsg task =
-            ( { model | tabState = TransitioningFrom (getTab model.tabState) }
-            , Task.attempt toMsg task
-            )
-    in
-    case Debug.log "setTab maybeTab" maybeTab of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just Cats ->
-            transition (lift << CatsLoaded)
-                (Task.map
-                    (\_ -> model)
-                    (Process.sleep (Time.second * 2))
-                )
-
-        Just Dogs ->
-            transition (lift << DogsLoaded)
-                (Task.map
-                    (\_ -> model)
-                    (Process.sleep (Time.second * 2))
-                )
+-- UPDATE
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
@@ -135,18 +99,65 @@ update lift msg model =
             )
 
 
-view : (Msg m -> m) -> Context m -> Model m -> Html m
-view lift page model =
-    case Debug.log "view model.tabState" model.tabState of
+setTab : (Msg m -> m) -> Maybe Tab -> Model m -> ( Model m, Cmd m )
+setTab lift maybeTab model =
+    let
+        transition toMsg task =
+            ( { model | tabState = TransitioningFrom (getTab model.tabState) }
+            , Task.attempt toMsg task
+            )
+    in
+    case Debug.log "setTab maybeTab" maybeTab of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just Cats ->
+            transition (lift << CatsLoaded)
+                (Task.map
+                    (\_ -> model)
+                    (Process.sleep (Time.second * 2))
+                )
+
+        Just Dogs ->
+            transition (lift << DogsLoaded)
+                (Task.map
+                    (\_ -> model)
+                    (Process.sleep (Time.second * 2))
+                )
+
+
+getTab : TabState -> Tab
+getTab tabState =
+    case tabState of
         Loaded tab ->
-            viewPage lift page model False tab
+            tab
 
         TransitioningFrom tab ->
-            viewPage lift page model True tab
+            tab
+
+
+delay : Time.Time -> msg -> Cmd msg
+delay time msg =
+    Process.sleep time
+        |> Task.perform (\_ -> msg)
+
+
+
+-- VIEW
+
+
+view : (Msg m -> m) -> Context m -> Model m -> Html m
+view lift context model =
+    case Debug.log "view model.tabState" model.tabState of
+        Loaded tab ->
+            viewPage lift context model False tab
+
+        TransitioningFrom tab ->
+            viewPage lift context model True tab
 
 
 viewPage : (Msg m -> m) -> Context m -> Model m -> Bool -> Tab -> Html m
-viewPage lift page model isLoading tab =
+viewPage lift context model isLoading tab =
     let
         spinner isLoading =
             case isLoading of
@@ -165,7 +176,7 @@ viewPage lift page model isLoading tab =
                         ]
                         []
     in
-    page.body "Home"
+    context.body "Home"
         [ styled Html.div
             [ css "padding" "24px"
             ]
@@ -203,7 +214,7 @@ viewPage lift page model isLoading tab =
                 ]
             , styled Html.h2
                 []
-                [ text ("Is loading: " ++ toString page.isLoading)
+                [ text ("Is loading: " ++ toString context.isLoading)
                 ]
             , styled Html.h2
                 []
@@ -218,7 +229,7 @@ viewPage lift page model isLoading tab =
                 "my-button"
                 model.mdc
                 [ Button.ripple
-                , Options.onClick (page.setRoute (Just Route.Other))
+                , Options.onClick (context.setRoute (Just Route.Other))
                 ]
                 [ text "Other!"
                 ]

@@ -48,6 +48,12 @@ viewFormErrors Email model.errors
 next to the `password` field, and so on.
 
 -}
+
+
+
+-- MODEL
+
+
 type alias Error =
     ( Field, String )
 
@@ -82,16 +88,15 @@ type Msg m
     | LoginCompleted (Result Http.Error User)
 
 
+
+-- UPDATE
+
+
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
 update lift msg model =
     case msg of
         Mdc msg_ ->
             Material.update (lift << Mdc) msg_ model
-
-        Click text ->
-            ( { model | text = text }
-            , Cmd.none
-            )
 
         SetEmail email ->
             ( { model | email = email }, Cmd.none )
@@ -131,10 +136,13 @@ update lift msg model =
                 ]
             )
 
+        Click text ->
+            ( { model | text = text }, Cmd.none )
+
 
 view : (Msg m -> m) -> Context m -> Model m -> Html m
-view lift page model =
-    page.body "Login"
+view lift context model =
+    context.body "Login"
         [ styled Html.div
             [ css "padding" "24px"
             ]
@@ -146,13 +154,13 @@ view lift page model =
                     [ text "Need an account?" ]
                 ]
             , Form.viewErrors model.errors
-            , viewForm lift page model
+            , viewForm lift context model
             ]
         ]
 
 
 viewForm : (Msg m -> m) -> Context m -> Model m -> Html m
-viewForm lift page model =
+viewForm lift context model =
     let
         spinner isLoading =
             case isLoading of
@@ -244,106 +252,6 @@ viewForm lift page model =
                 ]
             ]
         ]
-
-
-
--- Html.div []
---     [ Textfield.view (lift << Mdc) index model.mdc
---       [ Textfield.label "Choose password"
---       , Textfield.password
---       , Textfield.pattern ".{8,}"
---       , Textfield.required
---       , Textfield.disabled |> when state.disabled
---       , Textfield.dense |> when state.dense
---       ]
---       []
---     , Textfield.helperText
---       [ Textfield.persistent
---       , Textfield.validationMsg
---       ]
---       [ Html.text "Must be at least 8 characters long"
---       ]
---     ]
--- styled Html.form
---     [ Options.onSubmit SubmitForm
---     ]
---     [ styled Form.input
---         [ class "form-control-lg"
---         , placeholder "Email"
---         , Options.onInput SetEmail
---         ]
---         []
---     , styled Form.password
---         [ class "form-control-lg"
---         , placeholder "Password"
---         , Options.onInput SetPassword
---         ]
---         []
---     , button [ class "btn btn-lg btn-primary pull-xs-right" ]
---         [ text "Sign in" ]
---     ]
--- div [ class "auth-page" ]
---     [ div [ class "container page" ]
---         [ div [ class "row" ]
---             [ div [ class "col-md-6 offset-md-3 col-xs-12" ]
---                 [ h1 [ class "text-xs-center" ] [ text "Sign in" ]
---                 , p [ class "text-xs-center" ]
---                     [ a [ Route.href Route.Register ]
---                         [ text "Need an account?" ]
---                     ]
---                 , Form.viewErrors model.errors
---                 -- , viewForm
---                 ]
---             ]
---         ]
---     ]
--- view : (Msg m -> m) -> Page m -> Model m -> Html m
--- view lift page model =
---     let
---         fakeText =
---             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
---                 ++ " eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut"
---                 ++ " enim ad minim veniam, quis nostrud exercitation ullamco laboris"
---                 ++ " nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in"
---                 ++ " reprehenderit in voluptate velit esse cillum dolore eu fugiat"
---                 ++ " nulla pariatur. Excepteur sint occaecat cupidatat non proident,"
---                 ++ " sunt in culpa qui officia deserunt mollit anim id est laborum."
---     in
---     page.body "Login"
---         page.isLoading
---         [ styled Html.div
---             []
---             [ styled Html.h2
---                 []
---                 [ text model.text
---                 ]
---             , styled Html.h2
---                 []
---                 [ text ("Is loading: " ++ toString page.isLoading)
---                 ]
---             , Button.view (lift << Mdc)
---                 "my-button"
---                 model.mdc
---                 [ Button.ripple
---                 , Options.onClick (page.navigate (Just Route.Home))
---                 ]
---                 [ text "Home!"
---                 ]
---             , styled Html.div
---                 [ css "padding" "24px"
---                 ]
---                 [ styled Html.p
---                     [ css "padding" "8px" ]
---                     [ text fakeText ]
---                 ]
---             ]
---         ]
--- modelValidator : Validator Error Model
--- modelValidator =
---     Validate.all
---         [ ifBlank .email (Email => "email can't be blank.")
---         , ifBlank .password (Password => "password can't be blank.")
---         ]
 
 
 errorsDecoder : Decoder (List String)
