@@ -21,7 +21,8 @@ import Route exposing (Route(..))
 import Task
 import Time
 import Views.Drawer exposing (Model, Msg(..), defaultModel, update, view)
-import Views.Page as Page exposing (Model, Msg(..), Toolbar)
+import Views.Page exposing (Page)
+import Views.Toolbar exposing (Model, Msg(..), defaultModel, update, view)
 import Views.View exposing (View)
 
 
@@ -50,8 +51,8 @@ type alias Model =
     , other : Pages.Other.Model Msg
     , login : Pages.Login.Model Msg
     , error : ErrorMsg
-    , page : Page.Model Msg
     , drawer : Views.Drawer.Model Msg
+    , toolbar : Views.Toolbar.Model Msg
     }
 
 
@@ -64,8 +65,8 @@ defaultModel =
     , other = Pages.Other.defaultModel
     , login = Pages.Login.defaultModel
     , error = "nothing"
-    , page = Page.defaultModel
     , drawer = Views.Drawer.defaultModel
+    , toolbar = Views.Toolbar.defaultModel
     }
 
 
@@ -79,8 +80,8 @@ type Msg
     | LoginMsg (Pages.Login.Msg Msg)
     | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
-    | PageMsg (Page.Msg Msg)
     | DrawerMsg (Views.Drawer.Msg Msg)
+    | ToolbarMsg (Views.Toolbar.Msg Msg)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -112,23 +113,23 @@ update msg model =
         Click ->
             ( model, Cmd.none )
 
-        PageMsg msg_ ->
+        ToolbarMsg msg_ ->
             let
-                ( page, effects ) =
-                    Page.update PageMsg msg_ model.page
+                ( toolbar, effects ) =
+                    Views.Toolbar.update ToolbarMsg msg_ model.toolbar
 
                 ( newModel, drawerEffects ) =
                     case Debug.log "drawerMsg.msg_" msg_ of
-                        Page.OpenDrawer ->
+                        Views.Toolbar.OpenDrawer ->
                             update (DrawerMsg Views.Drawer.OpenDrawer) model
 
-                        Page.CloseDrawer ->
+                        Views.Toolbar.CloseDrawer ->
                             update (DrawerMsg Views.Drawer.CloseDrawer) model
 
                         _ ->
                             ( model, Cmd.none )
             in
-            ( { newModel | page = page }
+            ( { newModel | toolbar = toolbar }
             , Cmd.batch [ effects, drawerEffects ]
             )
 
@@ -266,42 +267,26 @@ view model =
 viewPage : Model -> Bool -> Page -> Html Msg
 viewPage model isLoading page =
     let
-        spinner isLoading =
-            case isLoading of
-                True ->
-                    LinearProgress.view
-                        [ LinearProgress.buffered 0.0 0.0
-                        , LinearProgress.indeterminate
-                        , cs "demo-linear-progress--custom"
-                        ]
-                        []
+        user =
+            model.session.user
 
-                False ->
-                    LinearProgress.view
-                        [ cs "demo-linear-progress--custom"
-                        , cs "mdc-linear-progress--closed"
-                        ]
-                        []
-
-        email =
-            case model.session.user of
-                Just user ->
-                    user.email
-
-                Nothing ->
-                    ""
-
-        view_ =
-            View isLoading SetRoute SetUser
-
-        -- frame =
-        --     Page.frame isLoading session.user // Toolbar.Home
         page =
             { setRoute = SetRoute
             , setUser = SetUser
             , isLoading = isLoading
+            , user = user
             , body =
-                \title isLoading_ nodes ->
+                \title nodes ->
+                    let
+                        drawer =
+                            model.drawer
+
+                        toolbar =
+                            model.toolbar
+
+                        view_ =
+                            View isLoading SetRoute SetUser user title
+                    in
                     styled Html.div
                         [ css "display" "flex"
                         , css "flex-flow" "column"
@@ -309,22 +294,14 @@ viewPage model isLoading page =
                         , Typography.typography
                         ]
                         (List.concat
-                            [ [ -- Page.drawer
-                                --     PageMsg
-                                --     model.page
-                                --     SetRoute
-                                Views.Drawer.view
+                            [ [ Views.Drawer.view
                                     DrawerMsg
                                     view_
-                                    model.drawer
-                              , Page.toolbar
-                                    PageMsg
-                                    model.page
-                                    isLoading_
-                                    SetRoute
-                                    Route.Home
-                                    title
-                                    email
+                                    drawer
+                              , Views.Toolbar.view
+                                    ToolbarMsg
+                                    view_
+                                    toolbar
                               ]
                             , [ styled Html.div
                                     [ css "margin-top" "48px"

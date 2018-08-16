@@ -165,7 +165,6 @@ viewPage lift page model isLoading tab =
                         []
     in
     page.body "Home"
-        page.isLoading
         [ styled Html.div
             [ css "padding" "24px"
             ]

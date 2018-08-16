@@ -52,7 +52,6 @@ view lift page model =
                 ++ " sunt in culpa qui officia deserunt mollit anim id est laborum."
     in
     page.body "Other"
-        page.isLoading
         [ styled Html.div
             []
             [ styled Html.h2

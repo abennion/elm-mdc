@@ -135,7 +135,6 @@ update lift msg model =
 view : (Msg m -> m) -> Page m -> Model m -> Html m
 view lift page model =
     page.body "Login"
-        page.isLoading
         [ styled Html.div
             [ css "padding" "24px"
             ]

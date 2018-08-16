@@ -8,4 +8,6 @@ type alias View m =
     { isLoading : Bool
     , setRoute : Maybe Route -> m
     , setUser : Maybe User -> m
+    , user : Maybe User
+    , title : String
     }
