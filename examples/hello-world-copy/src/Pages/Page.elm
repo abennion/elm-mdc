@@ -1,4 +1,4 @@
-module Pages.Page exposing (Context, Page(..))
+module Pages.Page exposing (Context, Page(..), bodyId)
 
 import Data.User as User exposing (User)
 import Html exposing (Html)
@@ -20,3 +20,8 @@ type alias Context m =
     , user : Maybe User
     , body : String -> List (Html m) -> Html m
     }
+
+
+bodyId : String
+bodyId =
+    "page-body"

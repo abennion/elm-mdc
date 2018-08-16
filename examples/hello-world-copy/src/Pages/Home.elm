@@ -16,6 +16,7 @@ import Process
 import Route exposing (Route)
 import Task exposing (Task)
 import Time
+import Views.Article.Feed as Feed exposing (FeedSource, globalFeed, tagFeed, yourFeed)
 
 
 -- MODEL
@@ -35,10 +36,19 @@ type alias ErrorMsg =
     String
 
 
+
+-- type alias Model =
+--     { tags : List Tag
+--     , feed : Feed.Model
+--     }
+
+
 type alias Model m =
     { mdc : Material.Model m
     , text : String
     , tabState : TabState
+    , tags : List Tag
+    , feed : Feed.Model
     }
 
 
