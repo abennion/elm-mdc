@@ -174,6 +174,13 @@ view lift view_ model =
                 , cs "demo-top-app-bar--custom"
                 ]
                 [ viewSignIn
+                , Button.view
+                    (lift << Mdc)
+                    "sign-out-button"
+                    model.mdc
+                    [ Options.onClick (view_.setUser Nothing)
+                    ]
+                    [ Html.text "Sign out" ]
                 , TopAppBar.actionItem
                     []
                     "more_vert"
