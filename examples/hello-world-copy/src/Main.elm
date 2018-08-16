@@ -8,7 +8,6 @@ import Html exposing (Html, text)
 import Json.Decode as Decode exposing (Value)
 import Material
 import Material.Button as Button
-import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled)
 import Material.Typography as Typography
 import Navigation exposing (Location)
@@ -21,7 +20,6 @@ import Route exposing (Route(..))
 import Task
 import Time
 import Views.Drawer exposing (Model, Msg(..), defaultModel, update, view)
-import Views.Page exposing (Page)
 import Views.Toolbar exposing (Model, Msg(..), defaultModel, update, view)
 import Views.View exposing (View)
 
@@ -215,10 +213,11 @@ getPage pageState =
             page
 
 
-delay : Time.Time -> msg -> Cmd msg
-delay time msg =
-    Process.sleep time
-        |> Task.perform (\_ -> msg)
+
+-- delay : Time.Time -> msg -> Cmd msg
+-- delay time msg =
+--     Process.sleep time
+--         |> Task.perform (\_ -> msg)
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -237,7 +236,7 @@ setRoute maybeRoute model =
             transition HomeLoaded
                 (Task.map
                     (\_ -> model.home)
-                    (Process.sleep (Time.second * 5))
+                    (Process.sleep (Time.second * 2))
                 )
 
         Just Route.Root ->
@@ -250,7 +249,7 @@ setRoute maybeRoute model =
             transition OtherLoaded
                 (Task.map
                     (\_ -> model.other)
-                    (Process.sleep (Time.second * 5))
+                    (Process.sleep (Time.second * 2))
                 )
 
 
@@ -284,34 +283,29 @@ viewPage model isLoading page =
                         toolbar =
                             model.toolbar
 
-                        view_ =
+                        view =
                             View isLoading SetRoute SetUser user title
                     in
                     styled Html.div
-                        [ css "display" "flex"
-                        , css "flex-flow" "column"
-                        , css "height" "100%"
-                        , Typography.typography
+                        [ Typography.typography
                         ]
-                        (List.concat
-                            [ [ Views.Drawer.view
-                                    DrawerMsg
-                                    view_
-                                    drawer
-                              , Views.Toolbar.view
-                                    ToolbarMsg
-                                    view_
-                                    toolbar
-                              ]
-                            , [ styled Html.div
-                                    [ css "margin-top" "48px"
-                                    ]
-                                    [ text ""
-                                    ]
-                              ]
-                            , nodes
+                        [ Views.Drawer.view
+                            DrawerMsg
+                            view
+                            drawer
+                        , Views.Toolbar.view
+                            ToolbarMsg
+                            view
+                            toolbar
+                        , styled Html.div
+                            [ css "height" "36px"
                             ]
-                        )
+                            []
+                        , styled Html.div
+                            [ css "padding" "24px"
+                            ]
+                            nodes
+                        ]
             }
     in
     case getPage model.pageState of

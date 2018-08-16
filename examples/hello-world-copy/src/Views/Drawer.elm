@@ -1,5 +1,7 @@
 module Views.Drawer exposing (Model, Msg(..), defaultModel, update, view)
 
+-- import Material.Drawer.Persistent as Drawer
+
 import Html exposing (Html, text)
 import Material
 import Material.Drawer.Temporary as Drawer
@@ -51,10 +53,12 @@ view lift view_ model =
             model.mdc
             [ Drawer.open |> when model.drawerOpen
             , Drawer.onClose (lift CloseDrawer)
+            , Options.onClick (lift CloseDrawer)
             ]
             [ Drawer.header
                 []
-                [ Drawer.headerContent []
+                [ Drawer.headerContent
+                    []
                     [ Html.text "Header here"
                     ]
                 ]

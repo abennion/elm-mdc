@@ -1,6 +1,7 @@
 module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 
 import Html exposing (Html, div, text)
+import Html.Attributes as Html
 import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
@@ -84,14 +85,14 @@ setTab lift maybeTab model =
             transition (lift << CatsLoaded)
                 (Task.map
                     (\_ -> model)
-                    (Process.sleep (Time.second * 5))
+                    (Process.sleep (Time.second * 2))
                 )
 
         Just Dogs ->
             transition (lift << DogsLoaded)
                 (Task.map
                     (\_ -> model)
-                    (Process.sleep (Time.second * 5))
+                    (Process.sleep (Time.second * 2))
                 )
 
 
