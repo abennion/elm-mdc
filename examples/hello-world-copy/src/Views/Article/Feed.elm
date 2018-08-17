@@ -1,4 +1,4 @@
-module Views.Article.Feed exposing (FeedSource, Model, Msg, authorFeed, favoritedFeed, globalFeed, init, selectTag, tagFeed, update, viewArticles, viewFeedSources, yourFeed)
+module Views.Article.Feed exposing (FeedSource, Model, Msg, authorFeed, defaultModel, favoritedFeed, globalFeed, init, selectTag, tagFeed, update, viewArticles, viewFeedSources, yourFeed)
 
 {-| NOTE: This module has its own Model, view, and update. This is not normal!
 If you find yourself doing this often, please watch <https://www.youtube.com/watch?v=DoA4Txr4GUs>
@@ -54,6 +54,18 @@ type alias InternalModel =
     , activePage : Int
     , isLoading : Bool
     }
+
+
+defaultModel : Model
+defaultModel =
+    Model
+        (InternalModel
+            []
+            (Feed [] 0)
+            (SelectList.singleton globalFeed)
+            0
+            False
+        )
 
 
 init : Session -> SelectList FeedSource -> Task Http.Error Model

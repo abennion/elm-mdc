@@ -14,9 +14,17 @@ import Pages.Errored exposing (PageLoadError, pageLoadError)
 import Pages.Page exposing (Context)
 import Process
 import Route exposing (Route)
+import SelectList exposing (SelectList)
 import Task exposing (Task)
 import Time
-import Views.Article.Feed as Feed exposing (FeedSource, globalFeed, tagFeed, yourFeed)
+import Views.Article.Feed as Feed
+    exposing
+        ( FeedSource
+        , defaultModel
+        , globalFeed
+        , tagFeed
+        , yourFeed
+        )
 
 
 -- MODEL
@@ -36,27 +44,12 @@ type alias ErrorMsg =
     String
 
 
-
--- type alias Model =
---     { tags : List Tag
---     , feed : Feed.Model
---     }
-
-
 type alias Model m =
     { mdc : Material.Model m
     , text : String
     , tabState : TabState
     , tags : List Tag
     , feed : Feed.Model
-    }
-
-
-defaultModel : Model m
-defaultModel =
-    { mdc = Material.defaultModel
-    , text = "Nothing to see here."
-    , tabState = Loaded Cats
     }
 
 
@@ -69,7 +62,23 @@ type Msg m
 
 
 
--- UPDATE
+-- type alias InternalModel =
+--     { errors : List String
+--     , feed : Feed
+--     , feedSources : SelectList FeedSource
+--     , activePage : Int
+--     , isLoading : Bool
+--     }
+
+
+defaultModel : Model m
+defaultModel =
+    { mdc = Material.defaultModel
+    , text = "Nothing to see here."
+    , tabState = Loaded Cats
+    , tags = []
+    , feed = Feed.defaultModel
+    }
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )

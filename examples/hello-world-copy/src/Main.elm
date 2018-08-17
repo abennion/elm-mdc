@@ -242,6 +242,12 @@ setRoute maybeRoute model =
                     (Process.sleep (Time.second * 2))
                 )
 
+        Just (Route.Article slug) ->
+            ( model, Cmd.none )
+
+        Just (Route.Profile username) ->
+            ( model, Cmd.none )
+
         Just Route.Root ->
             ( { model | pageState = Loaded Page.Home }, Cmd.none )
 

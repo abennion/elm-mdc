@@ -1,8 +1,7 @@
 module Route exposing (Route(..), fromLocation, href, modifyUrl)
 
--- import Data.Article as Article
--- import Data.User as User exposing (Username)
-
+import Data.Article as Article
+import Data.User as User exposing (Username)
 import Html exposing (Attribute)
 import Html.Attributes as Attr
 import Navigation exposing (Location)
@@ -17,6 +16,8 @@ type Route
     | Root
     | Login
     | Other
+    | Profile Username
+    | Article Article.Slug
 
 
 route : Parser (Route -> a) a
@@ -48,6 +49,12 @@ routeToString page =
 
                 Other ->
                     [ "other" ]
+
+                Article slug ->
+                    [ "article", Article.slugToString slug ]
+
+                Profile username ->
+                    [ "profile", User.usernameToString username ]
     in
     "#/" ++ String.join "/" pieces
 
