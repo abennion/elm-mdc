@@ -156,8 +156,9 @@ view lift context model =
                         (lift << Mdc)
                         "login-link-button"
                         model.mdc
-                        [ Button.link "#login"
-                        , Options.onClick (context.setRoute (Just Route.Login))
+                        [ Options.onClick
+                            (context.setRoute
+                                (Just (Route.Profile user.username)))
                         ]
                         [ Html.text user.email ]
     in

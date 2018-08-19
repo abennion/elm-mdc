@@ -1,4 +1,4 @@
-module Data.User exposing (User, Username, decoder, encode, usernameDecoder, usernameParser, usernameToHtml, usernameToString)
+module Data.User exposing (User, Username, decoder, encode, stringToUsername, usernameDecoder, usernameParser, usernameToHtml, usernameToString)
 
 import Data.AuthToken as AuthToken exposing (AuthToken)
 import Data.UserPhoto as UserPhoto exposing (UserPhoto)
@@ -62,6 +62,11 @@ type Username
 usernameToString : Username -> String
 usernameToString (Username username) =
     username
+
+
+stringToUsername : String -> Username
+stringToUsername username =
+    Username username
 
 
 usernameParser : UrlParser.Parser (Username -> a) a

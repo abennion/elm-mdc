@@ -16,7 +16,7 @@ import Pages.Errored as Errored exposing (PageLoadError)
 import Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
-import Pages.Profile as Profile
+import Pages.Profile exposing (Model, Msg(Mdc), defaultModel, init, update, view)
 import Ports exposing (..)
 import Process
 import Route exposing (Route)
@@ -88,6 +88,7 @@ type alias Model =
     , home : Pages.Home.Model Msg
     , login : Pages.Login.Model Msg
     , other : Pages.Other.Model Msg
+    , profile : Pages.Profile.Model Msg
     }
 
 
@@ -102,6 +103,7 @@ defaultModel =
     , home = Pages.Home.defaultModel
     , login = Pages.Login.defaultModel
     , other = Pages.Other.defaultModel
+    , profile = Pages.Profile.defaultModel
     }
 
 
@@ -120,7 +122,8 @@ type Msg
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
     | Click
     | ArticleLoaded (Result PageLoadError Article.Model)
-    | ProfileLoaded Username (Result PageLoadError Profile.Model)
+    | ProfileMsg (Pages.Profile.Msg Msg)
+    | ProfileLoaded Username (Result PageLoadError (Pages.Profile.Model Msg))
     | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
 
 
@@ -254,9 +257,17 @@ update msg model =
         Click ->
             ( model, Cmd.none )
 
+        ProfileMsg msg_ ->
+            let
+                ( profile, effects ) =
+                    Pages.Profile.update ProfileMsg msg_ model.session model.profile
+            in
+            ( { model | profile = profile }, effects )
+
         ProfileLoaded username (Ok profile) ->
             ( { model
                 | pageState = Loaded (Profile username)
+                , profile = profile
               }
             , Cmd.none
             )
@@ -321,7 +332,7 @@ setRoute maybeRoute model =
                     errored Views.Page.Other "You must be signed in to edit an article."
 
         Just (Route.Profile username) ->
-            transition (ProfileLoaded username) (Profile.init model.session username)
+            transition (ProfileLoaded username) (Pages.Profile.init model.session username)
 
         Just (Route.Article slug) ->
             transition ArticleLoaded (Article.init model.session slug)
@@ -468,11 +479,14 @@ viewPage model isLoading page =
         Home ->
             Pages.Home.view HomeMsg pageContext model.home
 
-        Other ->
-            Pages.Other.view OtherMsg pageContext model.other
-
         Login ->
             Pages.Login.view LoginMsg pageContext model.login
+
+        Profile username ->
+            Pages.Profile.view ProfileMsg pageContext model.profile
+
+        Other ->
+            Pages.Other.view OtherMsg pageContext model.other
 
         _ ->
             viewNotFound

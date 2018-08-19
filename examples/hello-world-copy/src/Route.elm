@@ -32,6 +32,7 @@ route =
         , Url.map Register (s "register")
         , Url.map NewArticle (s "editor")
         , Url.map EditArticle (s "editor" </> Article.slugParser)
+        , Url.map Profile (s "profile" </> User.usernameParser)
         ]
 
 

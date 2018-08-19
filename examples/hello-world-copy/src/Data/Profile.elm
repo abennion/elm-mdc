@@ -1,7 +1,7 @@
-module Data.Profile exposing (Profile, decoder)
+module Data.Profile exposing (Profile, decoder, defaultProfile)
 
-import Data.User as User exposing (Username)
-import Data.UserPhoto as UserPhoto exposing (UserPhoto)
+import Data.User as User exposing (Username, stringToUsername)
+import Data.UserPhoto as UserPhoto exposing (UserPhoto, maybeStringToUserPhoto)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (decode, required)
 
@@ -11,6 +11,15 @@ type alias Profile =
     , bio : Maybe String
     , image : UserPhoto
     , following : Bool
+    }
+
+
+defaultProfile : Profile
+defaultProfile =
+    { username = stringToUsername ""
+    , bio = Nothing
+    , image = maybeStringToUserPhoto Nothing
+    , following = False
     }
 
 

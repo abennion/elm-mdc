@@ -1,4 +1,4 @@
-module Data.UserPhoto exposing (UserPhoto, decoder, encode, src, toMaybeString)
+module Data.UserPhoto exposing (UserPhoto, decoder, encode, maybeStringToUserPhoto, src, toMaybeString)
 
 import Html exposing (Attribute)
 import Html.Attributes
@@ -29,6 +29,11 @@ encode (UserPhoto maybeUrl) =
 toMaybeString : UserPhoto -> Maybe String
 toMaybeString (UserPhoto maybeUrl) =
     maybeUrl
+
+
+maybeStringToUserPhoto : Maybe String -> UserPhoto
+maybeStringToUserPhoto maybeString =
+    UserPhoto maybeString
 
 
 
