@@ -11,7 +11,6 @@ import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Tabs as TabBar
 import Material.Theme as Theme
 import Pages.Errored exposing (PageLoadError, pageLoadError)
-import Pages.Page exposing (Context)
 import Process
 import Route exposing (Route)
 import SelectList exposing (SelectList)
@@ -25,6 +24,7 @@ import Views.Article.Feed as Feed
         , tagFeed
         , yourFeed
         )
+import Views.Page exposing (Context)
 
 
 -- MODEL

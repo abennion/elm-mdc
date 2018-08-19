@@ -26,13 +26,13 @@ import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, src)
 import Html.Events exposing (onClick)
 import Http
-import Pages.Page exposing (bodyId)
 import Request.Article
 import SelectList exposing (Position(..), SelectList)
 import Task exposing (Task)
 import Util exposing ((=>), onClickStopPropagation, pair, viewIf)
 import Views.Article
 import Views.Errors as Errors
+import Views.Page exposing (bodyId)
 import Views.Spinner exposing (spinner)
 
 

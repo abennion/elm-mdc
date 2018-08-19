@@ -18,6 +18,9 @@ type Route
     | Other
     | Profile Username
     | Article Article.Slug
+    | NewArticle
+    | EditArticle Article.Slug
+    | Register
 
 
 route : Parser (Route -> a) a
@@ -26,6 +29,9 @@ route =
         [ Url.map Home (s "")
         , Url.map Login (s "login")
         , Url.map Other (s "other")
+        , Url.map Register (s "register")
+        , Url.map NewArticle (s "editor")
+        , Url.map EditArticle (s "editor" </> Article.slugParser)
         ]
 
 
@@ -50,11 +56,20 @@ routeToString page =
                 Other ->
                     [ "other" ]
 
+                Register ->
+                    [ "register" ]
+
                 Article slug ->
                     [ "article", Article.slugToString slug ]
 
                 Profile username ->
                     [ "profile", User.usernameToString username ]
+
+                NewArticle ->
+                    [ "editor" ]
+
+                EditArticle slug ->
+                    [ "editor", Article.slugToString slug ]
     in
     "#/" ++ String.join "/" pieces
 

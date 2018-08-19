@@ -1,7 +1,6 @@
 module Main exposing (..)
 
--- import Pages.Errored exposing (PageLoadError)
-
+import Data.Article exposing (Slug)
 import Data.Session exposing (Session)
 import Data.User as User exposing (User, Username)
 import Html exposing (Html, text)
@@ -11,33 +10,63 @@ import Material.Button as Button
 import Material.Options as Options exposing (cs, css, styled)
 import Material.Typography as Typography
 import Navigation exposing (Location)
+import Pages.Article as Article
+import Pages.Article.Editor as Editor
+import Pages.Errored as Errored exposing (PageLoadError)
 import Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
-import Pages.Page as Page exposing (Context, Page)
+import Pages.Profile as Profile
 import Ports exposing (..)
 import Process
 import Route exposing (Route)
 import Task
 import Time
 import Views.Drawer exposing (Model, Msg(..), defaultModel, update, view)
+import Views.Page exposing (ActivePage, Context)
 import Views.Toolbar exposing (Model, Msg(..), defaultModel, update, view)
 import Views.View as View exposing (Context)
 
 
 {-| TODO
 
-  - Pass messages from components without exposing Msg values?
-    Use an external message instead?
-  - PageLoadError
-  - Can we do a persistent drawer with the top app bar?
-  - How to do proper formatting of main body under top app bar?
+    - take a closer look at this subModel thing...
+    - Pass messages from components without exposing Msg values?
+        Use an external message instead?
+    - PageLoadError
+    - Can we do a persistent drawer with the top app bar?
+    - How to do proper formatting of main body under top app bar?
 
 -}
 
 
 
 -- MODEL
+-- type Page
+--     = Blank
+--     | NotFound
+--     | Errored PageLoadError
+--     | Home Home.Model
+--     | Settings Settings.Model
+--     | Login Login.Model
+--     | Register Register.Model
+--     | Profile Username Profile.Model
+--     | Article Article.Model
+--     | Editor (Maybe Slug) Editor.Model
+
+
+type Page
+    = Blank
+    | NotFound
+    | Errored PageLoadError
+    | Home
+    | Settings
+    | Login
+    | Register
+    | Profile Username
+    | Article
+    | Editor (Maybe Slug)
+    | Other
 
 
 type PageState
@@ -66,7 +95,7 @@ defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
     , session = { user = Nothing }
-    , pageState = Loaded Page.Home
+    , pageState = Loaded Home
     , error = "nothing"
     , toolbar = Views.Toolbar.defaultModel
     , drawer = Views.Drawer.defaultModel
@@ -88,6 +117,9 @@ type Msg
     | OtherMsg (Pages.Other.Msg Msg)
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
     | Click
+    | ArticleLoaded (Result PageLoadError Article.Model)
+    | ProfileLoaded Username (Result PageLoadError Profile.Model)
+    | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
 
 
 
@@ -181,10 +213,10 @@ update msg model =
             ( { model | home = home }, effects )
 
         HomeLoaded (Ok home) ->
-            ( { model | error = "", pageState = Loaded Page.Home }, Cmd.none )
+            ( { model | error = "", pageState = Loaded Home }, Cmd.none )
 
         HomeLoaded (Err error) ->
-            ( { model | error = error, pageState = Loaded Page.Home }, Cmd.none )
+            ( { model | error = error, pageState = Loaded Home }, Cmd.none )
 
         LoginMsg msg_ ->
             let
@@ -212,13 +244,35 @@ update msg model =
             ( { model | other = other }, effects )
 
         OtherLoaded (Ok home) ->
-            ( { model | error = "", pageState = Loaded Page.Other }, Cmd.none )
+            ( { model | error = "", pageState = Loaded Other }, Cmd.none )
 
         OtherLoaded (Err error) ->
-            ( { model | error = error, pageState = Loaded Page.Other }, Cmd.none )
+            ( { model | error = error, pageState = Loaded Other }, Cmd.none )
 
         Click ->
             ( model, Cmd.none )
+
+        ProfileLoaded username (Ok subModel) ->
+            ( { model
+                | pageState = Loaded (Profile username)
+              }
+            , Cmd.none
+            )
+
+        ProfileLoaded username (Err error) ->
+            ( { model | pageState = Loaded (Errored error) }, Cmd.none )
+
+        ArticleLoaded (Ok subModel) ->
+            ( { model | pageState = Loaded Article }, Cmd.none )
+
+        ArticleLoaded (Err error) ->
+            ( { model | pageState = Loaded (Errored error) }, Cmd.none )
+
+        EditArticleLoaded slug (Ok subModel) ->
+            ( { model | pageState = Loaded (Editor (Just slug)) }, Cmd.none )
+
+        EditArticleLoaded slug (Err error) ->
+            ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -230,6 +284,9 @@ setRoute maybeRoute model =
               }
             , Task.attempt toMsg task
             )
+
+        errored =
+            pageErrored model
     in
     case Debug.log "Main.setRoute maybeRoute" maybeRoute of
         Nothing ->
@@ -242,17 +299,35 @@ setRoute maybeRoute model =
                     (Process.sleep (Time.second * 2))
                 )
 
-        Just (Route.Article slug) ->
-            ( model, Cmd.none )
+        Just Route.NewArticle ->
+            case model.session.user of
+                Just user ->
+                    -- ({ model | pageState = Loaded (Editor Nothing Editor.initNew) }, Cmd.none)
+                    -- slug and data need to be saved to Main.Model
+                    ( { model | pageState = Loaded (Editor Nothing) }, Cmd.none )
+
+                Nothing ->
+                    errored Views.Page.NewArticle "You must be signed in to post an article."
+
+        Just (Route.EditArticle slug) ->
+            case model.session.user of
+                Just user ->
+                    transition (EditArticleLoaded slug) (Editor.initEdit model.session slug)
+
+                Nothing ->
+                    errored Views.Page.Other "You must be signed in to edit an article."
 
         Just (Route.Profile username) ->
-            ( model, Cmd.none )
+            transition (ProfileLoaded username) (Profile.init model.session username)
+
+        Just (Route.Article slug) ->
+            transition ArticleLoaded (Article.init model.session slug)
 
         Just Route.Root ->
-            ( { model | pageState = Loaded Page.Home }, Cmd.none )
+            ( { model | pageState = Loaded Home }, Cmd.none )
 
         Just Route.Login ->
-            ( { model | pageState = Loaded Page.Login }, Cmd.none )
+            ( { model | pageState = Loaded Login }, Cmd.none )
 
         Just Route.Other ->
             transition OtherLoaded
@@ -260,6 +335,19 @@ setRoute maybeRoute model =
                     (\_ -> model.other)
                     (Process.sleep (Time.second * 2))
                 )
+
+        Just Route.Register ->
+            -- { model | pageState = Loaded (Register Register.initialModel) } => Cmd.none
+            ( { model | pageState = Loaded Register }, Cmd.none )
+
+
+pageErrored : Model -> ActivePage -> String -> ( Model, Cmd msg )
+pageErrored model activePage errorMessage =
+    let
+        error =
+            Errored.pageLoadError activePage errorMessage
+    in
+    ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
 
 getPage : PageState -> Page
@@ -292,6 +380,18 @@ viewPage model isLoading page =
         user =
             model.session.user
 
+        -- yuck
+        activePage =
+            case page of
+                Home ->
+                    Views.Page.Home
+
+                Login ->
+                    Views.Page.Login
+
+                _ ->
+                    Views.Page.Other
+
         pageContext =
             { setRoute = SetRoute
             , setUser = SetUser
@@ -308,7 +408,7 @@ viewPage model isLoading page =
 
                         viewContext =
                             View.Context
-                                page
+                                activePage
                                 isLoading
                                 SetRoute
                                 SetUser
@@ -361,13 +461,13 @@ viewPage model isLoading page =
                 ]
     in
     case Debug.log "Main.getPage model.pageState" getPage model.pageState of
-        Page.Home ->
+        Home ->
             Pages.Home.view HomeMsg pageContext model.home
 
-        Page.Other ->
+        Other ->
             Pages.Other.view OtherMsg pageContext model.other
 
-        Page.Login ->
+        Login ->
             Pages.Login.view LoginMsg pageContext model.login
 
         _ ->

@@ -11,7 +11,7 @@ of a giant walrus exploding the golden gate bridge with laser beams. Pew pew!
 import Data.Session exposing (Session)
 import Html exposing (Html, div, h1, img, main_, p, text)
 import Html.Attributes exposing (alt, class, id, tabindex)
-import Pages.Page as Page exposing (Page)
+import Views.Page as Page exposing (ActivePage)
 
 
 -- MODEL --
@@ -22,12 +22,12 @@ type PageLoadError
 
 
 type alias Model =
-    { activePage : Page
+    { activePage : ActivePage
     , errorMessage : String
     }
 
 
-pageLoadError : Page -> String -> PageLoadError
+pageLoadError : ActivePage -> String -> PageLoadError
 pageLoadError activePage errorMessage =
     PageLoadError { activePage = activePage, errorMessage = errorMessage }
 

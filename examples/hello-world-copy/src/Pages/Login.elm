@@ -15,10 +15,10 @@ import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Textfield as Textfield
 import Material.Textfield.HelperText as Textfield
-import Pages.Page exposing (Context)
 import Request.User exposing (storeSession)
 import Route exposing (Route)
 import Views.Form as Form
+import Views.Page exposing (Context)
 
 
 type Field

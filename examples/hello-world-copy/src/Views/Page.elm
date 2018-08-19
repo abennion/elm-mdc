@@ -1,16 +1,22 @@
-module Pages.Page exposing (Context, Page(..), bodyId)
+module Views.Page exposing (ActivePage(..), Context, bodyId)
 
-import Data.User as User exposing (User)
+import Data.User as User exposing (User, Username)
 import Html exposing (Html)
 import Route exposing (Route)
 
 
-type Page
-    = Blank
-    | NotFound
+-- I don't like difference between Main.Page and ActivePage. Too many name
+-- collisions.
+
+
+type ActivePage
+    = Other
     | Home
     | Login
-    | Other
+    | Register
+    | Settings
+    | Profile Username
+    | NewArticle
 
 
 type alias Context m =

@@ -15,10 +15,10 @@ import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (Property, cs, css, styled, when)
 import Material.TopAppBar as TopAppBar
-import Pages.Page as Page exposing (Page)
 import Route exposing (Route)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+import Views.Page as Page exposing (ActivePage)
 import Views.View exposing (Context)
 
 
