@@ -210,7 +210,7 @@ update msg model =
         HomeMsg msg_ ->
             let
                 ( home, effects ) =
-                    Pages.Home.update HomeMsg msg_ model.home
+                    Pages.Home.update HomeMsg msg_ model.session model.home
             in
             ( { model | home = home }, effects )
 
@@ -220,10 +220,6 @@ update msg model =
         HomeLoaded (Err error) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
-        -- ( HomeLoaded (Ok subModel), _ ) ->
-        --     { model | pageState = Loaded (Home subModel) } => Cmd.none
-        -- ( HomeLoaded (Err error), _ ) ->
-        --     { model | pageState = Loaded (Errored error) } => Cmd.none
         LoginMsg msg_ ->
             let
                 ( login, effects ) =
@@ -258,7 +254,7 @@ update msg model =
         Click ->
             ( model, Cmd.none )
 
-        ProfileLoaded username (Ok subModel) ->
+        ProfileLoaded username (Ok profile) ->
             ( { model
                 | pageState = Loaded (Profile username)
               }
@@ -268,7 +264,7 @@ update msg model =
         ProfileLoaded username (Err error) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
-        ArticleLoaded (Ok subModel) ->
+        ArticleLoaded (Ok article) ->
             ( { model | pageState = Loaded Article }, Cmd.none )
 
         ArticleLoaded (Err error) ->
@@ -403,6 +399,7 @@ viewPage model isLoading page =
             { setRoute = SetRoute
             , setUser = SetUser
             , isLoading = isLoading
+            , session = model.session
             , user = user
             , body =
                 \title nodes ->

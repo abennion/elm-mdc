@@ -1,5 +1,6 @@
 module Views.Page exposing (ActivePage(..), Context, bodyId)
 
+import Data.Session exposing (Session)
 import Data.User as User exposing (User, Username)
 import Html exposing (Html)
 import Route exposing (Route)
@@ -23,6 +24,7 @@ type alias Context m =
     { isLoading : Bool
     , setRoute : Maybe Route -> m
     , setUser : Maybe User -> m
+    , session : Session
     , user : Maybe User
     , body : String -> List (Html m) -> Html m
     }

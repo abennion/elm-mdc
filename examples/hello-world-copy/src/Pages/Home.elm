@@ -3,7 +3,7 @@ module Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
 import Data.Article as Article exposing (Tag)
 import Data.Session exposing (Session)
 import Html exposing (Html, div, text)
-import Html.Attributes as Html
+import Html.Attributes exposing (attribute, class, classList, href, id, placeholder)
 import Http
 import Material
 import Material.Button as Button
@@ -61,6 +61,8 @@ type Msg m
     | SelectTab (Maybe Tab)
     | CatsLoaded (Result ErrorMsg (Model m))
     | DogsLoaded (Result ErrorMsg (Model m))
+    | FeedMsg Feed.Msg
+    | SelectTag Tag
 
 
 
@@ -106,11 +108,25 @@ init session =
         |> Task.mapError handleLoadError
 
 
-update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )
-update lift msg model =
+update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( Model m, Cmd m )
+update lift msg session model =
     case Debug.log "Home.update msg" msg of
         Mdc msg_ ->
             Material.update (lift << Mdc) msg_ model
+
+        FeedMsg subMsg ->
+            let
+                ( newFeed, subCmd ) =
+                    Feed.update session subMsg model.feed
+            in
+            ( { model | feed = newFeed }, Cmd.map (lift << FeedMsg) subCmd )
+
+        SelectTag tagName ->
+            let
+                subCmd =
+                    Feed.selectTag (Maybe.map .token session.user) tagName
+            in
+            ( model, Cmd.map (lift << FeedMsg) subCmd )
 
         Click text ->
             ( { model | text = text }
@@ -205,6 +221,9 @@ view lift context model =
 viewPage : (Msg m -> m) -> Context m -> Model m -> Bool -> Tab -> Html m
 viewPage lift context model isLoading tab =
     let
+        session =
+            context.session
+
         spinner isLoading =
             case isLoading of
                 True ->
@@ -271,61 +290,53 @@ viewPage lift context model isLoading tab =
                     Dogs ->
                         text "Dogs"
                 ]
-            , Button.view (lift << Mdc)
-                "my-button"
-                model.mdc
-                [ Button.ripple
-                , Options.onClick (context.setRoute (Just Route.Other))
-                ]
-                [ text "Other!"
-                ]
             , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
-                ]
-            , styled Html.div
-                [ css "padding" "24px" ]
-                [ text "nothing here"
+                []
+                [ styled Html.div
+                    []
+                    (viewFeed lift model model.feed)
+                , styled Html.div
+                    []
+                    [ styled Html.div
+                        []
+                        [ Html.p
+                            []
+                            [ text "Popular Tags" ]
+                        , viewTags lift model model.tags
+                        ]
+                    ]
                 ]
             ]
         ]
+
+
+viewFeed : (Msg m -> m) -> Model m -> Feed.Model -> List (Html m)
+viewFeed lift model feed =
+    styled Html.div
+        [ cs "feed-toggle" ]
+        [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]
+        :: (Feed.viewArticles feed |> List.map (Html.map (lift << FeedMsg)))
+
+
+viewTags : (Msg m -> m) -> Model m -> List Tag -> Html m
+viewTags lift model tags =
+    styled Html.div
+        [ cs "tag-list" ]
+        (List.map (viewTag lift model) tags)
+
+
+viewTag : (Msg m -> m) -> Model m -> Tag -> Html m
+viewTag lift model tagName =
+    Html.text (Article.tagToString tagName)
+
+
+
+-- Button.view (lift << Mdc)
+--                 "login-submit"
+--                 model.mdc
+--                 [ Button.raised
+--                 , Options.onClick (lift SubmitForm)
+--                 ]
+--                 [ text "Submit"
+--                 ]
+--             ]
