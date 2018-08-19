@@ -1,9 +1,10 @@
-module Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
+module Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
 
 import Data.Article as Article exposing (Tag)
 import Data.Session exposing (Session)
 import Html exposing (Html, div, text)
 import Html.Attributes as Html
+import Http
 import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
@@ -12,6 +13,7 @@ import Material.Tabs as TabBar
 import Material.Theme as Theme
 import Pages.Errored exposing (PageLoadError, pageLoadError)
 import Process
+import Request.Article
 import Route exposing (Route)
 import SelectList exposing (SelectList)
 import Task exposing (Task)
@@ -24,7 +26,7 @@ import Views.Article.Feed as Feed
         , tagFeed
         , yourFeed
         )
-import Views.Page exposing (Context)
+import Views.Page as Page exposing (Context)
 
 
 -- MODEL
@@ -79,6 +81,29 @@ defaultModel =
     , tags = []
     , feed = Feed.defaultModel
     }
+
+
+init : Session -> Task PageLoadError (Model m)
+init session =
+    let
+        feedSources =
+            if session.user == Nothing then
+                SelectList.singleton globalFeed
+            else
+                SelectList.fromLists [] yourFeed [ globalFeed ]
+
+        loadTags =
+            Request.Article.tags
+                |> Http.toTask
+
+        loadSources =
+            Feed.init session feedSources
+
+        handleLoadError _ =
+            pageLoadError Page.Home "Homepage is currently unavailable."
+    in
+    Task.map2 (Model Material.defaultModel "" (Loaded Cats)) loadTags loadSources
+        |> Task.mapError handleLoadError
 
 
 update : (Msg m -> m) -> Msg m -> Model m -> ( Model m, Cmd m )

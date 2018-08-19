@@ -13,7 +13,7 @@ import Navigation exposing (Location)
 import Pages.Article as Article
 import Pages.Article.Editor as Editor
 import Pages.Errored as Errored exposing (PageLoadError)
-import Pages.Home exposing (Model, Msg(Mdc), defaultModel, update, view)
+import Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Profile as Profile
@@ -112,7 +112,9 @@ type Msg
     | ToolbarMsg (Views.Toolbar.Msg Msg)
     | DrawerMsg (Views.Drawer.Msg Msg)
     | HomeMsg (Pages.Home.Msg Msg)
-    | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
+      -- | HomeLoaded (Result PageLoadError Home.Model)
+      -- | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
+    | HomeLoaded (Result PageLoadError (Pages.Home.Model Msg))
     | LoginMsg (Pages.Login.Msg Msg)
     | OtherMsg (Pages.Other.Msg Msg)
     | OtherLoaded (Result ErrorMsg (Pages.Other.Model Msg))
@@ -213,11 +215,15 @@ update msg model =
             ( { model | home = home }, effects )
 
         HomeLoaded (Ok home) ->
-            ( { model | error = "", pageState = Loaded Home }, Cmd.none )
+            ( { model | home = home, pageState = Loaded Home }, Cmd.none )
 
         HomeLoaded (Err error) ->
-            ( { model | error = error, pageState = Loaded Home }, Cmd.none )
+            ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
+        -- ( HomeLoaded (Ok subModel), _ ) ->
+        --     { model | pageState = Loaded (Home subModel) } => Cmd.none
+        -- ( HomeLoaded (Err error), _ ) ->
+        --     { model | pageState = Loaded (Errored error) } => Cmd.none
         LoginMsg msg_ ->
             let
                 ( login, effects ) =
@@ -293,11 +299,12 @@ setRoute maybeRoute model =
             ( model, Cmd.none )
 
         Just Route.Home ->
-            transition HomeLoaded
-                (Task.map
-                    (\_ -> model.home)
-                    (Process.sleep (Time.second * 2))
-                )
+            -- transition HomeLoaded
+            --     (Task.map
+            --         (\_ -> model.home)
+            --         (Process.sleep (Time.second * 2))
+            --     )
+            transition HomeLoaded (Pages.Home.init model.session)
 
         Just Route.NewArticle ->
             case model.session.user of
