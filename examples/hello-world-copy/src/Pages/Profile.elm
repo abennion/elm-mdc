@@ -92,16 +92,18 @@ view lift context model =
         _ =
             Debug.log "Profile.view" session
     in
-    div [ class "profile-page" ]
-        [ -- Errors.view DismissErrors model.errors
-          div [ class "user-info" ]
-            [ div [ class "container" ]
-                [ div [ class "row" ]
-                    [ viewProfileInfo lift isMyProfile profile ]
+    context.body "Home"
+        [ div [ class "profile-page" ]
+            [ -- Errors.view DismissErrors model.errors
+              div [ class "user-info" ]
+                [ div [ class "container" ]
+                    [ div [ class "row" ]
+                        [ viewProfileInfo lift isMyProfile profile ]
+                    ]
                 ]
+            , div [ class "container" ]
+                [ div [ class "row" ] [ viewFeed lift model.feed ] ]
             ]
-        , div [ class "container" ]
-            [ div [ class "row" ] [ viewFeed lift model.feed ] ]
         ]
 
 
