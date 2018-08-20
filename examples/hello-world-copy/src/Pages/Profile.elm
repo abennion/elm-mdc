@@ -103,6 +103,10 @@ view lift context model =
 
 viewProfileInfo : (Msg m -> m) -> Bool -> Profile -> Html m
 viewProfileInfo lift isMyProfile profile =
+    let
+        _ =
+            Debug.log "Feed.viewProfileInfo" ""
+    in
     div [ class "col-xs-12 col-md-10 offset-md-1" ]
         [ img [ class "user-img", UserPhoto.src profile.image ] []
         , h4 [] [ User.usernameToHtml profile.username ]
@@ -113,6 +117,10 @@ viewProfileInfo lift isMyProfile profile =
 
 viewFeed : (Msg m -> m) -> Feed.Model -> Html m
 viewFeed lift feed =
+    let
+        _ =
+            Debug.log "Profile.viewFeed" ""
+    in
     div [ class "col-xs-12 col-md-10 offset-md-1" ] <|
         div [ class "articles-toggle" ]
             [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]

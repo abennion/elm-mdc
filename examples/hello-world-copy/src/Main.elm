@@ -274,24 +274,6 @@ update msg model =
         ( Click, _ ) ->
             ( model, Cmd.none )
 
-        -- ( ProfileMsg msg_, Profile username subModel ) ->
-        --     let
-        --         ( profile, effects ) =
-        --             Pages.Profile.update ProfileMsg msg_ model.session subModel
-        --     in
-        --     ( { model | profile = profile }, effects )
-        -- update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( Model m, Cmd m )
-        -- update lift msg session model =
-        -- toPage toModel toMsg subUpdate subMsg subModel =
-        --     let
-        --         ( newModel, newCmd ) =
-        --             subUpdate subMsg subModel
-        --     in
-        --     ( { model | pageState = Loaded (toModel newModel) }
-        --     , Cmd.map toMsg newCmd
-        --     )
-        -- ( ProfileMsg msg_, Profile username model_ ) ->
-        --     toPage (Profile username) ProfileMsg (Pages.Profile.update model.session) msg_ model_
         ( ProfileMsg msg_, Profile username model_ ) ->
             let
                 ( profile, effects ) =
@@ -302,8 +284,6 @@ update msg model =
         ( ProfileLoaded username (Ok profile), _ ) ->
             ( { model
                 | pageState = Loaded (Profile username profile)
-
-                -- , profile = profile
               }
             , Cmd.none
             )

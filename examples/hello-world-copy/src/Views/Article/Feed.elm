@@ -90,23 +90,66 @@ init session feedSources =
 
 
 -- VIEW --
+-- styled Html.div
+--     [ Theme.secondary
+--     ]
+--     [ TabBar.view (lift << Mdc)
+--         "my-tab-bar"
+--         model.mdc
+--         [ TabBar.indicator
+--         , TabBar.scrolling
+--         , Theme.secondary
+--         ]
+--         [ TabBar.tab
+--             [ Options.onClick (lift (SelectTab (Just Cats)))
+--             ]
+--             [ text "Item One" ]
+--         , TabBar.tab
+--             [ Options.onClick (lift (SelectTab (Just Dogs)))
+--             ]
+--             [ text "Item Two" ]
+--         , TabBar.tab [ Theme.secondary ] [ text "Item Three" ]
+--         , TabBar.tab [] [ text "Item Four" ]
+--         , TabBar.tab [] [ text "Item Five" ]
+--         , TabBar.tab [] [ text "Item Six" ]
+--         , TabBar.tab [] [ text "Item Seven" ]
+--         , TabBar.tab [] [ text "Item Eight" ]
+--         , TabBar.tab [] [ text "Item Nine" ]
+--         ]
+--     ]
 
 
 viewArticles : Model -> List (Html Msg)
 viewArticles (Model { activePage, feed, feedSources }) =
+    let
+        _ =
+            Debug.log "Feed.viewArticles" ""
+    in
     List.map (Views.Article.view ToggleFavorite) feed.articles
         ++ [ pagination activePage feed (SelectList.selected feedSources) ]
 
 
 viewFeedSources : Model -> Html Msg
 viewFeedSources (Model { feedSources, isLoading, errors }) =
+    let
+        _ =
+            Debug.log "Feed.viewFeedSources" ""
+    in
     ul [ class "nav nav-pills outline-active" ] <|
         SelectList.toList (SelectList.mapBy viewFeedSource feedSources)
             ++ [ Errors.view DismissErrors errors, viewIf isLoading spinner ]
 
 
+
+-- build out our tabs in this thing
+
+
 viewFeedSource : Position -> FeedSource -> Html Msg
 viewFeedSource position source =
+    let
+        _ =
+            Debug.log "Feed.viewFeedSource" ""
+    in
     li [ class "nav-item" ]
         [ a
             [ classList [ "nav-link" => True, "active" => position == Selected ]
@@ -216,7 +259,7 @@ update session msg (Model internalModel) =
 
 updateInternal : Session -> Msg -> InternalModel -> ( InternalModel, Cmd Msg )
 updateInternal session msg model =
-    case msg of
+    case Debug.log "Feed.updateInternal msg" msg of
         DismissErrors ->
             { model | errors = [] } => Cmd.none
 
