@@ -63,7 +63,7 @@ type Page
     | Settings
     | Login
     | Register
-    | Profile Username
+    | Profile Username (Pages.Profile.Model Msg)
     | Article
     | Editor (Maybe Slug)
     | Other
@@ -88,7 +88,8 @@ type alias Model =
     , home : Pages.Home.Model Msg
     , login : Pages.Login.Model Msg
     , other : Pages.Other.Model Msg
-    , profile : Pages.Profile.Model Msg
+
+    -- , profile : Pages.Profile.Model Msg
     }
 
 
@@ -103,7 +104,8 @@ defaultModel =
     , home = Pages.Home.defaultModel
     , login = Pages.Login.defaultModel
     , other = Pages.Other.defaultModel
-    , profile = Pages.Profile.defaultModel
+
+    -- , profile = Pages.Profile.defaultModel
     }
 
 
@@ -162,17 +164,32 @@ decodeUserFromJson json =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
+        page =
+            getPage model.pageState
+
         session =
             model.session
+
+        toPage toModel toMsg subUpdate subMsg subModel =
+            let
+                ( newModel, newCmd ) =
+                    subUpdate subMsg subModel
+            in
+            ( { model | pageState = Loaded (toModel newModel) }
+            , Cmd.map toMsg newCmd
+            )
+
+        errored =
+            pageErrored model
     in
-    case Debug.log "Main.update msg" msg of
-        Mdc msg_ ->
+    case ( msg, page ) of
+        ( Mdc msg_, _ ) ->
             Material.update Mdc msg_ model
 
-        SetRoute route ->
+        ( SetRoute route, _ ) ->
             setRoute route model
 
-        SetUser user ->
+        ( SetUser user, _ ) ->
             let
                 cmd =
                     if session.user /= Nothing && user == Nothing then
@@ -182,7 +199,7 @@ update msg model =
             in
             ( { model | session = { session | user = user } }, cmd )
 
-        ToolbarMsg msg_ ->
+        ( ToolbarMsg msg_, _ ) ->
             let
                 ( toolbar, effects ) =
                     Views.Toolbar.update ToolbarMsg msg_ model.toolbar
@@ -203,27 +220,27 @@ update msg model =
             , Cmd.batch [ effects, drawerEffects ]
             )
 
-        DrawerMsg msg_ ->
+        ( DrawerMsg msg_, _ ) ->
             let
                 ( drawer, effects ) =
                     Views.Drawer.update DrawerMsg msg_ model.drawer
             in
             ( { model | drawer = drawer }, effects )
 
-        HomeMsg msg_ ->
+        ( HomeMsg msg_, _ ) ->
             let
                 ( home, effects ) =
                     Pages.Home.update HomeMsg msg_ model.session model.home
             in
             ( { model | home = home }, effects )
 
-        HomeLoaded (Ok home) ->
+        ( HomeLoaded (Ok home), _ ) ->
             ( { model | home = home, pageState = Loaded Home }, Cmd.none )
 
-        HomeLoaded (Err error) ->
+        ( HomeLoaded (Err error), _ ) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
-        LoginMsg msg_ ->
+        ( LoginMsg msg_, _ ) ->
             let
                 ( login, effects ) =
                     Pages.Login.update LoginMsg msg_ model.login
@@ -241,51 +258,79 @@ update msg model =
                 _ ->
                     ( { model | login = login }, effects )
 
-        OtherMsg msg_ ->
+        ( OtherMsg msg_, _ ) ->
             let
                 ( other, effects ) =
                     Pages.Other.update OtherMsg msg_ model.other
             in
             ( { model | other = other }, effects )
 
-        OtherLoaded (Ok home) ->
+        ( OtherLoaded (Ok home), _ ) ->
             ( { model | error = "", pageState = Loaded Other }, Cmd.none )
 
-        OtherLoaded (Err error) ->
+        ( OtherLoaded (Err error), _ ) ->
             ( { model | error = error, pageState = Loaded Other }, Cmd.none )
 
-        Click ->
+        ( Click, _ ) ->
             ( model, Cmd.none )
 
-        ProfileMsg msg_ ->
+        -- ( ProfileMsg msg_, Profile username subModel ) ->
+        --     let
+        --         ( profile, effects ) =
+        --             Pages.Profile.update ProfileMsg msg_ model.session subModel
+        --     in
+        --     ( { model | profile = profile }, effects )
+        -- update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( Model m, Cmd m )
+        -- update lift msg session model =
+        -- toPage toModel toMsg subUpdate subMsg subModel =
+        --     let
+        --         ( newModel, newCmd ) =
+        --             subUpdate subMsg subModel
+        --     in
+        --     ( { model | pageState = Loaded (toModel newModel) }
+        --     , Cmd.map toMsg newCmd
+        --     )
+        -- ( ProfileMsg msg_, Profile username model_ ) ->
+        --     toPage (Profile username) ProfileMsg (Pages.Profile.update model.session) msg_ model_
+        ( ProfileMsg msg_, Profile username model_ ) ->
             let
                 ( profile, effects ) =
-                    Pages.Profile.update ProfileMsg msg_ model.session model.profile
+                    Pages.Profile.update ProfileMsg msg_ model.session model_
             in
-            ( { model | profile = profile }, effects )
+            ( { model | pageState = Loaded (Profile username profile) }, effects )
 
-        ProfileLoaded username (Ok profile) ->
+        ( ProfileLoaded username (Ok profile), _ ) ->
             ( { model
-                | pageState = Loaded (Profile username)
-                , profile = profile
+                | pageState = Loaded (Profile username profile)
+
+                -- , profile = profile
               }
             , Cmd.none
             )
 
-        ProfileLoaded username (Err error) ->
+        ( ProfileLoaded username (Err error), _ ) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
-        ArticleLoaded (Ok article) ->
+        ( ArticleLoaded (Ok article), _ ) ->
             ( { model | pageState = Loaded Article }, Cmd.none )
 
-        ArticleLoaded (Err error) ->
+        ( ArticleLoaded (Err error), _ ) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
-        EditArticleLoaded slug (Ok subModel) ->
+        ( EditArticleLoaded slug (Ok subModel), _ ) ->
             ( { model | pageState = Loaded (Editor (Just slug)) }, Cmd.none )
 
-        EditArticleLoaded slug (Err error) ->
+        ( EditArticleLoaded slug (Err error), _ ) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
+
+        ( _, NotFound ) ->
+            -- Disregard incoming messages when we're on the
+            -- NotFound page.
+            ( model, Cmd.none )
+
+        ( _, _ ) ->
+            -- Disregard incoming messages that arrived for the wrong page
+            ( model, Cmd.none )
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -482,8 +527,8 @@ viewPage model isLoading page =
         Login ->
             Pages.Login.view LoginMsg pageContext model.login
 
-        Profile username ->
-            Pages.Profile.view ProfileMsg pageContext model.profile
+        Profile username profile ->
+            Pages.Profile.view ProfileMsg pageContext profile
 
         Other ->
             Pages.Other.view OtherMsg pageContext model.other

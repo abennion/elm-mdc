@@ -69,12 +69,6 @@ init session username =
         |> Task.mapError handleLoadError
 
 
-
--- VIEW
--- view : (Msg m -> m) -> Msg m -> Session -> Model m -> Html m
--- view lift msg session model =
-
-
 view : (Msg m -> m) -> Context m -> Model m -> Html m
 view lift context model =
     let
@@ -135,11 +129,6 @@ type Msg m
     | ToggleFollow
     | FollowCompleted (Result Http.Error Profile)
     | FeedMsg Feed.Msg
-
-
-
--- update : Session -> Msg -> Model -> ( Model, Cmd Msg )
--- update session msg model =
 
 
 update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( Model m, Cmd m )
