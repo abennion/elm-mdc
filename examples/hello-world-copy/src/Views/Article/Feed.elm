@@ -20,7 +20,8 @@ import Data.Article as Article exposing (Article, Tag)
 import Data.Article.Feed exposing (Feed)
 import Data.AuthToken exposing (AuthToken)
 import Data.Session exposing (Session)
-import Data.User exposing (Username)
+import Data.User as User exposing (Username)
+import Data.UserPhoto as UserPhoto exposing (UserPhoto, photoToUrl)
 import Dom.Scroll
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, src)
@@ -29,6 +30,7 @@ import Http
 import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
+import Material.List as Lists
 import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Tabs as TabBar
 import Material.Theme as Theme
@@ -106,9 +108,75 @@ viewArticles lift (Model { activePage, feed, feedSources }) =
     let
         _ =
             Debug.log "Feed.viewArticles" ""
+
+        articleList items =
+            Lists.ul
+                [ Lists.avatarList
+                ]
+                items
     in
-    List.map (Views.Article.view (lift << ToggleFavorite)) feed.articles
+    [ articleList (List.map (viewArticle (lift << ToggleFavorite)) feed.articles) ]
         ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
+
+
+
+-- div
+--     [ class "article-preview" ]
+--     [ div [ class "article-meta" ]
+--         [ a [ Route.href (Route.Profile author.username) ]
+--             [ img [ UserPhoto.src author.image ] [] ]
+--         , div [ class "info" ]
+--             [ Views.Author.view author.username
+--             , viewTimestamp article
+--             ]
+--         , Favorite.button
+--             toggleFavorite
+--             article
+--             [ class "pull-xs-right" ]
+--             [ text (" " ++ toString article.favoritesCount) ]
+--         ]
+--     , a [ class "preview-link", Route.href (Route.Article article.slug) ]
+--         [ h1 [] [ text article.title ]
+--         , p [] [ text article.description ]
+--         , span [] [ text "Read more..." ]
+--         ]
+--     ]
+
+
+viewArticle : (Article a -> m) -> Article a -> Html m
+viewArticle toggleFavorite article =
+    let
+        author =
+            article.author
+
+        item src primary secondary icon =
+            let
+                -- url =
+                --     "images/" ++ src
+                url =
+                    src
+            in
+            Lists.li []
+                [ Lists.graphicImage [] url
+                , Lists.text []
+                    [ Html.text primary
+                    , Lists.secondaryText []
+                        [ Html.text secondary
+                        ]
+                    ]
+                , Lists.metaIcon
+                    [ css "text-decoration" "none"
+                    , css "color" "#ff4081"
+                    ]
+                    icon
+                ]
+    in
+    -- item "animal3.svg" "Brown Bear" "Jan 9, 2014" "favorite"
+    -- item "animal1.svg" "Panda" "Jan 9, 2014" "favorite_border"
+    item (UserPhoto.photoToUrl author.image)
+        (User.usernameToString author.username)
+        (toString article.createdAt)
+        "favorite"
 
 
 viewFeedSources : (Msg m -> m) -> Model m -> Html m

@@ -46,8 +46,7 @@ view toggleFavorite article =
     in
     div
         [ class "article-preview" ]
-        [ avatarWithTextAndIconExample
-        , div [ class "article-meta" ]
+        [ div [ class "article-meta" ]
             [ a [ Route.href (Route.Profile author.username) ]
                 [ img [ UserPhoto.src author.image ] [] ]
             , div [ class "info" ]
@@ -100,63 +99,61 @@ avatarWithTextAndIconExample =
         ]
 
 
-twoLineAvatarPlusTextPlusIconExample : Html m
-twoLineAvatarPlusTextPlusIconExample =
-    let
-        item primary secondary =
-            Lists.li []
-                [ Lists.graphic []
-                    [ Icon.view [] "favorite"
-                    ]
-                , Lists.text []
-                    [ Html.text primary
-                    , Lists.secondaryText []
-                        [ Html.text secondary
-                        ]
-                    ]
-                , Lists.metaIcon [] "info"
-                ]
-    in
-    styled Html.div
-        [ css "min-width" "340px"
-        , css "max-width" "600px"
-        ]
-        [ Html.node "style"
-            [ type_ "text/css"
-            ]
-            [ Html.text """
-#two-line-avatar-text-icon-demo .mdc-list-item__start-detail {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  background-color: rgba(0,0,0,.26);
-}
-#two-line-avatar-text-icon-demo .mdc-list-item__end-detail {
-  color: rgba(0,0,0,.26);
-}
-.mdc-theme--dark #two-line-avatar-text-icon-demo .mdc-list-item__start-detail {
-  color: #303030;
-  background-color: rgba(255,255,255,.7);
-}
-.mdc-theme--dark #two-line-avatar-text-icon-demo .mdc-list-item__end-detail {
-  color: rgba(255,255,255,.7);
-}
-"""
-            ]
-        , Lists.ul
-            [ Lists.twoLine
-            , Lists.avatarList
-            , Options.attribute (id "two-line-avatar-text-icon-demo")
-            ]
-            [ item "Photos" "Jan 9, 2014"
-            , item "Recipes" "Jan 17, 2014"
-            , item "Work" "Jan 28, 2014"
-            ]
-        ]
 
-
-
+-- twoLineAvatarPlusTextPlusIconExample : Html m
+-- twoLineAvatarPlusTextPlusIconExample =
+--     let
+--         item primary secondary =
+--             Lists.li []
+--                 [ Lists.graphic []
+--                     [ Icon.view [] "favorite"
+--                     ]
+--                 , Lists.text []
+--                     [ Html.text primary
+--                     , Lists.secondaryText []
+--                         [ Html.text secondary
+--                         ]
+--                     ]
+--                 , Lists.metaIcon [] "info"
+--                 ]
+--     in
+--     styled Html.div
+--         [ css "min-width" "340px"
+--         , css "max-width" "600px"
+--         ]
+--         [ Html.node "style"
+--             [ type_ "text/css"
+--             ]
+--             [ Html.text """
+-- #two-line-avatar-text-icon-demo .mdc-list-item__start-detail {
+--   display: inline-flex;
+--   justify-content: center;
+--   align-items: center;
+--   color: white;
+--   background-color: rgba(0,0,0,.26);
+-- }
+-- #two-line-avatar-text-icon-demo .mdc-list-item__end-detail {
+--   color: rgba(0,0,0,.26);
+-- }
+-- .mdc-theme--dark #two-line-avatar-text-icon-demo .mdc-list-item__start-detail {
+--   color: #303030;
+--   background-color: rgba(255,255,255,.7);
+-- }
+-- .mdc-theme--dark #two-line-avatar-text-icon-demo .mdc-list-item__end-detail {
+--   color: rgba(255,255,255,.7);
+-- }
+-- """
+--             ]
+--         , Lists.ul
+--             [ Lists.twoLine
+--             , Lists.avatarList
+--             , Options.attribute (id "two-line-avatar-text-icon-demo")
+--             ]
+--             [ item "Photos" "Jan 9, 2014"
+--             , item "Recipes" "Jan 17, 2014"
+--             , item "Work" "Jan 28, 2014"
+--             ]
+--         ]
 -- INTERNAL --
 
 
