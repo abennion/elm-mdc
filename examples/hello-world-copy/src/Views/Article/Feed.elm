@@ -27,6 +27,11 @@ import Html.Attributes exposing (attribute, class, classList, href, id, placehol
 import Html.Events exposing (onClick)
 import Http
 import Material
+import Material.Button as Button
+import Material.LinearProgress as LinearProgress
+import Material.Options as Options exposing (cs, css, styled, when)
+import Material.Tabs as TabBar
+import Material.Theme as Theme
 import Request.Article
 import SelectList exposing (Position(..), SelectList)
 import Task exposing (Task)
@@ -93,7 +98,21 @@ init session feedSources =
 
 
 
--- VIEW --
+-- VIEW
+
+
+viewArticles : (Msg m -> m) -> Model m -> List (Html m)
+viewArticles lift (Model { activePage, feed, feedSources }) =
+    let
+        _ =
+            Debug.log "Feed.viewArticles" ""
+    in
+    List.map (Views.Article.view (lift << ToggleFavorite)) feed.articles
+        ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
+
+
+
+--
 -- styled Html.div
 --     [ Theme.secondary
 --     ]
@@ -123,45 +142,68 @@ init session feedSources =
 --     ]
 
 
-viewArticles : (Msg m -> m) -> Model m -> List (Html m)
-viewArticles lift (Model { activePage, feed, feedSources }) =
-    let
-        _ =
-            Debug.log "Feed.viewArticles" ""
-    in
-    List.map (Views.Article.view (lift << ToggleFavorite)) feed.articles
-        ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
-
-
 viewFeedSources : (Msg m -> m) -> Model m -> Html m
-viewFeedSources lift (Model { feedSources, isLoading, errors }) =
+viewFeedSources lift (Model internalModel) =
     let
         _ =
             Debug.log "Feed.viewFeedSources" ""
+
+        feedSources =
+            internalModel.feedSources
+
+        isLoading =
+            internalModel.isLoading
+
+        errors =
+            internalModel.errors
+
+        spinner isLoading =
+            case isLoading of
+                True ->
+                    LinearProgress.view
+                        [ LinearProgress.buffered 0.0 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        ]
+                        []
+
+                False ->
+                    LinearProgress.view
+                        [ cs "demo-linear-progress--custom"
+                        , cs "mdc-linear-progress--closed"
+                        ]
+                        []
     in
-    ul [ class "nav nav-pills outline-active" ] <|
-        SelectList.toList (SelectList.mapBy (viewFeedSource lift) feedSources)
-            ++ [ Errors.view (lift DismissErrors) errors, viewIf isLoading spinner ]
+    -- ul [ class "nav nav-pills outline-active" ] <|
+    --     SelectList.toList (SelectList.mapBy (viewFeedSource lift) feedSources)
+    --         ++ [ Errors.view (lift DismissErrors) errors, viewIf isLoading spinner ]
+    styled Html.div
+        [ Theme.secondary
+        ]
+        [ TabBar.view (lift << Mdc)
+            "my-tab-bar"
+            internalModel.mdc
+            [ TabBar.indicator
+            , TabBar.scrolling
+            , Theme.secondary
+            ]
+            (SelectList.toList
+                (SelectList.mapBy (viewFeedSource lift) feedSources)
+            )
+        , spinner isLoading
+        ]
 
 
-
--- build out our tabs in this thing
-
-
-viewFeedSource : (Msg m -> m) -> Position -> FeedSource -> Html m
+viewFeedSource : (Msg m -> m) -> Position -> FeedSource -> TabBar.Tab m
 viewFeedSource lift position source =
     let
         _ =
             Debug.log "Feed.viewFeedSource" ""
     in
-    li [ class "nav-item" ]
-        [ a
-            [ classList [ "nav-link" => True, "active" => position == Selected ]
-            , href "javascript:void(0);"
-            , onClick (lift (SelectFeedSource source))
-            ]
-            [ text (sourceName source) ]
+    TabBar.tab
+        [ Options.onClick (lift (SelectFeedSource source))
         ]
+        [ text (sourceName source) ]
 
 
 selectTag : (Msg m -> m) -> Maybe AuthToken -> Tag -> Cmd m
