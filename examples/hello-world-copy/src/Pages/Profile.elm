@@ -30,7 +30,7 @@ type alias Model m =
     { mdc : Material.Model m
     , errors : List String
     , profile : Profile
-    , feed : Feed.Model
+    , feed : Feed.Model m
     }
 
 
@@ -115,7 +115,7 @@ viewProfileInfo lift isMyProfile profile =
         ]
 
 
-viewFeed : (Msg m -> m) -> Feed.Model -> Html m
+viewFeed : (Msg m -> m) -> Feed.Model m -> Html m
 viewFeed lift feed =
     let
         _ =
@@ -123,8 +123,10 @@ viewFeed lift feed =
     in
     div [ class "col-xs-12 col-md-10 offset-md-1" ] <|
         div [ class "articles-toggle" ]
-            [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]
-            :: (Feed.viewArticles feed |> List.map (Html.map (lift << FeedMsg)))
+            -- [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]
+            -- :: (Feed.viewArticles feed |> List.map (Html.map (lift << FeedMsg)))
+            [ Feed.viewFeedSources (lift << FeedMsg) feed ]
+            :: Feed.viewArticles (lift << FeedMsg) feed
 
 
 
@@ -136,7 +138,7 @@ type Msg m
     | DismissErrors
     | ToggleFollow
     | FollowCompleted (Result Http.Error Profile)
-    | FeedMsg Feed.Msg
+    | FeedMsg (Feed.Msg m)
 
 
 update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( Model m, Cmd m )
@@ -175,9 +177,10 @@ update lift msg session model =
         FeedMsg subMsg ->
             let
                 ( newFeed, subCmd ) =
-                    Feed.update session subMsg model.feed
+                    Feed.update (lift << FeedMsg) session subMsg model.feed
             in
-            { model | feed = newFeed } => Cmd.map (lift << FeedMsg) subCmd
+            -- { model | feed = newFeed } => Cmd.map (lift << FeedMsg) subCmd
+            { model | feed = newFeed } => subCmd
 
 
 followButton : (Msg m -> m) -> Profile -> Html m

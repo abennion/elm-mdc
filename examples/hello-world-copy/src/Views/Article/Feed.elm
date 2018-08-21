@@ -26,6 +26,7 @@ import Html exposing (..)
 import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, src)
 import Html.Events exposing (onClick)
 import Http
+import Material
 import Request.Article
 import SelectList exposing (Position(..), SelectList)
 import Task exposing (Task)
@@ -39,16 +40,17 @@ import Views.Spinner exposing (spinner)
 -- MODEL --
 
 
-type Model
-    = Model InternalModel
+type Model m
+    = Model (InternalModel m)
 
 
 {-| This should not be exposed! We want to benefit from the guarantee that only
 this module can create or alter this model. This way if it ever ends up in
 a surprising state, we know exactly where to look: this file.
 -}
-type alias InternalModel =
-    { errors : List String
+type alias InternalModel m =
+    { mdc : Material.Model m
+    , errors : List String
     , feed : Feed
     , feedSources : SelectList FeedSource
     , activePage : Int
@@ -56,10 +58,11 @@ type alias InternalModel =
     }
 
 
-defaultModel : Model
+defaultModel : Model m
 defaultModel =
     Model
         (InternalModel
+            Material.defaultModel
             []
             (Feed [] 0)
             (SelectList.singleton globalFeed)
@@ -68,7 +71,7 @@ defaultModel =
         )
 
 
-init : Session -> SelectList FeedSource -> Task Http.Error Model
+init : Session -> SelectList FeedSource -> Task Http.Error (Model m)
 init session feedSources =
     let
         source =
@@ -76,7 +79,8 @@ init session feedSources =
 
         toModel ( activePage, feed ) =
             Model
-                { errors = []
+                { mdc = Material.defaultModel
+                , errors = []
                 , activePage = activePage
                 , feed = feed
                 , feedSources = feedSources
@@ -119,33 +123,33 @@ init session feedSources =
 --     ]
 
 
-viewArticles : Model -> List (Html Msg)
-viewArticles (Model { activePage, feed, feedSources }) =
+viewArticles : (Msg m -> m) -> Model m -> List (Html m)
+viewArticles lift (Model { activePage, feed, feedSources }) =
     let
         _ =
             Debug.log "Feed.viewArticles" ""
     in
-    List.map (Views.Article.view ToggleFavorite) feed.articles
-        ++ [ pagination activePage feed (SelectList.selected feedSources) ]
+    List.map (Views.Article.view (lift << ToggleFavorite)) feed.articles
+        ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
 
 
-viewFeedSources : Model -> Html Msg
-viewFeedSources (Model { feedSources, isLoading, errors }) =
+viewFeedSources : (Msg m -> m) -> Model m -> Html m
+viewFeedSources lift (Model { feedSources, isLoading, errors }) =
     let
         _ =
             Debug.log "Feed.viewFeedSources" ""
     in
     ul [ class "nav nav-pills outline-active" ] <|
-        SelectList.toList (SelectList.mapBy viewFeedSource feedSources)
-            ++ [ Errors.view DismissErrors errors, viewIf isLoading spinner ]
+        SelectList.toList (SelectList.mapBy (viewFeedSource lift) feedSources)
+            ++ [ Errors.view (lift DismissErrors) errors, viewIf isLoading spinner ]
 
 
 
 -- build out our tabs in this thing
 
 
-viewFeedSource : Position -> FeedSource -> Html Msg
-viewFeedSource position source =
+viewFeedSource : (Msg m -> m) -> Position -> FeedSource -> Html m
+viewFeedSource lift position source =
     let
         _ =
             Debug.log "Feed.viewFeedSource" ""
@@ -154,21 +158,21 @@ viewFeedSource position source =
         [ a
             [ classList [ "nav-link" => True, "active" => position == Selected ]
             , href "javascript:void(0);"
-            , onClick (SelectFeedSource source)
+            , onClick (lift (SelectFeedSource source))
             ]
             [ text (sourceName source) ]
         ]
 
 
-selectTag : Maybe AuthToken -> Tag -> Cmd Msg
-selectTag maybeAuthToken tagName =
+selectTag : (Msg m -> m) -> Maybe AuthToken -> Tag -> Cmd m
+selectTag lift maybeAuthToken tagName =
     let
         source =
             tagFeed tagName
     in
     source
         |> fetch maybeAuthToken 1
-        |> Task.attempt (FeedLoadCompleted source)
+        |> Task.attempt (lift << FeedLoadCompleted source)
 
 
 sourceName : FeedSource -> String
@@ -209,8 +213,8 @@ limit feedSource =
             5
 
 
-pagination : Int -> Feed -> FeedSource -> Html Msg
-pagination activePage feed feedSource =
+pagination : (Msg m -> m) -> Int -> Feed -> FeedSource -> Html m
+pagination lift activePage feed feedSource =
     let
         articlesPerPage =
             limit feedSource
@@ -220,19 +224,19 @@ pagination activePage feed feedSource =
     in
     if totalPages > 1 then
         List.range 1 totalPages
-            |> List.map (\page -> pageLink page (page == activePage))
+            |> List.map (\page -> pageLink lift page (page == activePage))
             |> ul [ class "pagination" ]
     else
         Html.text ""
 
 
-pageLink : Int -> Bool -> Html Msg
-pageLink page isActive =
+pageLink : (Msg m -> m) -> Int -> Bool -> Html m
+pageLink lift page isActive =
     li [ classList [ "page-item" => True, "active" => isActive ] ]
         [ a
             [ class "page-link"
             , href "javascript:void(0);"
-            , onClick (SelectPage page)
+            , onClick (lift (SelectPage page))
             ]
             [ text (toString page) ]
         ]
@@ -242,8 +246,9 @@ pageLink page isActive =
 -- UPDATE --
 
 
-type Msg
-    = DismissErrors
+type Msg m
+    = Mdc (Material.Msg m)
+    | DismissErrors
     | SelectFeedSource FeedSource
     | FeedLoadCompleted FeedSource (Result Http.Error ( Int, Feed ))
     | ToggleFavorite (Article ())
@@ -251,22 +256,25 @@ type Msg
     | SelectPage Int
 
 
-update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update session msg (Model internalModel) =
-    updateInternal session msg internalModel
+update : (Msg m -> m) -> Session -> Msg m -> Model m -> ( Model m, Cmd m )
+update lift session msg (Model internalModel) =
+    updateInternal lift session msg internalModel
         |> Tuple.mapFirst Model
 
 
-updateInternal : Session -> Msg -> InternalModel -> ( InternalModel, Cmd Msg )
-updateInternal session msg model =
+updateInternal : (Msg m -> m) -> Session -> Msg m -> InternalModel m -> ( InternalModel m, Cmd m )
+updateInternal lift session msg model =
     case Debug.log "Feed.updateInternal msg" msg of
+        Mdc msg_ ->
+            Material.update (lift << Mdc) msg_ model
+
         DismissErrors ->
-            { model | errors = [] } => Cmd.none
+            ( { model | errors = [] }, Cmd.none )
 
         SelectFeedSource source ->
             source
                 |> fetch (Maybe.map .token session.user) 1
-                |> Task.attempt (FeedLoadCompleted source)
+                |> Task.attempt (lift << FeedLoadCompleted source)
                 |> pair { model | isLoading = True }
 
         FeedLoadCompleted source (Ok ( activePage, feed )) ->
@@ -279,21 +287,23 @@ updateInternal session msg model =
                 => Cmd.none
 
         FeedLoadCompleted _ (Err error) ->
-            { model
+            ( { model
                 | errors = model.errors ++ [ "Server error while trying to load feed" ]
                 , isLoading = False
-            }
-                => Cmd.none
+              }
+            , Cmd.none
+            )
 
         ToggleFavorite article ->
             case session.user of
                 Nothing ->
-                    { model | errors = model.errors ++ [ "You are currently signed out. You must sign in to favorite articles." ] }
-                        => Cmd.none
+                    ( { model | errors = model.errors ++ [ "You are currently signed out. You must sign in to favorite articles." ] }
+                    , Cmd.none
+                    )
 
                 Just user ->
                     Request.Article.toggleFavorite article user.token
-                        |> Http.send FavoriteCompleted
+                        |> Http.send (lift << FavoriteCompleted)
                         |> pair model
 
         FavoriteCompleted (Ok article) ->
@@ -318,7 +328,7 @@ updateInternal session msg model =
             source
                 |> fetch (Maybe.map .token session.user) page
                 |> Task.andThen (\feed -> Task.map (\_ -> feed) scrollToTop)
-                |> Task.attempt (FeedLoadCompleted source)
+                |> Task.attempt (lift << FeedLoadCompleted source)
                 |> pair model
 
 

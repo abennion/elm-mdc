@@ -51,7 +51,7 @@ type alias Model m =
     , text : String
     , tabState : TabState
     , tags : List Tag
-    , feed : Feed.Model
+    , feed : Feed.Model m
     }
 
 
@@ -61,7 +61,7 @@ type Msg m
     | SelectTab (Maybe Tab)
     | CatsLoaded (Result ErrorMsg (Model m))
     | DogsLoaded (Result ErrorMsg (Model m))
-    | FeedMsg Feed.Msg
+    | FeedMsg (Feed.Msg m)
     | SelectTag Tag
 
 
@@ -117,16 +117,18 @@ update lift msg session model =
         FeedMsg subMsg ->
             let
                 ( newFeed, subCmd ) =
-                    Feed.update session subMsg model.feed
+                    Feed.update (lift << FeedMsg) session subMsg model.feed
             in
-            ( { model | feed = newFeed }, Cmd.map (lift << FeedMsg) subCmd )
+            -- ( { model | feed = newFeed }, Cmd.map (lift << FeedMsg) subCmd )
+            ( { model | feed = newFeed }, subCmd )
 
         SelectTag tagName ->
             let
                 subCmd =
-                    Feed.selectTag (Maybe.map .token session.user) tagName
+                    Feed.selectTag (lift << FeedMsg) (Maybe.map .token session.user) tagName
             in
-            ( model, Cmd.map (lift << FeedMsg) subCmd )
+            -- ( model, Cmd.map (lift << FeedMsg) subCmd )
+            ( model, subCmd )
 
         Click text ->
             ( { model | text = text }
@@ -310,12 +312,14 @@ viewPage lift context model isLoading tab =
         ]
 
 
-viewFeed : (Msg m -> m) -> Model m -> Feed.Model -> List (Html m)
+viewFeed : (Msg m -> m) -> Model m -> Feed.Model m -> List (Html m)
 viewFeed lift model feed =
     styled Html.div
         [ cs "feed-toggle" ]
-        [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]
-        :: (Feed.viewArticles feed |> List.map (Html.map (lift << FeedMsg)))
+        -- [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]
+        -- :: (Feed.viewArticles feed |> List.map (Html.map (lift << FeedMsg)))
+        [ Feed.viewFeedSources (lift << FeedMsg) feed ]
+        :: Feed.viewArticles (lift << FeedMsg) feed
 
 
 viewTags : (Msg m -> m) -> Model m -> List Tag -> Html m

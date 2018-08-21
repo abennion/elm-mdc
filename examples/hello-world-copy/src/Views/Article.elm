@@ -18,12 +18,12 @@ import Views.Author
 
 {-| Some pages want to view just the timestamp, not the whole article.
 -}
-viewTimestamp : Article a -> Html msg
+viewTimestamp : Article a -> Html m
 viewTimestamp article =
     span [ class "date" ] [ text (formattedTimestamp article) ]
 
 
-view : (Article a -> msg) -> Article a -> Html msg
+view : (Article a -> m) -> Article a -> Html m
 view toggleFavorite article =
     let
         author =
