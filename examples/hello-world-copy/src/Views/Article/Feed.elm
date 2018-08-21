@@ -111,37 +111,6 @@ viewArticles lift (Model { activePage, feed, feedSources }) =
         ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
 
 
-
---
--- styled Html.div
---     [ Theme.secondary
---     ]
---     [ TabBar.view (lift << Mdc)
---         "my-tab-bar"
---         model.mdc
---         [ TabBar.indicator
---         , TabBar.scrolling
---         , Theme.secondary
---         ]
---         [ TabBar.tab
---             [ Options.onClick (lift (SelectTab (Just Cats)))
---             ]
---             [ text "Item One" ]
---         , TabBar.tab
---             [ Options.onClick (lift (SelectTab (Just Dogs)))
---             ]
---             [ text "Item Two" ]
---         , TabBar.tab [ Theme.secondary ] [ text "Item Three" ]
---         , TabBar.tab [] [ text "Item Four" ]
---         , TabBar.tab [] [ text "Item Five" ]
---         , TabBar.tab [] [ text "Item Six" ]
---         , TabBar.tab [] [ text "Item Seven" ]
---         , TabBar.tab [] [ text "Item Eight" ]
---         , TabBar.tab [] [ text "Item Nine" ]
---         ]
---     ]
-
-
 viewFeedSources : (Msg m -> m) -> Model m -> Html m
 viewFeedSources lift (Model internalModel) =
     let
