@@ -29,6 +29,7 @@ import Html.Events exposing (onClick)
 import Http
 import Material
 import Material.Button as Button
+import Material.IconToggle as IconToggle
 import Material.LinearProgress as LinearProgress
 import Material.List as Lists
 import Material.Options as Options exposing (cs, css, styled, when)
@@ -101,13 +102,26 @@ init session feedSources =
 
 
 -- VIEW
+-- viewArticles lift (Model { mdc, activePage, feed, feedSources }) =
 
 
 viewArticles : (Msg m -> m) -> Model m -> List (Html m)
-viewArticles lift (Model { activePage, feed, feedSources }) =
+viewArticles lift model =
     let
         _ =
             Debug.log "Feed.viewArticles" ""
+
+        (Model internalModel) =
+            model
+
+        activePage =
+            internalModel.activePage
+
+        feed =
+            internalModel.feed
+
+        feedSources =
+            internalModel.feedSources
 
         articleList items =
             Lists.ul
@@ -115,7 +129,7 @@ viewArticles lift (Model { activePage, feed, feedSources }) =
                 ]
                 items
     in
-    [ articleList (List.map (viewArticle (lift << ToggleFavorite)) feed.articles) ]
+    [ articleList (List.map (viewArticle lift internalModel (lift << ToggleFavorite)) feed.articles) ]
         ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
 
 
@@ -143,12 +157,25 @@ viewArticles lift (Model { activePage, feed, feedSources }) =
 --     ]
 
 
-viewArticle : (Article a -> m) -> Article a -> Html m
-viewArticle toggleFavorite article =
+viewArticle : (Msg m -> m) -> InternalModel m -> (Article a -> m) -> Article a -> Html m
+viewArticle lift model toggleFavorite article =
     let
         author =
             article.author
 
+        -- iconToggle idx options =
+        --     let
+        --         isOn =
+        --             Dict.get idx model.iconToggles
+        --                 |> Maybe.withDefault False
+        --     in
+        --     IconToggle.view (lift << Mdc)
+        --         idx
+        --         model.mdc
+        --         (Options.onClick (lift (Toggle idx))
+        --             :: when isOn IconToggle.on
+        --             :: options
+        --         )
         item src primary secondary icon =
             let
                 -- url =
@@ -167,8 +194,23 @@ viewArticle toggleFavorite article =
                 , Lists.metaIcon
                     [ css "text-decoration" "none"
                     , css "color" "#ff4081"
+                    , Options.onClick (toggleFavorite article)
                     ]
                     icon
+                , IconToggle.view
+                    (lift << Mdc)
+                    ("favorite-" ++ Article.slugToString article.slug)
+                    model.mdc
+                    [ IconToggle.label
+                        { on = "Remove from Fravorites"
+                        , off = "Add to Favorites"
+                        }
+                    , IconToggle.icon
+                        { on = "favorite"
+                        , off = "favorite_border"
+                        }
+                    ]
+                    []
                 ]
     in
     -- item "animal3.svg" "Brown Bear" "Jan 9, 2014" "favorite"
