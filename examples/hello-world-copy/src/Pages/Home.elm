@@ -5,6 +5,7 @@ import Data.Session exposing (Session)
 import Html exposing (Html, div, text)
 import Http
 import Material
+import Material.Chip as Chip
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Pages.Errored exposing (PageLoadError, pageLoadError)
@@ -262,9 +263,28 @@ viewTags : (Msg m -> m) -> Model m -> List Tag -> Html m
 viewTags lift model tags =
     styled Html.div
         [ cs "tag-list" ]
-        (List.map (viewTag lift model) tags)
+        [ Chip.chipset []
+            (List.map (viewTag lift model) tags)
+        ]
 
 
 viewTag : (Msg m -> m) -> Model m -> Tag -> Html m
 viewTag lift model tagName =
-    Html.text (Article.tagToString tagName)
+    -- a
+    --     [ class "tag-pill tag-default"
+    --     , href "javascript:void(0)"
+    --     , onClick (SelectTag tagName)
+    --     ]
+    --     [ text (Article.tagToString tagName) ]
+    -- Html.text (Article.tagToString tagName)
+    let
+        tag =
+            Article.tagToString tagName
+    in
+    Chip.view (lift << Mdc)
+        ("chip-" ++ tag)
+        model.mdc
+        [ Chip.onClick (lift (SelectTag tagName))
+        ]
+        [ text tag
+        ]
