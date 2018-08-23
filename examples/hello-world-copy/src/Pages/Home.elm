@@ -232,7 +232,7 @@ viewPage lift context model isLoading tab =
             [ css "padding" "24px"
             ]
             [ styled Html.div
-                []
+                [ cs "mdc-theme--on-surface" ]
                 [ styled Html.div
                     []
                     (viewFeed lift model model.feed)
@@ -270,13 +270,6 @@ viewTags lift model tags =
 
 viewTag : (Msg m -> m) -> Model m -> Tag -> Html m
 viewTag lift model tagName =
-    -- a
-    --     [ class "tag-pill tag-default"
-    --     , href "javascript:void(0)"
-    --     , onClick (SelectTag tagName)
-    --     ]
-    --     [ text (Article.tagToString tagName) ]
-    -- Html.text (Article.tagToString tagName)
     let
         tag =
             Article.tagToString tagName

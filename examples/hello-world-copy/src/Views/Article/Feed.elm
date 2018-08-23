@@ -244,8 +244,7 @@ viewFeedSources lift (Model internalModel) =
     --     SelectList.toList (SelectList.mapBy (viewFeedSource lift) feedSources)
     --         ++ [ Errors.view (lift DismissErrors) errors, viewIf isLoading spinner ]
     styled Html.div
-        [ Theme.secondary
-        ]
+        []
         [ TabBar.view (lift << Mdc)
             "my-tab-bar"
             internalModel.mdc
@@ -333,14 +332,21 @@ pagination lift activePage feed feedSource =
     if totalPages > 1 then
         List.range 1 totalPages
             |> List.map (\page -> pageLink lift page (page == activePage))
-            |> ul [ class "pagination" ]
+            |> styled ul
+                [ --class "pagination"
+                  css "list-style" "none"
+                ]
     else
         Html.text ""
 
 
 pageLink : (Msg m -> m) -> Int -> Bool -> Html m
 pageLink lift page isActive =
-    li [ classList [ "page-item" => True, "active" => isActive ] ]
+    styled li
+        [ --classList [ "page-item" => True, "active" => isActive ]
+          css "display" "inline"
+        , css "padding" "4px"
+        ]
         [ a
             [ class "page-link"
             , href "javascript:void(0);"
