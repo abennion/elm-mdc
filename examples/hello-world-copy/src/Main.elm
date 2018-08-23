@@ -42,24 +42,13 @@ import Views.View as View exposing (Context)
 
 
 -- MODEL
--- type Page
---     = Blank
---     | NotFound
---     | Errored PageLoadError
---     | Home Home.Model
---     | Settings Settings.Model
---     | Login Login.Model
---     | Register Register.Model
---     | Profile Username Profile.Model
---     | Article Article.Model
---     | Editor (Maybe Slug) Editor.Model
 
 
 type Page
     = Blank
     | NotFound
     | Errored PageLoadError
-    | Home
+    | Home (Pages.Home.Model Msg)
     | Settings
     | Login
     | Register
@@ -85,11 +74,8 @@ type alias Model =
     , error : ErrorMsg
     , toolbar : Views.Toolbar.Model Msg
     , drawer : Views.Drawer.Model Msg
-    , home : Pages.Home.Model Msg
     , login : Pages.Login.Model Msg
     , other : Pages.Other.Model Msg
-
-    -- , profile : Pages.Profile.Model Msg
     }
 
 
@@ -97,15 +83,12 @@ defaultModel : Model
 defaultModel =
     { mdc = Material.defaultModel
     , session = { user = Nothing }
-    , pageState = Loaded Home
+    , pageState = Loaded Blank
     , error = "nothing"
     , toolbar = Views.Toolbar.defaultModel
     , drawer = Views.Drawer.defaultModel
-    , home = Pages.Home.defaultModel
     , login = Pages.Login.defaultModel
     , other = Pages.Other.defaultModel
-
-    -- , profile = Pages.Profile.defaultModel
     }
 
 
@@ -116,8 +99,6 @@ type Msg
     | ToolbarMsg (Views.Toolbar.Msg Msg)
     | DrawerMsg (Views.Drawer.Msg Msg)
     | HomeMsg (Pages.Home.Msg Msg)
-      -- | HomeLoaded (Result PageLoadError Home.Model)
-      -- | HomeLoaded (Result ErrorMsg (Pages.Home.Model Msg))
     | HomeLoaded (Result PageLoadError (Pages.Home.Model Msg))
     | LoginMsg (Pages.Login.Msg Msg)
     | OtherMsg (Pages.Other.Msg Msg)
@@ -227,15 +208,15 @@ update msg model =
             in
             ( { model | drawer = drawer }, effects )
 
-        ( HomeMsg msg_, _ ) ->
+        ( HomeMsg msg_, Home home_ ) ->
             let
                 ( home, effects ) =
-                    Pages.Home.update HomeMsg msg_ model.session model.home
+                    Pages.Home.update HomeMsg msg_ model.session home_
             in
-            ( { model | home = home }, effects )
+            ( { model | pageState = Loaded (Home home) }, effects )
 
         ( HomeLoaded (Ok home), _ ) ->
-            ( { model | home = home, pageState = Loaded Home }, Cmd.none )
+            ( { model | pageState = Loaded (Home home) }, Cmd.none )
 
         ( HomeLoaded (Err error), _ ) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
@@ -331,11 +312,6 @@ setRoute maybeRoute model =
             ( model, Cmd.none )
 
         Just Route.Home ->
-            -- transition HomeLoaded
-            --     (Task.map
-            --         (\_ -> model.home)
-            --         (Process.sleep (Time.second * 2))
-            --     )
             transition HomeLoaded (Pages.Home.init model.session)
 
         Just Route.NewArticle ->
@@ -363,7 +339,7 @@ setRoute maybeRoute model =
             transition ArticleLoaded (Article.init model.session slug)
 
         Just Route.Root ->
-            ( { model | pageState = Loaded Home }, Cmd.none )
+            ( model, Route.modifyUrl Route.Home )
 
         Just Route.Login ->
             ( { model | pageState = Loaded Login }, Cmd.none )
@@ -422,7 +398,7 @@ viewPage model isLoading page =
         -- yuck
         activePage =
             case page of
-                Home ->
+                Home home ->
                     Views.Page.Home
 
                 Login ->
@@ -501,8 +477,8 @@ viewPage model isLoading page =
                 ]
     in
     case Debug.log "Main.getPage model.pageState" getPage model.pageState of
-        Home ->
-            Pages.Home.view HomeMsg pageContext model.home
+        Home home ->
+            Pages.Home.view HomeMsg pageContext home
 
         Login ->
             Pages.Login.view LoginMsg pageContext model.login

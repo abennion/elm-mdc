@@ -163,27 +163,29 @@ viewArticle lift model toggleFavorite article =
         author =
             article.author
 
-        -- iconToggle idx options =
-        --     let
-        --         isOn =
-        --             Dict.get idx model.iconToggles
-        --                 |> Maybe.withDefault False
-        --     in
-        --     IconToggle.view (lift << Mdc)
-        --         idx
-        --         model.mdc
-        --         (Options.onClick (lift (Toggle idx))
-        --             :: when isOn IconToggle.on
-        --             :: options
-        --         )
         item src primary secondary icon =
             let
                 -- url =
                 --     "images/" ++ src
                 url =
                     src
+
+                article_ =
+                    { article | body = () }
+
+                icon =
+                    case article.favorited of
+                        True ->
+                            "favorite"
+
+                        False ->
+                            "favorite_border"
             in
-            Lists.li []
+            -- so, in a list, you click on the entire thing, not individual
+            -- parts, so lets try using something else.
+            Lists.li
+                [ Options.onClick (lift (ToggleFavorite article_))
+                ]
                 [ Lists.graphicImage [] url
                 , Lists.text []
                     [ Html.text primary
@@ -194,23 +196,8 @@ viewArticle lift model toggleFavorite article =
                 , Lists.metaIcon
                     [ css "text-decoration" "none"
                     , css "color" "#ff4081"
-                    , Options.onClick (toggleFavorite article)
                     ]
                     icon
-                , IconToggle.view
-                    (lift << Mdc)
-                    ("favorite-" ++ Article.slugToString article.slug)
-                    model.mdc
-                    [ IconToggle.label
-                        { on = "Remove from Fravorites"
-                        , off = "Add to Favorites"
-                        }
-                    , IconToggle.icon
-                        { on = "favorite"
-                        , off = "favorite_border"
-                        }
-                    ]
-                    []
                 ]
     in
     -- item "animal3.svg" "Brown Bear" "Jan 9, 2014" "favorite"
@@ -416,7 +403,7 @@ updateInternal lift session msg model =
             )
 
         ToggleFavorite article ->
-            case session.user of
+            case Debug.log "Feed.ToggleFavorite session.user" session.user of
                 Nothing ->
                     ( { model | errors = model.errors ++ [ "You are currently signed out. You must sign in to favorite articles." ] }
                     , Cmd.none

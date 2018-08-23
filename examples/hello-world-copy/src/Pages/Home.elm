@@ -3,18 +3,13 @@ module Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
 import Data.Article as Article exposing (Tag)
 import Data.Session exposing (Session)
 import Html exposing (Html, div, text)
-import Html.Attributes exposing (attribute, class, classList, href, id, placeholder)
 import Http
 import Material
-import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
-import Material.Tabs as TabBar
-import Material.Theme as Theme
 import Pages.Errored exposing (PageLoadError, pageLoadError)
 import Process
 import Request.Article
-import Route exposing (Route)
 import SelectList exposing (SelectList)
 import Task exposing (Task)
 import Time
@@ -65,16 +60,6 @@ type Msg m
     | SelectTag Tag
 
 
-
--- type alias InternalModel =
---     { errors : List String
---     , feed : Feed
---     , feedSources : SelectList FeedSource
---     , activePage : Int
---     , isLoading : Bool
---     }
-
-
 defaultModel : Model m
 defaultModel =
     { mdc = Material.defaultModel
@@ -119,7 +104,6 @@ update lift msg session model =
                 ( newFeed, subCmd ) =
                     Feed.update (lift << FeedMsg) session subMsg model.feed
             in
-            -- ( { model | feed = newFeed }, Cmd.map (lift << FeedMsg) subCmd )
             ( { model | feed = newFeed }, subCmd )
 
         SelectTag tagName ->
@@ -127,7 +111,6 @@ update lift msg session model =
                 subCmd =
                     Feed.selectTag (lift << FeedMsg) (Maybe.map .token session.user) tagName
             in
-            -- ( model, Cmd.map (lift << FeedMsg) subCmd )
             ( model, subCmd )
 
         Click text ->
@@ -248,51 +231,6 @@ viewPage lift context model isLoading tab =
             [ css "padding" "24px"
             ]
             [ styled Html.div
-                [ Theme.secondary
-                ]
-                [ TabBar.view (lift << Mdc)
-                    "my-tab-bar"
-                    model.mdc
-                    [ TabBar.indicator
-                    , TabBar.scrolling
-                    , Theme.secondary
-                    ]
-                    [ TabBar.tab
-                        [ Options.onClick (lift (SelectTab (Just Cats)))
-                        ]
-                        [ text "Item One" ]
-                    , TabBar.tab
-                        [ Options.onClick (lift (SelectTab (Just Dogs)))
-                        ]
-                        [ text "Item Two" ]
-                    , TabBar.tab [ Theme.secondary ] [ text "Item Three" ]
-                    , TabBar.tab [] [ text "Item Four" ]
-                    , TabBar.tab [] [ text "Item Five" ]
-                    , TabBar.tab [] [ text "Item Six" ]
-                    , TabBar.tab [] [ text "Item Seven" ]
-                    , TabBar.tab [] [ text "Item Eight" ]
-                    , TabBar.tab [] [ text "Item Nine" ]
-                    ]
-                ]
-            , spinner isLoading
-            , styled Html.h2
-                []
-                [ text model.text
-                ]
-            , styled Html.h2
-                []
-                [ text ("Is loading: " ++ toString context.isLoading)
-                ]
-            , styled Html.h2
-                []
-                [ case getTab model.tabState of
-                    Cats ->
-                        text "Cats"
-
-                    Dogs ->
-                        text "Dogs"
-                ]
-            , styled Html.div
                 []
                 [ styled Html.div
                     []
@@ -316,8 +254,6 @@ viewFeed : (Msg m -> m) -> Model m -> Feed.Model m -> List (Html m)
 viewFeed lift model feed =
     styled Html.div
         [ cs "feed-toggle" ]
-        -- [ Feed.viewFeedSources feed |> Html.map (lift << FeedMsg) ]
-        -- :: (Feed.viewArticles feed |> List.map (Html.map (lift << FeedMsg)))
         [ Feed.viewFeedSources (lift << FeedMsg) feed ]
         :: Feed.viewArticles (lift << FeedMsg) feed
 
@@ -332,15 +268,3 @@ viewTags lift model tags =
 viewTag : (Msg m -> m) -> Model m -> Tag -> Html m
 viewTag lift model tagName =
     Html.text (Article.tagToString tagName)
-
-
-
--- Button.view (lift << Mdc)
---                 "login-submit"
---                 model.mdc
---                 [ Button.raised
---                 , Options.onClick (lift SubmitForm)
---                 ]
---                 [ text "Submit"
---                 ]
---             ]
