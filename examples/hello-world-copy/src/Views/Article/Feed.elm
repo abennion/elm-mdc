@@ -348,10 +348,8 @@ pageLink lift page isActive =
         [ css "display" "inline"
         , css "padding" "4px"
         ]
-        [ a
-            [ class "page-link"
-            , href "javascript:void(0);"
-            , onClick (lift (SelectPage page))
+        [ styled a
+            [ Options.onClick (lift (SelectPage page))
             ]
             [ text (toString page) ]
         ]
