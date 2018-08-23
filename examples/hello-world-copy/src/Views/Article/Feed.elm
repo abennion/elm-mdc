@@ -24,12 +24,8 @@ import Data.User as User exposing (Username)
 import Data.UserPhoto as UserPhoto exposing (UserPhoto, photoToUrl)
 import Dom.Scroll
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, src)
-import Html.Events exposing (onClick)
 import Http
 import Material
-import Material.Button as Button
-import Material.IconToggle as IconToggle
 import Material.LinearProgress as LinearProgress
 import Material.List as Lists
 import Material.Options as Options exposing (cs, css, styled, when)
@@ -335,7 +331,8 @@ pagination lift activePage feed feedSource =
             List.range 1 totalPages
                 |> List.map (\page -> pageLink lift page (page == activePage))
                 |> styled ul
-                    [ css "list-style" "none"
+                    [ cs "pagination"
+                    , css "list-style" "none"
                     ]
           else
             Html.text ""
@@ -344,12 +341,19 @@ pagination lift activePage feed feedSource =
 
 pageLink : (Msg m -> m) -> Int -> Bool -> Html m
 pageLink lift page isActive =
+    let
+        _ =
+            Debug.log "isActive" (toString isActive ++ " " ++ toString page)
+    in
     styled li
-        [ css "display" "inline"
+        [ cs "page-item"
+        , when (isActive == True) (css "border-bottom" "2px solid #fff")
+        , css "display" "inline"
         , css "padding" "4px"
         ]
         [ styled a
-            [ Options.onClick (lift (SelectPage page))
+            [ cs "page-link"
+            , Options.onClick (lift (SelectPage page))
             ]
             [ text (toString page) ]
         ]
@@ -442,7 +446,7 @@ updateInternal lift session msg model =
                 |> fetch (Maybe.map .token session.user) page
                 |> Task.andThen (\feed -> Task.map (\_ -> feed) scrollToTop)
                 |> Task.attempt (lift << FeedLoadCompleted source)
-                |> pair model
+                |> pair { model | isLoading = True }
 
 
 scrollToTop : Task x ()
