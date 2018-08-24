@@ -1,4 +1,4 @@
-module Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
+module Pages.Home exposing (Model, Msg(Mdc), init, update, view)
 
 import Data.Article as Article exposing (Tag)
 import Data.Session exposing (Session)
@@ -6,14 +6,13 @@ import Html exposing (Html, div, text)
 import Http
 import Material
 import Material.Chip as Chip
+import Material.LayoutGrid as LayoutGrid
 import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
 import Pages.Errored exposing (PageLoadError, pageLoadError)
-import Process
 import Request.Article
 import SelectList exposing (SelectList)
 import Task exposing (Task)
-import Time
 import Views.Article.Feed as Feed
     exposing
         ( FeedSource
@@ -28,24 +27,9 @@ import Views.Page as Page exposing (Context)
 -- MODEL
 
 
-type Tab
-    = Cats
-    | Dogs
-
-
-type TabState
-    = TransitioningFrom Tab
-    | Loaded Tab
-
-
-type alias ErrorMsg =
-    String
-
-
 type alias Model m =
     { mdc : Material.Model m
-    , text : String
-    , tabState : TabState
+    , choiceChip : Maybe Tag
     , tags : List Tag
     , feed : Feed.Model m
     }
@@ -53,22 +37,8 @@ type alias Model m =
 
 type Msg m
     = Mdc (Material.Msg m)
-    | Click String
-    | SelectTab (Maybe Tab)
-    | CatsLoaded (Result ErrorMsg (Model m))
-    | DogsLoaded (Result ErrorMsg (Model m))
     | FeedMsg (Feed.Msg m)
     | SelectTag Tag
-
-
-defaultModel : Model m
-defaultModel =
-    { mdc = Material.defaultModel
-    , text = "Nothing to see here."
-    , tabState = Loaded Cats
-    , tags = []
-    , feed = Feed.defaultModel
-    }
 
 
 init : Session -> Task PageLoadError (Model m)
@@ -90,7 +60,7 @@ init session =
         handleLoadError _ =
             pageLoadError Page.Home "Homepage is currently unavailable."
     in
-    Task.map2 (Model Material.defaultModel "" (Loaded Cats)) loadTags loadSources
+    Task.map2 (Model Material.defaultModel Nothing) loadTags loadSources
         |> Task.mapError handleLoadError
 
 
@@ -112,82 +82,7 @@ update lift msg session model =
                 subCmd =
                     Feed.selectTag (lift << FeedMsg) (Maybe.map .token session.user) tagName
             in
-            ( model, subCmd )
-
-        Click text ->
-            ( { model | text = text }
-            , Cmd.none
-            )
-
-        SelectTab maybeTab ->
-            setTab lift maybeTab model
-
-        CatsLoaded (Ok home) ->
-            ( { model
-                | tabState = Loaded Cats
-              }
-            , Cmd.none
-            )
-
-        CatsLoaded (Err error) ->
-            ( model
-            , Cmd.none
-            )
-
-        DogsLoaded (Ok home) ->
-            ( { model
-                | tabState = Loaded Dogs
-              }
-            , Cmd.none
-            )
-
-        DogsLoaded (Err error) ->
-            ( model
-            , Cmd.none
-            )
-
-
-setTab : (Msg m -> m) -> Maybe Tab -> Model m -> ( Model m, Cmd m )
-setTab lift maybeTab model =
-    let
-        transition toMsg task =
-            ( { model | tabState = TransitioningFrom (getTab model.tabState) }
-            , Task.attempt toMsg task
-            )
-    in
-    case Debug.log "setTab maybeTab" maybeTab of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just Cats ->
-            transition (lift << CatsLoaded)
-                (Task.map
-                    (\_ -> model)
-                    (Process.sleep (Time.second * 2))
-                )
-
-        Just Dogs ->
-            transition (lift << DogsLoaded)
-                (Task.map
-                    (\_ -> model)
-                    (Process.sleep (Time.second * 2))
-                )
-
-
-getTab : TabState -> Tab
-getTab tabState =
-    case tabState of
-        Loaded tab ->
-            tab
-
-        TransitioningFrom tab ->
-            tab
-
-
-delay : Time.Time -> msg -> Cmd msg
-delay time msg =
-    Process.sleep time
-        |> Task.perform (\_ -> msg)
+            ( { model | choiceChip = Just tagName }, subCmd )
 
 
 
@@ -196,16 +91,11 @@ delay time msg =
 
 view : (Msg m -> m) -> Context m -> Model m -> Html m
 view lift context model =
-    case Debug.log "view model.tabState" model.tabState of
-        Loaded tab ->
-            viewPage lift context model False tab
-
-        TransitioningFrom tab ->
-            viewPage lift context model True tab
+    viewPage lift context model False
 
 
-viewPage : (Msg m -> m) -> Context m -> Model m -> Bool -> Tab -> Html m
-viewPage lift context model isLoading tab =
+viewPage : (Msg m -> m) -> Context m -> Model m -> Bool -> Html m
+viewPage lift context model isLoading =
     let
         session =
             context.session
@@ -227,17 +117,42 @@ viewPage lift context model isLoading tab =
                         ]
                         []
     in
+    -- LayoutGrid.view []
+    --     [ LayoutGrid.cell
+    --           [ LayoutGrid.span6
+    --           , LayoutGrid.span8Tablet
+    --           ]
+    --           []
+    --     , LayoutGrid.cell
+    --           [ LayoutGrid.span4
+    --           , LayoutGrid.span6Tablet
+    --           ]
+    --           []
+    --     , LayoutGrid.cell
+    --           [ LayoutGrid.span2
+    --           , LayoutGrid.span4Phone
+    --           ]
+    --           []
+    --     ]
     context.body "Home"
         [ styled Html.div
             [ css "padding" "24px"
             ]
-            [ styled Html.div
-                [ cs "mdc-theme--on-surface" ]
-                [ styled Html.div
-                    []
-                    (viewFeed lift model model.feed)
-                , styled Html.div
-                    []
+            [ LayoutGrid.view
+                []
+                [ LayoutGrid.cell
+                    [ LayoutGrid.span10
+                    ]
+                    [ styled Html.div
+                        [ cs "mdc-theme--on-surface" ]
+                        [ styled Html.div
+                            []
+                            (viewFeed lift model model.feed)
+                        ]
+                    ]
+                , LayoutGrid.cell
+                    [ LayoutGrid.span2
+                    ]
                     [ styled Html.div
                         []
                         [ Html.p
@@ -263,7 +178,9 @@ viewTags : (Msg m -> m) -> Model m -> List Tag -> Html m
 viewTags lift model tags =
     styled Html.div
         [ cs "tag-list" ]
-        [ Chip.chipset []
+        [ Chip.chipset
+            [ Chip.choice
+            ]
             (List.map (viewTag lift model) tags)
         ]
 
@@ -273,11 +190,19 @@ viewTag lift model tagName =
     let
         tag =
             Article.tagToString tagName
+
+        index =
+            "chip-" ++ tag
+
+        _ =
+            Debug.log "isSelected" (Just tagName == model.choiceChip)
     in
     Chip.view (lift << Mdc)
-        ("chip-" ++ tag)
+        index
         model.mdc
         [ Chip.onClick (lift (SelectTag tagName))
+        , when (Just tagName == model.choiceChip) Chip.selected
+        , Chip.checkmark
         ]
         [ text tag
         ]

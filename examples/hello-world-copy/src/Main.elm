@@ -13,7 +13,7 @@ import Navigation exposing (Location)
 import Pages.Article as Article
 import Pages.Article.Editor as Editor
 import Pages.Errored as Errored exposing (PageLoadError)
-import Pages.Home exposing (Model, Msg(Mdc), defaultModel, init, update, view)
+import Pages.Home exposing (Model, Msg(Mdc), init, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Profile exposing (Model, Msg(Mdc), defaultModel, init, update, view)

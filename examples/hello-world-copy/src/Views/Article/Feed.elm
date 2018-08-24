@@ -16,6 +16,10 @@ overkill, so we use simpler APIs instead.
 
 -}
 
+-- import Views.Article
+-- import Views.Errors as Errors
+-- import Views.Spinner exposing (spinner)
+
 import Data.Article as Article exposing (Article, Tag)
 import Data.Article.Feed exposing (Feed)
 import Data.AuthToken exposing (AuthToken)
@@ -26,6 +30,7 @@ import Dom.Scroll
 import Html exposing (..)
 import Http
 import Material
+import Material.Button as Button
 import Material.LinearProgress as LinearProgress
 import Material.List as Lists
 import Material.Options as Options exposing (cs, css, styled, when)
@@ -35,10 +40,7 @@ import Request.Article
 import SelectList exposing (Position(..), SelectList)
 import Task exposing (Task)
 import Util exposing ((=>), onClickStopPropagation, pair, viewIf)
-import Views.Article
-import Views.Errors as Errors
 import Views.Page exposing (bodyId)
-import Views.Spinner exposing (spinner)
 
 
 -- MODEL --
@@ -126,7 +128,7 @@ viewArticles lift model =
                 items
     in
     [ articleList (List.map (viewArticle lift internalModel (lift << ToggleFavorite)) feed.articles) ]
-        ++ [ pagination lift activePage feed (SelectList.selected feedSources) ]
+        ++ [ pagination lift internalModel activePage feed (SelectList.selected feedSources) ]
 
 
 
@@ -246,7 +248,6 @@ viewFeedSources lift (Model internalModel) =
             internalModel.mdc
             [ TabBar.indicator
             , TabBar.scrolling
-            , Theme.secondary
             ]
             (SelectList.toList
                 (SelectList.mapBy (viewFeedSource lift) feedSources)
@@ -261,6 +262,9 @@ viewFeedSource lift position source =
         _ =
             Debug.log "Feed.viewFeedSource" ""
     in
+    -- this isn't updating properly when we add a TagFeed
+    -- TabBar.react?
+    -- maybe adding a tab in this case isn't the way to go
     TabBar.tab
         [ Options.onClick (lift (SelectFeedSource source))
         ]
@@ -316,8 +320,8 @@ limit feedSource =
             5
 
 
-pagination : (Msg m -> m) -> Int -> Feed -> FeedSource -> Html m
-pagination lift activePage feed feedSource =
+pagination : (Msg m -> m) -> InternalModel m -> Int -> Feed -> FeedSource -> Html m
+pagination lift model activePage feed feedSource =
     let
         articlesPerPage =
             limit feedSource
@@ -329,7 +333,7 @@ pagination lift activePage feed feedSource =
         []
         [ if totalPages > 1 then
             List.range 1 totalPages
-                |> List.map (\page -> pageLink lift page (page == activePage))
+                |> List.map (\page -> pageLink lift model page (page == activePage))
                 |> styled ul
                     [ cs "pagination"
                     , css "list-style" "none"
@@ -339,23 +343,28 @@ pagination lift activePage feed feedSource =
         ]
 
 
-pageLink : (Msg m -> m) -> Int -> Bool -> Html m
-pageLink lift page isActive =
+pageLink : (Msg m -> m) -> InternalModel m -> Int -> Bool -> Html m
+pageLink lift model page isActive =
     let
-        _ =
-            Debug.log "isActive" (toString isActive ++ " " ++ toString page)
+        page_ =
+            toString page
     in
     styled li
         [ cs "page-item"
-        , when (isActive == True) (css "border-bottom" "2px solid #fff")
         , css "display" "inline"
-        , css "padding" "4px"
+        , css "padding" "0"
+        , css "margin" "0"
         ]
-        [ styled a
-            [ cs "page-link"
+        [ Button.view (lift << Mdc)
+            (page_ ++ "-baseline-button")
+            model.mdc
+            [ Button.ripple
+            , Button.dense
             , Options.onClick (lift (SelectPage page))
+            , css "padding" "0"
+            , css "margin" "0"
             ]
-            [ text (toString page) ]
+            [ text page_ ]
         ]
 
 
