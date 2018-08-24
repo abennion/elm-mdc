@@ -37,9 +37,11 @@ import Material.Options as Options exposing (cs, css, styled, when)
 import Material.Tabs as TabBar
 import Material.Theme as Theme
 import Request.Article
+import Route
 import SelectList exposing (Position(..), SelectList)
 import Task exposing (Task)
 import Util exposing ((=>), onClickStopPropagation, pair, viewIf)
+import Views.Article exposing (formattedTimestamp, viewTimestamp)
 import Views.Page exposing (bodyId)
 
 
@@ -124,35 +126,12 @@ viewArticles lift model =
         articleList items =
             Lists.ul
                 [ Lists.avatarList
+                , Lists.twoLine
                 ]
                 items
     in
     [ articleList (List.map (viewArticle lift internalModel (lift << ToggleFavorite)) feed.articles) ]
         ++ [ pagination lift internalModel activePage feed (SelectList.selected feedSources) ]
-
-
-
--- div
---     [ class "article-preview" ]
---     [ div [ class "article-meta" ]
---         [ a [ Route.href (Route.Profile author.username) ]
---             [ img [ UserPhoto.src author.image ] [] ]
---         , div [ class "info" ]
---             [ Views.Author.view author.username
---             , viewTimestamp article
---             ]
---         , Favorite.button
---             toggleFavorite
---             article
---             [ class "pull-xs-right" ]
---             [ text (" " ++ toString article.favoritesCount) ]
---         ]
---     , a [ class "preview-link", Route.href (Route.Article article.slug) ]
---         [ h1 [] [ text article.title ]
---         , p [] [ text article.description ]
---         , span [] [ text "Read more..." ]
---         ]
---     ]
 
 
 viewArticle : (Msg m -> m) -> InternalModel m -> (Article a -> m) -> Article a -> Html m
@@ -161,49 +140,81 @@ viewArticle lift model toggleFavorite article =
         author =
             article.author
 
-        item src primary secondary icon =
-            let
-                -- url =
-                --     "images/" ++ src
-                url =
-                    src
+        url =
+            UserPhoto.photoToUrl author.image
 
-                article_ =
-                    { article | body = () }
+        primary =
+            Html.text
+                (User.usernameToString author.username
+                    ++ " "
+                    ++ formattedTimestamp article
+                )
 
-                icon =
-                    case article.favorited of
-                        True ->
-                            "favorite"
+        secondary =
+            -- styled Html.a
+            --     [-- , Route.href (Route.Article article.slug)
+            --     ]
+            --     [ h2 [] [ text article.title ]
+            --     , p [] [ text article.description ]
+            --     , span [] [ text "Read more..." ]
+            --     ]
+            Html.text (article.title ++ " " ++ article.description)
 
-                        False ->
-                            "favorite_border"
-            in
-            -- so, in a list, you click on the entire thing, not individual
-            -- parts, so lets try using something else.
-            Lists.li
-                [ Options.onClick (lift (ToggleFavorite article_))
-                ]
-                [ Lists.graphicImage [] url
-                , Lists.text []
-                    [ Html.text primary
-                    , Lists.secondaryText []
-                        [ Html.text secondary
-                        ]
-                    ]
-                , Lists.metaIcon
-                    [ css "text-decoration" "none"
-                    , css "color" "#ff4081"
-                    ]
-                    icon
-                ]
+        icon =
+            case article.favorited of
+                True ->
+                    "favorite"
+
+                False ->
+                    "favorite_border"
+
+        article_ =
+            { article | body = () }
     in
-    -- item "animal3.svg" "Brown Bear" "Jan 9, 2014" "favorite"
-    -- item "animal1.svg" "Panda" "Jan 9, 2014" "favorite_border"
-    item (UserPhoto.photoToUrl author.image)
-        (User.usernameToString author.username)
-        (toString article.createdAt)
-        "favorite"
+    -- div
+    --     [ class "article-preview" ]
+    --     [ div [ class "article-meta" ]
+    --         [ a [ Route.href (Route.Profile author.username) ]
+    --             [ img [ UserPhoto.src author.image ] [] ]
+    --         , div [ class "info" ]
+    --             [ Views.Author.view author.username
+    --             , viewTimestamp article
+    --             ]
+    --         , Favorite.button
+    --             toggleFavorite
+    --             article
+    --             [ class "pull-xs-right" ]
+    --             [ text (" " ++ toString article.favoritesCount) ]
+    --         ]
+    --     , a [ class "preview-link", Route.href (Route.Article article.slug) ]
+    --         [ h1 [] [ text article.title ]
+    --         , p [] [ text article.description ]
+    --         , span [] [ text "Read more..." ]
+    --         ]
+    --     ]
+    Lists.li
+        [ Options.onClick (lift (ToggleFavorite article_))
+        , css "background-color" "rgba(0, 0, 0, 0.05)"
+
+        --var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54))
+        , css "border" "1px solid var(--mdc-theme-background, rgba(0, 0, 0, 0.54))"
+        ]
+        [ Lists.graphicImage [] url
+        , Lists.text []
+            [ primary
+            , Lists.secondaryText []
+                [ secondary
+                ]
+            ]
+        , Lists.metaIcon
+            [ css "text-decoration" "none"
+            , css "color" "#ff4081"
+            ]
+            icon
+        , Lists.text []
+            [ Html.text (toString article.favoritesCount)
+            ]
+        ]
 
 
 viewFeedSources : (Msg m -> m) -> Model m -> Html m

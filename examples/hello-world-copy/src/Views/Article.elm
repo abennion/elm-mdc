@@ -1,4 +1,4 @@
-module Views.Article exposing (view, viewTimestamp)
+module Views.Article exposing (view, viewTimestamp, formattedTimestamp)
 
 {-| Viewing a preview of an individual article, excluding its body.
 -}

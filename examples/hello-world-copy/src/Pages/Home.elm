@@ -161,7 +161,9 @@ viewFeed lift model feed =
 viewTags : (Msg m -> m) -> Model m -> List Tag -> Html m
 viewTags lift model tags =
     styled Html.div
-        [ cs "tag-list" ]
+        [ cs "tag-list"
+        , css "background-color" "rgba(0, 0, 0, 0.05)"
+        ]
         [ Chip.chipset
             [ Chip.choice
             ]
