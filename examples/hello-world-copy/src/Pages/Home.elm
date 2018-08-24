@@ -72,6 +72,7 @@ update lift msg session model =
 
         FeedMsg subMsg ->
             let
+                -- what kind of feed?
                 ( newFeed, subCmd ) =
                     Feed.update (lift << FeedMsg) session subMsg model.feed
             in
@@ -117,23 +118,6 @@ viewPage lift context model isLoading =
                         ]
                         []
     in
-    -- LayoutGrid.view []
-    --     [ LayoutGrid.cell
-    --           [ LayoutGrid.span6
-    --           , LayoutGrid.span8Tablet
-    --           ]
-    --           []
-    --     , LayoutGrid.cell
-    --           [ LayoutGrid.span4
-    --           , LayoutGrid.span6Tablet
-    --           ]
-    --           []
-    --     , LayoutGrid.cell
-    --           [ LayoutGrid.span2
-    --           , LayoutGrid.span4Phone
-    --           ]
-    --           []
-    --     ]
     context.body "Home"
         [ styled Html.div
             [ css "padding" "24px"
