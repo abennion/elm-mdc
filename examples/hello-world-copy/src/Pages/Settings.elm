@@ -10,7 +10,12 @@ import Http
 import Json.Decode as Decode exposing (Decoder, decodeString, field, list, string)
 import Json.Decode.Pipeline exposing (decode, optional)
 import Material
+import Material.Button as Button
+import Material.FormField as FormField
+import Material.LinearProgress as LinearProgress
 import Material.Options as Options exposing (cs, css, styled, when)
+import Material.Textfield as Textfield
+import Material.Textfield.HelperText as Textfield
 import Request.User exposing (storeSession)
 import Route
 import Util exposing ((=>), pair)
@@ -52,6 +57,9 @@ init user =
 view : (Msg m -> m) -> Context m -> Model m -> Html m
 view lift context model =
     let
+        isLoading =
+            context.isLoading
+
         session =
             context.session
     in
@@ -70,50 +78,95 @@ view lift context model =
 
 viewForm : (Msg m -> m) -> Context m -> Model m -> Html m
 viewForm lift context model =
+    let
+        isLoading =
+            context.isLoading
+
+        spinner isLoading =
+            case isLoading of
+                True ->
+                    LinearProgress.view
+                        [ LinearProgress.buffered 0.0 0.0
+                        , LinearProgress.indeterminate
+                        , cs "demo-linear-progress--custom"
+                        ]
+                        []
+
+                False ->
+                    LinearProgress.view
+                        [ cs "demo-linear-progress--custom"
+                        , cs "mdc-linear-progress--closed"
+                        ]
+                        []
+    in
     context.body "Home"
         [ styled Html.div
             [ css "padding" "24px"
             ]
-            [ Html.form [ onSubmit (lift SubmitForm) ]
-                [ fieldset []
-                    [ Form.input
-                        [ placeholder "URL of profile picture"
-                        , defaultValue (Maybe.withDefault "" model.image)
-                        , onInput (lift << SetImage)
-                        ]
+            [ styled Html.section
+                (List.reverse
+                    -- TODO: dang it
+                    (cs "hero"
+                        :: css "display" "-webkit-box"
+                        :: css "display" "-ms-flexbox"
+                        :: css "display" "flex"
+                        :: css "-webkit-box-orient" "horizontal"
+                        :: css "-webkit-box-direction" "normal"
+                        :: css "-ms-flex-flow" "row nowrap"
+                        :: css "flex-flow" "row nowrap"
+                        :: css "-webkit-box-align" "center"
+                        :: css "-ms-flex-align" "center"
+                        :: css "align-items" "center"
+                        :: css "-webkit-box-pack" "center"
+                        :: css "-ms-flex-pack" "center"
+                        :: css "justify-content" "center"
+                        -- :: css "height" "360px"
+                        :: css "min-height" "360px"
+                        :: [ css "background-color" "rgba(0, 0, 0, 0.05)" ]
+                    )
+                )
+                [ styled Html.div
+                    [ css "width" "360px"
+                    ]
+                    [ spinner isLoading
+                    , Html.div
                         []
-                    , Form.input
-                        [ class "form-control-lg"
-                        , placeholder "Username"
-                        , defaultValue model.username
-                        , onInput (lift << SetUsername)
+                        [ Textfield.view (lift << Mdc)
+                            "settings-image"
+                            model.mdc
+                            [ Textfield.label "URL of profile picture"
+                            , Options.onInput (lift << SetImage)
+                            ]
+                            []
+                        , Textfield.helperText
+                            [ Textfield.persistent ]
+                            []
                         ]
+                    , Html.br [] []
+                    , Html.div
                         []
-                    , Form.textarea
-                        [ class "form-control-lg"
-                        , placeholder "Short bio about you"
-                        , attribute "rows" "8"
-                        , defaultValue model.bio
-                        , onInput (lift << SetBio)
+                        [ Textfield.view (lift << Mdc)
+                            "settings-username"
+                            model.mdc
+                            [ Textfield.label "Choose username"
+                            , Options.onInput (lift << SetUsername)
+                            , Textfield.value model.username
+                            ]
+                            []
+                        , Textfield.helperText
+                            [ Textfield.persistent
+                            ]
+                            []
                         ]
-                        []
-                    , Form.input
-                        [ class "form-control-lg"
-                        , placeholder "Email"
-                        , defaultValue model.email
-                        , onInput (lift << SetEmail)
+                    , Html.br [] []
+                    , Button.view (lift << Mdc)
+                        "login-submit"
+                        model.mdc
+                        [ Button.raised
+                        , Options.onClick (lift SubmitForm)
                         ]
-                        []
-                    , Form.password
-                        [ class "form-control-lg"
-                        , placeholder "Password"
-                        , defaultValue (Maybe.withDefault "" model.password)
-                        , onInput (lift << SetPassword)
+                        [ text "Submit"
                         ]
-                        []
-                    , button
-                        [ class "btn btn-lg btn-primary pull-xs-right" ]
-                        [ text "Update Settings" ]
                     ]
                 ]
             ]
@@ -121,6 +174,50 @@ viewForm lift context model =
 
 
 
+--     Html.form [ onSubmit (lift SubmitForm) ]
+--         [ fieldset []
+--             [ Form.input
+--                 [ placeholder "URL of profile picture"
+--                 , defaultValue (Maybe.withDefault "" model.image)
+--                 , onInput (lift << SetImage)
+--                 ]
+--                 []
+--             , Form.input
+--                 [ class "form-control-lg"
+--                 , placeholder "Username"
+--                 , defaultValue model.username
+--                 , onInput (lift << SetUsername)
+--                 ]
+--                 []
+--             , Form.textarea
+--                 [ class "form-control-lg"
+--                 , placeholder "Short bio about you"
+--                 , attribute "rows" "8"
+--                 , defaultValue model.bio
+--                 , onInput (lift << SetBio)
+--                 ]
+--                 []
+--             , Form.input
+--                 [ class "form-control-lg"
+--                 , placeholder "Email"
+--                 , defaultValue model.email
+--                 , onInput (lift << SetEmail)
+--                 ]
+--                 []
+--             , Form.password
+--                 [ class "form-control-lg"
+--                 , placeholder "Password"
+--                 , defaultValue (Maybe.withDefault "" model.password)
+--                 , onInput (lift << SetPassword)
+--                 ]
+--                 []
+--             , button
+--                 [ class "btn btn-lg btn-primary pull-xs-right" ]
+--                 [ text "Update Settings" ]
+--             ]
+--         ]
+--     ]
+-- ]
 -- UPDATE --
 
 
