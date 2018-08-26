@@ -17,6 +17,7 @@ import Pages.Home exposing (Model, Msg(Mdc), init, update, view)
 import Pages.Login exposing (Model, Msg(..), defaultModel, update, view)
 import Pages.Other exposing (Model, Msg(Mdc), defaultModel, update, view)
 import Pages.Profile exposing (Model, Msg(Mdc), defaultModel, init, update, view)
+import Pages.Settings exposing (Model, Msg(Mdc), init, update, view)
 import Ports exposing (..)
 import Process
 import Route exposing (Route)
@@ -49,7 +50,7 @@ type Page
     | NotFound
     | Errored PageLoadError
     | Home (Pages.Home.Model Msg)
-    | Settings
+    | Settings (Pages.Settings.Model Msg)
     | Login
     | Register
     | Profile Username (Pages.Profile.Model Msg)
@@ -108,6 +109,8 @@ type Msg
     | ProfileMsg (Pages.Profile.Msg Msg)
     | ProfileLoaded Username (Result PageLoadError (Pages.Profile.Model Msg))
     | EditArticleLoaded Slug (Result PageLoadError Editor.Model)
+    | SettingsMsg (Pages.Settings.Msg Msg)
+    | SettingsLoaded (Result PageLoadError (Pages.Settings.Model Msg))
 
 
 
@@ -335,6 +338,18 @@ setRoute maybeRoute model =
         Just (Route.Profile username) ->
             transition (ProfileLoaded username) (Pages.Profile.init model.session username)
 
+        Just Route.Settings ->
+            case model.session.user of
+                Just user ->
+                    ( { model
+                        | pageState = Loaded (Settings (Pages.Settings.init user))
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    errored Views.Page.Other "You must be signed in to access your settings."
+
         Just (Route.Article slug) ->
             transition ArticleLoaded (Article.init model.session slug)
 
@@ -485,6 +500,9 @@ viewPage model isLoading page =
 
         Profile username profile ->
             Pages.Profile.view ProfileMsg pageContext profile
+
+        Settings settings ->
+            Pages.Settings.view SettingsMsg pageContext settings
 
         Other ->
             Pages.Other.view OtherMsg pageContext model.other

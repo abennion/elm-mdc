@@ -10,6 +10,7 @@ module Views.Toolbar
 
 import Data.User as User exposing (User)
 import Html exposing (Html, text)
+import Html.Attributes as Html exposing (href)
 import Material
 import Material.Button as Button
 import Material.LinearProgress as LinearProgress
@@ -143,24 +144,36 @@ view lift context model =
         viewSignIn =
             case context.user of
                 Nothing ->
-                    Button.view
+                    [ Button.view
                         (lift << Mdc)
                         "login-link-button"
                         model.mdc
                         [ Button.link "#login"
                         ]
                         [ Html.text "Sign in" ]
+                    ]
 
                 Just user ->
-                    Button.view
+                    [ Button.view
+                        (lift << Mdc)
+                        "settings-button"
+                        model.mdc
+                        [ Options.onClick
+                            (context.setRoute (Just Route.Settings))
+                        ]
+                        [ Html.text "Settings"
+                        ]
+                    , Button.view
                         (lift << Mdc)
                         "login-link-button"
                         model.mdc
                         [ Options.onClick
                             (context.setRoute
-                                (Just (Route.Profile user.username)))
+                                (Just (Route.Profile user.username))
+                            )
                         ]
                         [ Html.text user.email ]
+                    ]
     in
     styled Html.div
         [ cs "demo-top-app-bar--custom"
@@ -215,17 +228,20 @@ view lift context model =
                 [ TopAppBar.alignEnd
                 , cs "demo-top-app-bar--custom"
                 ]
-                [ viewSignIn
-                , Button.view
-                    (lift << Mdc)
-                    "sign-out-button"
-                    model.mdc
-                    [ Options.onClick (context.setUser Nothing)
+                (List.concat
+                    [ viewSignIn
+                    , [ Button.view
+                            (lift << Mdc)
+                            "sign-out-button"
+                            model.mdc
+                            [ Options.onClick (context.setUser Nothing)
+                            ]
+                            [ Html.text "Sign out" ]
+                      , TopAppBar.actionItem
+                            []
+                            "more_vert"
+                      ]
                     ]
-                    [ Html.text "Sign out" ]
-                , TopAppBar.actionItem
-                    []
-                    "more_vert"
-                ]
+                )
             ]
         ]
