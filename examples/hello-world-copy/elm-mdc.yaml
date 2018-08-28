@@ -1,0 +1,40 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: elm-mdc
+  labels:
+    app: elm-mdc
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: elm-mdc
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: elm-mdc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elm-mdc
+  template:
+    metadata:
+      labels:
+        app: elm-mdc
+        blinkt: show
+        blinktColor: "1E160C"
+    spec:
+      containers:
+        - name: elm-mdc
+          image: index.docker.io/abennion/elm-mdc:v1
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+      imagePullSecrets:
+      - name: myregistrykey
