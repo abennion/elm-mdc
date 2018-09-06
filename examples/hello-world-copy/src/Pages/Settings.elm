@@ -63,17 +63,9 @@ view lift context model =
         session =
             context.session
     in
-    div [ class "settings-page" ]
-        [ div [ class "container page" ]
-            [ div [ class "row" ]
-                [ div [ class "col-md-6 offset-md-3 col-xs-12" ]
-                    [ h1 [ class "text-xs-center" ] [ text "Your Settings" ]
-                    , Form.viewErrors model.errors
-                    , viewForm lift context model
-                    ]
-                ]
-            ]
-        ]
+    --                 , Form.viewErrors model.errors
+    --                 , viewForm lift context model
+    viewForm lift context model
 
 
 viewForm : (Msg m -> m) -> Context m -> Model m -> Html m
@@ -81,6 +73,22 @@ viewForm lift context model =
     let
         isLoading =
             context.isLoading
+
+        image =
+            case model.image of
+                Just image_ ->
+                    image_
+
+                Nothing ->
+                    ""
+
+        password =
+            case model.password of
+                Just password_ ->
+                    password_
+
+                Nothing ->
+                    ""
 
         spinner isLoading =
             case isLoading of
@@ -110,25 +118,26 @@ viewForm lift context model =
                         :: css "display" "-webkit-box"
                         :: css "display" "-ms-flexbox"
                         :: css "display" "flex"
-                        :: css "-webkit-box-orient" "horizontal"
-                        :: css "-webkit-box-direction" "normal"
-                        :: css "-ms-flex-flow" "row nowrap"
-                        :: css "flex-flow" "row nowrap"
+                        -- :: css "-webkit-box-orient" "horizontal"
+                        -- :: css "-webkit-box-direction" "normal"
+                        -- :: css "-ms-flex-flow" "row nowrap"
+                        -- :: css "flex-flow" "row nowrap"
                         :: css "-webkit-box-align" "center"
                         :: css "-ms-flex-align" "center"
                         :: css "align-items" "center"
                         :: css "-webkit-box-pack" "center"
                         :: css "-ms-flex-pack" "center"
                         :: css "justify-content" "center"
-                        -- :: css "height" "360px"
-                        :: css "min-height" "360px"
+                        -- -- :: css "height" "360px"
+                        -- :: css "min-height" "360px"
                         :: [ css "background-color" "rgba(0, 0, 0, 0.05)" ]
                     )
                 )
                 [ styled Html.div
-                    [ css "width" "360px"
+                    [ css "width" "480px"
                     ]
                     [ spinner isLoading
+                    , Html.br [] []
                     , Html.div
                         []
                         [ Textfield.view (lift << Mdc)
@@ -136,13 +145,14 @@ viewForm lift context model =
                             model.mdc
                             [ Textfield.label "URL of profile picture"
                             , Options.onInput (lift << SetImage)
+                            , Textfield.value image
                             ]
                             []
                         , Textfield.helperText
-                            [ Textfield.persistent ]
+                            [ Textfield.persistent
+                            ]
                             []
                         ]
-                    , Html.br [] []
                     , Html.div
                         []
                         [ Textfield.view (lift << Mdc)
@@ -158,7 +168,43 @@ viewForm lift context model =
                             ]
                             []
                         ]
-                    , Html.br [] []
+                    , Html.div []
+                        [ Textfield.view (lift << Mdc)
+                            "settings-short-bio"
+                            model.mdc
+                            [ Textfield.label "Short bio"
+                            , Textfield.textarea
+                            , Textfield.rows 8
+                            , Textfield.cols 40
+                            , css "margin-top" "16px"
+                            , Textfield.value model.bio
+                            , Options.onInput (lift << SetBio)
+                            ]
+                            []
+                        ]
+                    , Html.div
+                        []
+                        [ Textfield.view (lift << Mdc)
+                            "settings-email"
+                            model.mdc
+                            [ Textfield.label "Email address"
+                            , Options.onInput (lift << SetEmail)
+                            , Textfield.value model.email
+                            ]
+                            []
+                        ]
+                    , Html.div []
+                        [ Textfield.view (lift << Mdc)
+                            "settings-password"
+                            model.mdc
+                            [ Textfield.password
+                            , Textfield.pattern ".{8,}"
+                            , Textfield.required
+                            , Options.onInput (lift << SetPassword)
+                            , Textfield.value password
+                            ]
+                            []
+                        ]
                     , Button.view (lift << Mdc)
                         "login-submit"
                         model.mdc
@@ -174,50 +220,6 @@ viewForm lift context model =
 
 
 
---     Html.form [ onSubmit (lift SubmitForm) ]
---         [ fieldset []
---             [ Form.input
---                 [ placeholder "URL of profile picture"
---                 , defaultValue (Maybe.withDefault "" model.image)
---                 , onInput (lift << SetImage)
---                 ]
---                 []
---             , Form.input
---                 [ class "form-control-lg"
---                 , placeholder "Username"
---                 , defaultValue model.username
---                 , onInput (lift << SetUsername)
---                 ]
---                 []
---             , Form.textarea
---                 [ class "form-control-lg"
---                 , placeholder "Short bio about you"
---                 , attribute "rows" "8"
---                 , defaultValue model.bio
---                 , onInput (lift << SetBio)
---                 ]
---                 []
---             , Form.input
---                 [ class "form-control-lg"
---                 , placeholder "Email"
---                 , defaultValue model.email
---                 , onInput (lift << SetEmail)
---                 ]
---                 []
---             , Form.password
---                 [ class "form-control-lg"
---                 , placeholder "Password"
---                 , defaultValue (Maybe.withDefault "" model.password)
---                 , onInput (lift << SetPassword)
---                 ]
---                 []
---             , button
---                 [ class "btn btn-lg btn-primary pull-xs-right" ]
---                 [ text "Update Settings" ]
---             ]
---         ]
---     ]
--- ]
 -- UPDATE --
 
 
@@ -237,9 +239,14 @@ type ExternalMsg
     | SetUser User
 
 
-update : (Msg m -> m) -> Session -> Msg m -> Model m -> ( ( Model m, Cmd m ), ExternalMsg )
-update lift session msg model =
-    case msg of
+
+-- update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( Model m, Cmd m )
+-- update lift msg session model =
+
+
+update : (Msg m -> m) -> Msg m -> Session -> Model m -> ( ( Model m, Cmd m ), ExternalMsg )
+update lift msg session model =
+    case Debug.log "Settings.update msg" msg of
         Mdc msg_ ->
             ( Material.update (lift << Mdc) msg_ model, NoOp )
 

@@ -275,6 +275,31 @@ update msg model =
         ( ProfileLoaded username (Err error), _ ) ->
             ( { model | pageState = Loaded (Errored error) }, Cmd.none )
 
+        ( SettingsMsg msg_, Settings model_ ) ->
+            let
+                ( ( settings, effects ), msgFromPage ) =
+                    Pages.Settings.update SettingsMsg msg_ model.session model_
+
+                newModel =
+                    case msgFromPage of
+                        Pages.Settings.NoOp ->
+                            model
+
+                        Pages.Settings.SetUser user ->
+                            { model | session = { user = Just user } }
+            in
+            ( { model | pageState = Loaded (Settings settings) }, effects )
+
+        ( SettingsLoaded (Ok settings), _ ) ->
+            ( { model
+                | pageState = Loaded (Settings settings)
+              }
+            , Cmd.none
+            )
+
+        ( SettingsLoaded (Err error), _ ) ->
+            ( { model | pageState = Loaded (Errored error) }, Cmd.none )
+
         ( ArticleLoaded (Ok article), _ ) ->
             ( { model | pageState = Loaded Article }, Cmd.none )
 

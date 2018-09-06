@@ -20,3 +20,5 @@ node_modules
 
 elm-mdc.js
 material-components-web.css
+
+tmp/

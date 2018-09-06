@@ -29,6 +29,7 @@ spec:
         app: elm-mdc
         blinkt: show
         blinktColor: "1E160C"
+        tier: frontend
     spec:
       containers:
         - name: elm-mdc
