@@ -19,7 +19,7 @@ apiVersion: extensions/v1beta1
 metadata:
   name: elm-mdc
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: elm-mdc
@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: elm-mdc
-          image: index.docker.io/abennion/elm-mdc:v1
+          image: index.docker.io/abennion/elm-mdc:v4
           ports:
             - containerPort: 80
           imagePullPolicy: Always
